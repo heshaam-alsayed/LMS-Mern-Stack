@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Question Answered</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .header {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .section {
+        margin-bottom: 15px;
+      }
+
+      .label {
+        font-weight: bold;
+        color: #555;
+      }
+
+      .box {
+        background: #f9f9f9;
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 5px;
+      }
+
+      .answer {
+        background: #e6ffed;
+        border-left: 4px solid #28a745;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 5px;
+      }
+
+      .footer {
+        margin-top: 20px;
+        font-size: 12px;
+        color: #888;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        Hi <%= name %>, your question has been answered 🎉
+      </div>
+
+      <!-- Course Info -->
+      <div class="section">
+        <div class="label">Course:</div>
+        <div class="box"><%= courseTitle %></div>
+      </div>
+
+      <div class="section">
+        <div class="label">Lesson / Content:</div>
+        <div class="box"><%= contentTitle %></div>
+      </div>
+
+      <!-- Question -->
+      <div class="section">
+        <div class="label">Your Question:</div>
+        <div class="box"><%= question %></div>
+      </div>
+
+      <!-- Answer -->
+      <div class="section">
+        <div class="label">Answer:</div>
+        <div class="answer"><%= answer %></div>
+      </div>
+
+      <div class="footer">
+        This is an automated notification from your learning platform.
+      </div>
+    </div>
+  </body>
+</html>
