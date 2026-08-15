@@ -27,13 +27,13 @@ export const isAuthenticated = async (
     ) as IDecoded;
 
     if (!decoded?.id) {
-      return next(new AppError("Invalid token", 401));
+      return next(new AppError("Invalid token please login again", 401));
     }
 
     const session = await redis.get(decoded.id);
 
     if (!session) {
-      return next(new AppError("Session expired", 401));
+      return next(new AppError("Session expired please login again", 401));
     }
 
     req.user = JSON.parse(session);

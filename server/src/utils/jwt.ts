@@ -1,7 +1,6 @@
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import { IRegistrationBody, IUser } from "../interfaces/userInterface";
 import AppError from "./AppError";
-import { Response } from "express";
 import redis from "./redis";
 import { StringValue } from "ms";
 
@@ -50,7 +49,7 @@ export const verifyActivationToken = (
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET as string,
+      process.env.JWT_SECRET!,
     ) as IJwtPayload;
 
     if (!decoded?.activationCode) {
@@ -63,6 +62,10 @@ export const verifyActivationToken = (
 
     return decoded.user;
   } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
+
     throw new AppError("Token is invalid or expired", 400);
   }
 };
@@ -77,7 +80,7 @@ export const refreshExpireDays = parseInt(
 // cookies config
 export const accessCookieOptions: ITokenOptions = {
   expires: new Date(Date.now() + accessExpireMin * 60 * 1000),
-  maxAge: accessExpireMin * 60 * 1000,
+  maxAge: accessExpireMin * 60 * 1000, 
   httpOnly: true,
   sameSite: "lax",
 };
@@ -90,7 +93,7 @@ export const refreshCookieOptions: ITokenOptions = {
 };
 
 // SEND TOKENS
-export const sendToken = async (user: IUser, res: Response) => {
+export const sendToken = async (user: IUser) => {
   const accessToken = user.SignAccessToken();
   const refreshToken = user.SignRefreshToken();
 
@@ -102,10 +105,7 @@ export const sendToken = async (user: IUser, res: Response) => {
     refreshExpireDays * 24 * 60 * 60,
   );
 
-  res.cookie("access_token", accessToken, accessCookieOptions);
-  res.cookie("refresh_token", refreshToken, refreshCookieOptions);
-
-  return { accessToken, refreshToken };
+  return { accessToken, refreshToken }; 
 };
 
 // REFRESH FLOW
@@ -130,21 +130,22 @@ export const handleRefreshAccessToken = async (token: string) => {
   }
 
   const user = JSON.parse(session);
+  const userId = user._id?.toString() ?? user.id;
 
   const accessToken = jwt.sign(
-    { id: user.id },
+    { id: userId , role: user.role},
     process.env.ACCESS_TOKEN_SECRET as Secret,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRE as StringValue },
   );
 
   const newRefreshToken = jwt.sign(
-    { id: user.id },
+    { id: userId , role: user.role},
     process.env.REFRESH_TOKEN_SECRET as Secret,
     { expiresIn: process.env.REFRESH_TOKEN_EXPIRE as StringValue },
   );
 
   await redis.set(
-    user.id,
+    userId,
     JSON.stringify(user),
     "EX",
     refreshExpireDays * 24 * 60 * 60,

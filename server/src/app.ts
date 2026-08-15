@@ -20,7 +20,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
 
 //cors middleware
-const allowedOrigins = process.env.ORIGIN;
+const allowedOrigins = process.env.ORIGIN?.split(",");
 app.use(
   cors({
     origin: allowedOrigins,

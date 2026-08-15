@@ -25,7 +25,12 @@ const sendEmail = async (options: IEmailOptions): Promise<void> => {
     });
 
     // 2. build template path
-    const templatePath = path.join(__dirname, "../mails", options.template);
+    const templatePath = path.join(
+      process.cwd(),
+      "src",
+      "mails",
+      options.template,
+    );
     console.log(templatePath);
 
     // 3. render ejs -> html

@@ -1,10 +1,9 @@
 import { IUpdateUserInfo } from "../interfaces/userInterface";
 import UserModel from "../models/user.model";
 
-export const getUserById = async (userId: string) => {
-  return await UserModel.findById(userId).select("+password");
+const getUserById = (id: string) => {
+  return UserModel.findById(id).select("+password");
 };
-
 export const getUserByEmail = async (email: string) => {
   return await UserModel.findOne({ email });
 };

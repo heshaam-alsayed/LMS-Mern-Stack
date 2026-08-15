@@ -5,6 +5,7 @@ import {
   addReplyReview,
   addReviewCourse,
   createCourse,
+  generateVideoUrl,
   getAllCourses,
   getAllCoursesPurchases,
   getContentCourseByUser,
@@ -75,6 +76,7 @@ router.get(
   getTopSellingCourses,
 );
 
+router.post("/getVdoCipherOTP", generateVideoUrl);
 
 router.get("/", isAuthenticated, authorizeRoles("admin"), getCourses);
 export default router;

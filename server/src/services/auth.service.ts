@@ -20,17 +20,13 @@ export const register = async (body: IRegistrationBody) => {
     throw new AppError("name , email , password are required", 404);
   }
 
-  // =========================
-  // CHECK USER EXISTENCE
-  // =========================
+ 
   const isExistingUser = await authRepository.getUserByEmail(body.email);
-
+  console.log(isExistingUser);
   if (isExistingUser) {
     throw new AppError("Email already exists", 400);
   }
-  // =========================
-  // CREATE ACTIVATION TOKEN
-  // =========================
+  
   const user: IRegistrationBody = {
     name,
     email,
@@ -38,17 +34,13 @@ export const register = async (body: IRegistrationBody) => {
   };
   const { activationCode, token } = createActivationToken(user);
 
-  // =========================
-  // EMAIL DATA
-  // =========================
+
   const emailData = {
     userName: user.name,
     activationCode,
   };
 
-  // =========================
-  // SEND EMAIL
-  // =========================
+  
   await sendEmail({
     email: user.email,
     subject: "Activate Your Account",
@@ -84,35 +76,37 @@ export const login = async (body: ILoginRequest) => {
   }
 
   const user = await authRepository.findUserByEmail(email);
-
+  console.log(user);
+  console.log(user?.role);
   if (!user) {
-    throw new AppError("Invalid Email", 400);
+    throw new AppError("Invalid Email choose another", 400);
   }
 
   const isPasswordMatch = await user.comparePassword(password);
 
   if (!isPasswordMatch) {
-    throw new AppError("Invalid Password", 400);
+    throw new AppError("Invalid Email or Password", 400);
   }
 
   return user;
 };
 
-
-
-export const handleSocialAuth = async (
-  body: ISocialAuthBody,
-  res: Response,
-) => {
+export const handleSocialAuth = async (body: ISocialAuthBody) => {
   const { email } = body;
   let user = await authRepository.findUserByEmail(email);
+  console.log(user);
+  console.log(user?.role);
   if (!user) {
     user = await authRepository.createSocialUser(body);
   }
-  await sendToken(user, res);
-  return res;
-};
+  const { accessToken, refreshToken } = await sendToken(user);
 
+  return {
+    user,
+    accessToken,
+    refreshToken,
+  };
+};
 
 export default {
   register,

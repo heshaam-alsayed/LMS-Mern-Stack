@@ -9,19 +9,23 @@ const createUser = async (userData: IRegistrationBody) => {
 };
 
 const createSocialUser = async (userData: ISocialAuthBody) => {
-  return await UserModel.create({
+  console.log(userData);
+  const user = await UserModel.create({
     ...userData,
     isVerified: true,
   });
+  return user;
 };
 
 const getUserByEmail = async (email: string) => {
-  return await UserModel.findOne({ email });
+  const user = await UserModel.findOne({ email }).select("-password");
+  return user;
 };
 
 const findUserByEmail = async (email: string) => {
   return await UserModel.findOne({ email }).select("+password");
 };
+
 export const getUserById = async (userId: string) => {
   return await UserModel.findById(userId);
 };

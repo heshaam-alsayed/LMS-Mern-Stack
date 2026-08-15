@@ -1,10 +1,16 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, response, Response } from "express";
 import courseService from "../services/course.service";
 import { Types } from "mongoose";
-import { IAddQuestionData, IAddReplyReviewData, IAddReviewData, IAnswerData } from "../interfaces/courseInterface";
+import {
+  IAddQuestionData,
+  IAddReplyReviewData,
+  IAddReviewData,
+  IAnswerData,
+} from "../interfaces/courseInterface";
 import { IUser } from "../interfaces/userInterface";
 import { getMonthlyAnalytics } from "../utils/analytics";
 import CourseModel from "../models/course.model";
+import axios from "axios";
 
 export const createCourse = async (
   req: Request,
@@ -117,11 +123,13 @@ export const addQuestion = async (
 };
 
 export const addAnswer = async (
-  req: Request, res: Response, next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
   try {
     const data: IAnswerData = req.body;
-    const userData: IUser = req?.user as IUser; 
+    const userData: IUser = req?.user as IUser;
 
     const course = await courseService.addAnswer(data, userData);
     res.status(200).json({
@@ -131,7 +139,7 @@ export const addAnswer = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const addReviewCourse = async (
   req: Request,
@@ -139,12 +147,17 @@ export const addReviewCourse = async (
   next: NextFunction,
 ) => {
   try {
-    const data:IAddReviewData = req.body; 
-    const userData: IUser = req?.user as IUser; 
+    const data: IAddReviewData = req.body;
+    const userData: IUser = req?.user as IUser;
     const coursesUserList: Types.ObjectId[] = req.user?.courses || [];
     const courseId = req.params.id.toString();
 
-    const course = await courseService.addReviewCourse(courseId, data, coursesUserList, userData);
+    const course = await courseService.addReviewCourse(
+      courseId,
+      data,
+      coursesUserList,
+      userData,
+    );
     res.status(200).json({
       success: true,
       course,
@@ -152,7 +165,7 @@ export const addReviewCourse = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const addReplyReview = async (
   req: Request,
@@ -161,7 +174,7 @@ export const addReplyReview = async (
 ) => {
   try {
     const data: IAddReplyReviewData = req.body;
-    const userData: IUser = req?.user as IUser; 
+    const userData: IUser = req?.user as IUser;
     const course = await courseService.addReplyReview(data, userData);
     res.status(200).json({
       success: true,
@@ -170,7 +183,7 @@ export const addReplyReview = async (
   } catch (error) {
     next(error);
   }
-}
+};
 
 export const getCourses = async (
   req: Request,
@@ -187,8 +200,7 @@ export const getCourses = async (
   } catch (error) {
     next(error);
   }
-}
-
+};
 
 export const getMonthlyCoursesAnalytics = async (
   req: Request,
@@ -226,7 +238,6 @@ export const getCoursePurchases = async (
   }
 };
 
-
 export const getAllCoursesPurchases = async (
   req: Request,
   res: Response,
@@ -249,13 +260,39 @@ export const getTopSellingCourses = async (
   next: NextFunction,
 ) => {
   try {
-    const limit = Number(req.query.limit) 
-     
+    const limit = Number(req.query.limit);
+
     const courses = await courseService.getTopSellingCourses(limit);
     res.status(200).json({
       success: true,
       courses,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const generateVideoUrl = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { videoId } = req.body;
+    console.log(videoId);
+    const response = await axios.post(
+      `https://dev.vdocipher.com/api/videos/${videoId}/otp`,
+      { ttl: 300 },
+      {
+        headers: {
+          Accept: "Application/json",
+          "Content-Type": "Application/json",
+          Authorization: `Apisecret ${process.env.VIDEO_CIPHER_API_SECRET}`,
+        },
+      },
+    );
+    console.log(response.data);
+    res.json(response.data);
   } catch (error) {
     next(error);
   }

@@ -31,20 +31,19 @@ export const getMe = async (userId: string) => {
     throw new AppError("User id is required", 400);
   }
 
-  // 1️⃣ Try Redis first
   const cachedUser = await redis.get(userId);
+  console.log("Cached user for ID", userId, ":", cachedUser);
   if (cachedUser) {
     return JSON.parse(cachedUser);
   }
 
-  // 2️⃣ Fallback to DB
+  
   const user = await userRepository.getUserById(userId);
 
   if (!user) {
     throw new AppError("User not found", 404);
   }
   user.password = undefined as any;
-  // 3️⃣ Save to Redis again (cache warm)
   await redis.set(
     userId,
     JSON.stringify(user),
@@ -55,20 +54,13 @@ export const getMe = async (userId: string) => {
 };
 
 export const updateUserInfo = async (userId: string, body: IUpdateUserInfo) => {
-  const { email, name } = body;
+  const { name } = body;
   if (!userId) {
     throw new AppError("User id is required", 400);
   }
   let user = await userRepository.getUserById(userId);
   if (!user) {
     throw new AppError("User not found", 404);
-  }
-  if (email && user) {
-    const isExistEmail = await userRepository.getUserByEmail(email);
-    if (isExistEmail) {
-      throw new AppError("Email already exists", 400);
-    }
-    user.email = email;
   }
   if (name && user) {
     user.name = name;
@@ -86,14 +78,16 @@ export const updatePassword = async (userId: string, body: IUpdatePassword) => {
     throw new AppError("Old password and new password are required", 400);
   }
   const user = await userRepository.getUserById(userId);
-
   if (!user) {
     throw new AppError("User not found", 404);
   }
 
+  if (!user.password) {
+    throw new AppError("This account was created with provider.", 400);
+  }
   // check old password
   const isMatch = await user.comparePassword(oldPassword);
-
+  console.log("Password match result for user:", userId, "isMatch:", isMatch);
   if (!isMatch) {
     throw new AppError("Old password is incorrect", 400);
   }

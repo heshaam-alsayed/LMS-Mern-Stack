@@ -14,11 +14,12 @@ export const registrationUser = async (
   next: NextFunction,
 ) => {
   try {
-    const token = await authService.register(req.body);
+    const verificationToken = await authService.register(req.body);
+
     res.status(201).json({
       success: true,
-      message: "Check Your email to verification Account",
-      token,
+      message: "Check your email to verify your account",
+      verificationToken,
     });
   } catch (error) {
     next(error);
@@ -31,9 +32,11 @@ export const activateUser = async (
   next: NextFunction,
 ) => {
   try {
+    console.log(req.body);
     await authService.activateUser(req.body);
     res.status(201).json({
       success: true,
+      message: "Email Activation successfully",
     });
   } catch (error) {
     next(error);
@@ -48,11 +51,14 @@ export const login = async (
   try {
     const user = await authService.login(req.body);
 
-    await sendToken(user, res);
+    const { accessToken, refreshToken } = await sendToken(user);
+    const { password, ...userWithoutPassword } = user.toObject();
 
+    res.cookie("access_token", accessToken, accessCookieOptions);
+    res.cookie("refresh_token", refreshToken, refreshCookieOptions);
     res.status(200).json({
       success: true,
-      user,
+      user: userWithoutPassword,
     });
   } catch (err) {
     next(err);
@@ -85,22 +91,18 @@ export const refreshAccessToken = async (
 ) => {
   try {
     const oldRefreshToken = req.cookies.refresh_token;
-
     const { accessToken, newRefreshToken } =
       await handleRefreshAccessToken(oldRefreshToken);
-
-    res.cookie("access_token", accessToken, accessCookieOptions);
-    res.cookie("refresh_token", newRefreshToken, refreshCookieOptions);
 
     res.status(200).json({
       success: true,
       accessToken,
+      refreshToken: newRefreshToken,
     });
   } catch (err) {
     next(err);
   }
 };
-
 
 export const socialAuth = async (
   req: Request,
@@ -108,15 +110,16 @@ export const socialAuth = async (
   next: NextFunction,
 ) => {
   try {
-    const user = await authService.handleSocialAuth(req.body, res);
+    console.log("socialAuth called with body:", req.body);
+    const { user, accessToken, refreshToken } =
+      await authService.handleSocialAuth(req.body);
 
     res.status(200).json({
-      success: true,
       user,
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
     next(error);
   }
 };
-
-

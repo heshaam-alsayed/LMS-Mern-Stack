@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema<IUser>(
       required: [true, "Name is required"],
       trim: true,
       minlength: [3, "Name must be at least 3 characters"],
-      maxlength: [20, "Name must not exceed 50 characters"],
+      maxlength: [20, "Name must not exceed 20 characters"],
     },
     email: {
       type: String,
@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema<IUser>(
       type: Boolean,
       default: false,
     },
-    
+
     isVerified: {
       type: Boolean,
       default: false,
@@ -80,13 +80,16 @@ userSchema.pre("save", async function () {
 userSchema.methods.comparePassword = async function (
   enteredPassword: string,
 ): Promise<boolean> {
+  if (!this.password) {
+    throw new Error("Password is not set for this user.");
+  }
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
 // ✅ ACCESS TOKEN
 userSchema.methods.SignAccessToken = function () {
   return jwt.sign(
-    { id: this._id.toString() },
+    { id: this._id.toString(), role: this.role },
     process.env.ACCESS_TOKEN_SECRET as Secret,
     {
       expiresIn: process.env.ACCESS_TOKEN_EXPIRE as StringValue,
@@ -97,7 +100,7 @@ userSchema.methods.SignAccessToken = function () {
 // ✅ REFRESH TOKEN
 userSchema.methods.SignRefreshToken = function () {
   return jwt.sign(
-    { id: this._id.toString() },
+    { id: this._id.toString(), role: this.role },
     process.env.REFRESH_TOKEN_SECRET as Secret,
     {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRE as StringValue,
