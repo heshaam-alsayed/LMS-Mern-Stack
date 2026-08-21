@@ -1,4 +1,4 @@
-import { IUpdateUserInfo } from "../interfaces/userInterface";
+import { ICreateNewMember, IUpdateUserInfo } from "../interfaces/userInterface";
 import UserModel from "../models/user.model";
 
 const getUserById = (id: string) => {
@@ -6,6 +6,13 @@ const getUserById = (id: string) => {
 };
 export const getUserByEmail = async (email: string) => {
   return await UserModel.findOne({ email });
+};
+
+export const createUser = async (userData: any) => {
+  return await UserModel.create(userData);
+};
+export const deleteUserById = async (userId: string) => {
+  return await UserModel.findByIdAndDelete(userId);
 };
 
 export const updateUserInfo = async (
@@ -35,6 +42,8 @@ const userRepository = {
   getUserByEmail,
   getUsers,
   toggleUserDeleted,
+  createUser,
+  
 };
 
 export default userRepository;

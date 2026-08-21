@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import userService from "../services/user.service";
 import { getMonthlyAnalytics } from "../utils/analytics";
 import UserModel from "../models/user.model";
+import ApiFeatures from "../utils/apiFeatures";
 
 export const getUserById = async (
   req: Request,
@@ -16,6 +17,22 @@ export const getUserById = async (
     res.status(200).json({
       success: true,
       user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const body = req.body;
+    await userService.createUser(body);
+    res.status(200).json({
+      success: true,
     });
   } catch (error) {
     next(error);
@@ -106,10 +123,24 @@ export const getUsers = async (
   next: NextFunction,
 ) => {
   try {
-    const users = await userService.getUsers();
+    const features = new ApiFeatures(
+      UserModel.find({ isDeleted: false }).select("-password"),
+      req.query,
+    )
+      .filter(["role", "isVerified"])
+      .search(["name", "email"])
+      .sort(["createdAt", "name"]);
+
+    const total = await features.query.clone().countDocuments();
+
+    features.paginate();
+
+    const users = await features.query;
+    const pagination = features.getPagination(total);
     res.status(200).json({
       success: true,
       result: users.length,
+      pagination,
       users,
     });
   } catch (error) {

@@ -11,6 +11,8 @@ import { IUser } from "../interfaces/userInterface";
 import { getMonthlyAnalytics } from "../utils/analytics";
 import CourseModel from "../models/course.model";
 import axios from "axios";
+import ApiFeatures from "../utils/apiFeatures";
+import AppError from "../utils/AppError";
 
 export const createCourse = async (
   req: Request,
@@ -191,10 +193,32 @@ export const getCourses = async (
   next: NextFunction,
 ) => {
   try {
-    const courses = await courseService.getCourses();
+    console.log(req.query);
+    const features = new ApiFeatures(
+      CourseModel.find().select(
+        "name description price estimatePrice thumbnail level ratings purchased createdAt updatedAt",
+      ),
+      req.query,
+    )
+      .filter(["price", "estimatePrice", "level", "ratings", "purchased"])
+      .search(["name", "description", "tags"])
+      .sort(["price", "estimatePrice", "ratings", "purchased", "createdAt"]);
+
+    // Get total BEFORE pagination
+    const total = await features.query.clone().countDocuments();
+
+    // Apply pagination
+    features.paginate();
+
+    // Get courses
+    const courses = await features.query;
+
+    const pagination = features.getPagination(total);
+
     res.status(200).json({
       success: true,
       result: courses.length,
+      pagination,
       courses,
     });
   } catch (error) {

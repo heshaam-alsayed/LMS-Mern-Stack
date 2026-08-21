@@ -20,12 +20,15 @@ import { authorizeRoles, isAuthenticated } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
+router.get("/", isAuthenticated, authorizeRoles("admin"), getCourses);
+
 router.post(
   "/create-course",
   isAuthenticated,
   authorizeRoles("admin"),
   createCourse,
 );
+
 
 router.patch(
   "/edit-course/:id",
@@ -78,5 +81,4 @@ router.get(
 
 router.post("/getVdoCipherOTP", generateVideoUrl);
 
-router.get("/", isAuthenticated, authorizeRoles("admin"), getCourses);
 export default router;

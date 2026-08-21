@@ -20,7 +20,6 @@ export const register = async (body: IRegistrationBody) => {
     throw new AppError("name , email , password are required", 404);
   }
 
- 
   const isExistingUser = await authRepository.getUserByEmail(body.email);
   console.log(isExistingUser);
   if (isExistingUser) {

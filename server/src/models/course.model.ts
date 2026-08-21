@@ -115,12 +115,10 @@ const courseDataSchema = new Schema<ICourseData>(
 
     videoLength: {
       type: Number,
-      required: true,
     },
 
     videoPlayer: {
       type: String,
-      required: true,
     },
 
     links: [linkSchema],

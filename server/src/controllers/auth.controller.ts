@@ -84,6 +84,47 @@ export const logout = async (
   }
 };
 
+// export const refreshAccessToken = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction,
+// ) => {
+//   try {
+//     const oldRefreshToken = req.cookies.refresh_token;
+//     console.log(oldRefreshToken);
+//     const { accessToken, newRefreshToken } =
+//       await handleRefreshAccessToken(oldRefreshToken);
+//     console.log(accessToken, newRefreshToken);
+//     const accessExpireMin = Number(process.env.ACCESS_TOKEN_EXPIRE);
+
+//     const refreshExpireDays = Number(process.env.REFRESH_TOKEN_EXPIRE);
+
+//     res.cookie("access_token", accessToken, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production",
+//       sameSite: "lax",
+//       maxAge: accessExpireMin * 60 * 1000,
+//       path: "/",
+//     });
+
+//     res.cookie("refresh_token", newRefreshToken, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production",
+//       sameSite: "lax",
+//       maxAge: refreshExpireDays * 24 * 60 * 60 * 1000,
+//       path: "/",
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       accessToken,
+//       refreshToken: newRefreshToken,
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 export const refreshAccessToken = async (
   req: Request,
   res: Response,
@@ -91,19 +132,41 @@ export const refreshAccessToken = async (
 ) => {
   try {
     const oldRefreshToken = req.cookies.refresh_token;
+
+    console.log("Refresh token exists:", !!oldRefreshToken);
+    console.log("oldRefreshToken=>>>>", oldRefreshToken);
     const { accessToken, newRefreshToken } =
       await handleRefreshAccessToken(oldRefreshToken);
 
-    res.status(200).json({
+    console.log("New access token generated");
+    console.log("accessToken=>>>", accessToken);
+    console.log("NewRefreshToken=>>>", newRefreshToken);
+    res.cookie("access_token", accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 5 * 60 * 1000,
+      path: "/",
+    });
+
+    res.cookie("refresh_token", newRefreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: "/",
+    });
+
+    return res.status(200).json({
       success: true,
       accessToken,
       refreshToken: newRefreshToken,
     });
   } catch (err) {
+    console.error("REFRESH ERROR:", err);
     next(err);
   }
 };
-
 export const socialAuth = async (
   req: Request,
   res: Response,

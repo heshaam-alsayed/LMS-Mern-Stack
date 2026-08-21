@@ -28,7 +28,6 @@ export interface IRegistrationBody {
   role?: "user" | "instructor" | "admin"; // optional, defaults to "student"
 }
 
-
 export interface IActivationRequest {
   activation_token: string;
   activation_code: string;
@@ -56,4 +55,14 @@ export interface IUpdatePassword {
   newPassword: string;
 }
 
+export interface ICreateNewMember {
+  email: string;
+  name: string;
+  password: string;
+  role: string;
+  isVerified: boolean;
+}
 
+export interface IUpdateRole {
+  role: "admin" | "instructor" | "user";
+}

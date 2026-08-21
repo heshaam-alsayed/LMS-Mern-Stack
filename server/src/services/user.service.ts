@@ -1,4 +1,9 @@
-import { IUpdatePassword, IUpdateUserInfo } from "../interfaces/userInterface";
+import {
+  ICreateNewMember,
+  IUpdatePassword,
+  IUpdateRole,
+  IUpdateUserInfo,
+} from "../interfaces/userInterface";
 import userRepository from "../repositories/user.repository";
 import AppError from "../utils/AppError";
 import redis from "../utils/redis";
@@ -26,6 +31,26 @@ export const getUserById = async (userId: string) => {
   return user;
 };
 
+export const createUser = async (data: ICreateNewMember) => {
+  const { name, email, password, role } = data;
+  if (!name || !email || !password) {
+    throw new AppError("name , email , password are required", 404);
+  }
+
+  const isExistingUser = await userRepository.getUserByEmail(email);
+  if (isExistingUser) {
+    throw new AppError("Email already exists", 400);
+  }
+
+  const user: ICreateNewMember = {
+    name,
+    email,
+    password,
+    role,
+    isVerified: true,
+  };
+  await userRepository.createUser(user);
+};
 export const getMe = async (userId: string) => {
   if (!userId) {
     throw new AppError("User id is required", 400);
@@ -37,7 +62,6 @@ export const getMe = async (userId: string) => {
     return JSON.parse(cachedUser);
   }
 
-  
   const user = await userRepository.getUserById(userId);
 
   if (!user) {
@@ -52,6 +76,8 @@ export const getMe = async (userId: string) => {
   );
   return user;
 };
+
+
 
 export const updateUserInfo = async (userId: string, body: IUpdateUserInfo) => {
   const { name } = body;
@@ -71,6 +97,8 @@ export const updateUserInfo = async (userId: string, body: IUpdateUserInfo) => {
 
   return updatedUser;
 };
+
+
 
 export const updatePassword = async (userId: string, body: IUpdatePassword) => {
   const { oldPassword, newPassword } = body;
@@ -202,5 +230,6 @@ const userService = {
   getUsers,
   changeRole,
   toggleUserDeleted,
+  createUser,
 };
 export default userService;

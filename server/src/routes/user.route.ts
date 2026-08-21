@@ -1,6 +1,7 @@
 import express from "express";
 import {
   changeRole,
+  createUser,
   getMe,
   getMonthlyUsersAnalytics,
   getUserById,
@@ -41,5 +42,11 @@ router.get(
 
 router.get("/:id", getUserById);
 router.get("/", isAuthenticated, authorizeRoles("admin"), getUsers);
+router.post(
+  "/create-member",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  createUser,
+);
 
 export default router;
