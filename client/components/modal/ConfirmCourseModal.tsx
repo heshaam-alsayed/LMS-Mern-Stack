@@ -7,21 +7,33 @@ import { Check, Loader2, X } from "lucide-react";
 type Props = {
   open: boolean;
   courseData: CourseData | null;
-  isCreating: boolean;
+  isCreating?: boolean;
+  isUpdating?: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  isEdit: boolean;
 };
 
-export default function CreateCourseModal({
+export default function ConfirmCourseModal({
   open,
   courseData,
-  isCreating,
+  isCreating = false,
+  isUpdating = false,
   onClose,
   onConfirm,
+  isEdit,
 }: Props) {
   const price = courseData?.price ?? 0;
-  useModalBehavior({ isOpen: open, onClose: onClose });
+
+  const isSubmitting = isCreating || isUpdating;
+
+  useModalBehavior({
+    isOpen: open,
+    onClose,
+  });
+
   if (!open) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       {/* Overlay */}
@@ -32,7 +44,7 @@ export default function CreateCourseModal({
           backdrop-blur-sm
           dark:bg-background/70
         "
-        onClick={!isCreating ? onClose : undefined}
+        onClick={!isSubmitting ? onClose : undefined}
       />
 
       {/* Modal */}
@@ -51,18 +63,22 @@ export default function CreateCourseModal({
         <div className="flex items-start justify-between px-6 pt-6">
           <div className="pr-6">
             <h2 className="text-lg font-semibold tracking-tight text-foreground">
-              Ready to create your course?
+              {isEdit
+                ? "Ready to update your course?"
+                : "Ready to create your course?"}
             </h2>
 
             <p className="mt-1.5 text-sm leading-5 text-muted-foreground">
-              Review the information below before creating your course.
+              {isEdit
+                ? "Review the information below before updating your course."
+                : "Review the information below before creating your course."}
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            disabled={isCreating}
+            disabled={isSubmitting}
             aria-label="Close modal"
             className="
               rounded-lg
@@ -144,12 +160,13 @@ export default function CreateCourseModal({
 
             <div>
               <p className="text-sm font-semibold text-foreground">
-                Ready to create
+                {isEdit ? "Ready to update" : "Ready to create"}
               </p>
 
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                Your course information looks good. You can continue managing
-                the course after it has been created.
+                {isEdit
+                  ? "Your changes are ready. You can continue managing the course after it has been updated."
+                  : "Your course information looks good. You can continue managing the course after it has been created."}
               </p>
             </div>
           </div>
@@ -167,7 +184,7 @@ export default function CreateCourseModal({
           <button
             type="button"
             onClick={onClose}
-            disabled={isCreating}
+            disabled={isSubmitting}
             className="
               rounded-lg
               px-4 py-2.5
@@ -186,16 +203,17 @@ export default function CreateCourseModal({
             Cancel
           </button>
 
-          {/* Create */}
+          {/* Create / Update */}
           <button
             type="button"
             onClick={onConfirm}
-            disabled={isCreating}
+            disabled={isSubmitting}
             className="
               group
               inline-flex
               min-w-[145px]
-              items-center justify-center
+              items-center
+              justify-center
               gap-2
               rounded-lg
               bg-primary
@@ -217,15 +235,15 @@ export default function CreateCourseModal({
               focus-visible:ring-offset-2
               focus-visible:ring-offset-background
             ">
-            {isCreating ? (
+            {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Creating...
+                {isEdit ? "Updating..." : "Creating..."}
               </>
             ) : (
               <>
                 <Check className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                Create Course
+                {isEdit ? "Update Course" : "Create Course"}
               </>
             )}
           </button>

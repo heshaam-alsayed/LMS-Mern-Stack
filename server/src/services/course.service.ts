@@ -40,20 +40,48 @@ export const updateCourse = async (courseId: string, courseData: any) => {
 
   const thumbnail = courseData.thumbnail;
 
-  if (thumbnail) {
-    if (course.thumbnail?.public_Id) {
-      await cloudinary.v2.uploader.destroy(course.thumbnail?.public_Id);
-    }
+  // Check if thumbnail is a NEW image
+  const isNewThumbnail =
+    typeof thumbnail === "string" &&
+    thumbnail.length > 0 &&
+    !thumbnail.startsWith("https://res.cloudinary.com/");
+
+  if (isNewThumbnail) {
+    const oldPublicId = course.thumbnail?.public_Id;
+
+    // Upload new thumbnail first
     const result = await cloudinary.v2.uploader.upload(thumbnail, {
       folder: "courses",
     });
 
+    // Replace thumbnail data with Cloudinary response
     courseData.thumbnail = {
       public_Id: result.public_id,
       url: result.secure_url,
     };
+
+    // Update database first
+    const updatedCourse = await courseRepository.updateCourse(
+      courseId,
+      courseData,
+    );
+
+    // Delete old thumbnail after successful update
+    if (oldPublicId && oldPublicId !== result.public_id) {
+      await cloudinary.v2.uploader.destroy(oldPublicId);
+    }
+
+    return updatedCourse;
   }
 
+  if (
+    typeof thumbnail === "string" &&
+    thumbnail.startsWith("https://res.cloudinary.com/")
+  ) {
+    delete courseData.thumbnail;
+  }
+
+  // No new thumbnail -> keep existing thumbnail
   return await courseRepository.updateCourse(courseId, courseData);
 };
 
@@ -101,6 +129,12 @@ export const getCourseByUser = async (
   return contentCourse;
 };
 
+export const getAdminCourse = async (courseId: string) => {
+  if (!courseId) throw new AppError("Course id is required", 400);
+  const course = await courseRepository.getFullCourseById(courseId);
+  if (!course) throw new AppError("Course id not found", 400);
+  return course;
+};
 export const addQuestion = async (data: IAddQuestionData, userData: IUser) => {
   const { question, contentId, courseId } = data;
   // get course by id
@@ -331,6 +365,7 @@ const courseService = {
   createCourse,
   updateCourse,
   getPublicCourse,
+  getAdminCourse,
   getAllCourses,
   getCourseByUser,
   addQuestion,

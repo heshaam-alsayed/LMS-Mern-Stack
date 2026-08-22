@@ -16,6 +16,7 @@ type Props = {
   setActive: (active: number) => void;
   courseData: CourseData | null;
   onOpen: () => void;
+  isEdit:boolean
 };
 
 export default function CoursePreview({
@@ -23,6 +24,7 @@ export default function CoursePreview({
   setActive,
   courseData,
   onOpen,
+  isEdit
 }: Props) {
   const price = courseData?.price ?? 0;
   const estimatePrice = courseData?.estimatePrice ?? 0;
@@ -69,6 +71,7 @@ export default function CoursePreview({
               active={active}
               setActive={setActive}
               onOpen={onOpen}
+              isEdit={isEdit}
             />
           </>
         )}

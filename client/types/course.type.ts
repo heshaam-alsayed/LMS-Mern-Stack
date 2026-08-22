@@ -1,10 +1,11 @@
+export type CourseLevelType = "" | "beginner" | "intermediate" | "advanced";
 export type CourseInfo = {
   name: string;
   description: string;
-  price: number;
-  estimatePrice: number;
+  price: string;
+  estimatePrice: string;
   tags: string;
-  level: string;
+  level: CourseLevelType;
   demoUrl: string;
   thumbnail: string;
 };
@@ -37,7 +38,7 @@ export type CourseData = {
   price: number;
   estimatePrice: number;
   tags: string;
-  level: string;
+  level: CourseLevelType;
   demoUrl: string;
   thumbnail: string;
   totalVideos: number;
@@ -45,6 +46,33 @@ export type CourseData = {
   prerequisites: CoursePrerequisite[];
   courseData: CourseContentData[];
   createdAt?: string;
+};
+
+/**
+ * Shape returned by GET /admin/course/:id
+ */
+
+export type CourseResponseAdmin = {
+  success: boolean;
+  course: {
+    name: string;
+    description: string;
+    price: number;
+    estimatePrice: number;
+    tags: string;
+    level: CourseLevelType;
+    demoUrl: string;
+
+    thumbnail?: {
+      public_Id?: string;
+      url?: string;
+    };
+
+    benefits: CourseBenefit[];
+    prerequisites: CoursePrerequisite[];
+    courseData: CourseContentData[];
+    createdAt?: string;
+  };
 };
 
 export interface Course {
@@ -63,7 +91,7 @@ export interface Course {
     url?: string;
   };
 
-  level: "beginner" | "intermediate" | "advanced";
+  level: CourseLevelType;
 
   ratings: number;
 

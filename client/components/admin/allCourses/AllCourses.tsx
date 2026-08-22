@@ -1,7 +1,6 @@
 "use client";
 
 import { getAllCourses } from "@/lib/api/getAllCourses";
-import { CoursesResponseAdmin } from "@/types/course.type";
 
 import { useMutation } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
@@ -10,6 +9,7 @@ import { useEffect, useState } from "react";
 
 import CoursesFilter from "./CoursesFilter";
 import CoursesTable from "./CoursesTable";
+import { CoursesResponseAdmin } from "@/types/course.type";
 
 export default function AllCourses() {
   const searchParams = useSearchParams();

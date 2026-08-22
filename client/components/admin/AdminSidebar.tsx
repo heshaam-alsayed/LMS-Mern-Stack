@@ -19,6 +19,7 @@ import {
   ChevronDown,
   ChevronLeft,
   UserCog,
+  Pencil,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -39,79 +40,88 @@ type MenuSection = {
   items: MenuItem[];
 };
 
-const menuSections: MenuSection[] = [
-  {
-    title: "Data",
-    icon: Database,
-    items: [
-      {
-        title: "Users",
-        href: "/admin/users",
-        icon: Users,
-      },
-      {
-        title: "Invoices",
-        href: "/admin/invoices",
-        icon: Receipt,
-      },
-    ],
-  },
-
-  {
-    title: "Controllers",
-    icon: UserCog,
-    items: [
-      {
-        title: "Manage Team",
-        href: "/admin/team",
-        icon: UserCog,
-      },
-    ],
-  },
-
-  {
-    title: "Content",
-    icon: BookOpen,
-    items: [
-      {
-        title: "Create Course",
-        href: "/admin/create-course",
-        icon: PlusCircle,
-      },
-      {
-        title: "Live Courses",
-        href: "/admin/courses",
-        icon: Radio,
-      },
-    ],
-  },
-
-  {
-    title: "Customization",
-    icon: Palette,
-    items: [
-      {
-        title: "Hero",
-        href: "/admin/customization/hero",
-        icon: ImageIcon,
-      },
-      {
-        title: "FAQ",
-        href: "/admin/customization/faq",
-        icon: CircleHelp,
-      },
-      {
-        title: "Categories",
-        href: "/admin/customization/categories",
-        icon: Tags,
-      },
-    ],
-  },
-];
-
 export default function AdminSidebar() {
   const pathname = usePathname();
 
+  const isEditCourse = pathname.startsWith("/admin/edit-course/");
+  const contentItems = [
+    {
+      title: "Create Course",
+      href: "/admin/create-course",
+      icon: PlusCircle,
+    },
+    {
+      title: "Live Courses",
+      href: "/admin/courses",
+      icon: Radio,
+    },
+  ];
+
+  if (isEditCourse) {
+    contentItems.push({
+      title: "Edit Course",
+      href: pathname,
+      icon: Pencil,
+    });
+  }
+  const menuSections: MenuSection[] = [
+    {
+      title: "Data",
+      icon: Database,
+      items: [
+        {
+          title: "Users",
+          href: "/admin/users",
+          icon: Users,
+        },
+        {
+          title: "Invoices",
+          href: "/admin/invoices",
+          icon: Receipt,
+        },
+      ],
+    },
+
+    {
+      title: "Controllers",
+      icon: UserCog,
+      items: [
+        {
+          title: "Manage Team",
+          href: "/admin/team",
+          icon: UserCog,
+        },
+      ],
+    },
+
+    {
+      title: "Content",
+      icon: BookOpen,
+      items: contentItems,
+    },
+
+    {
+      title: "Customization",
+      icon: Palette,
+      items: [
+        {
+          title: "Hero",
+          href: "/admin/customization/hero",
+          icon: ImageIcon,
+        },
+        {
+          title: "FAQ",
+          href: "/admin/customization/faq",
+          icon: CircleHelp,
+        },
+        {
+          title: "Categories",
+          href: "/admin/customization/categories",
+          icon: Tags,
+        },
+      ],
+    },
+  ];
   const [collapsed, setCollapsed] = useState(false);
 
   // Only one section can be open

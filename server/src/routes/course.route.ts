@@ -6,6 +6,7 @@ import {
   addReviewCourse,
   createCourse,
   generateVideoUrl,
+  getAdminCourse,
   getAllCourses,
   getAllCoursesPurchases,
   getContentCourseByUser,
@@ -29,6 +30,7 @@ router.post(
   createCourse,
 );
 
+router.get("/:id", isAuthenticated, authorizeRoles("admin"), getAdminCourse);
 
 router.patch(
   "/edit-course/:id",

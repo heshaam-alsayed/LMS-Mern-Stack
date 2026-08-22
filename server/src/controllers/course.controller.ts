@@ -67,6 +67,22 @@ export const getPublicCourse = async (
   }
 };
 
+export const getAdminCourse = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const courseId = req.params.id.toString();
+    const course = await courseService.getAdminCourse(courseId);
+    res.status(200).json({
+      success: true,
+      course,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 // get all public courses not purchased
 export const getAllCourses = async (
   req: Request,

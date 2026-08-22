@@ -4,9 +4,15 @@ type Props = {
   active: number;
   setActive: (active: number) => void;
   onOpen: () => void;
+  isEdit: boolean;
 };
 
-export default function CourseActions({ active, setActive, onOpen }: Props) {
+export default function CourseActions({
+  active,
+  setActive,
+  onOpen,
+  isEdit,
+}: Props) {
   return (
     <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
       {/* Previous */}
@@ -81,7 +87,7 @@ export default function CourseActions({ active, setActive, onOpen }: Props) {
           focus-visible:ring-primary
           focus-visible:ring-offset-2
         ">
-        <span>Create Course</span>
+        <span>{isEdit ? "Update Course" : "Create Course"}</span>
 
         <Check
           className="

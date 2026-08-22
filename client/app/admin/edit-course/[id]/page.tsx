@@ -1,5 +1,7 @@
-"use client"
+"use client";
+
+import EditCourse from "@/components/admin/course/EditCourse";
 
 export default function page() {
-  return <div>page</div>;
+  return <EditCourse />;
 }

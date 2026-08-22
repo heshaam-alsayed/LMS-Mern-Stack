@@ -7,24 +7,25 @@ import CouresData from "./courseData/CouresData";
 import useScrollToTop from "@/customHooks/useScrollToTop";
 import CourseContent from "./courseContent/CourseContent";
 import CoursePreview from "./coursePreview/CoursePreview";
-import { CourseData } from "@/types/course.type";
+import { CourseData, CourseInfo } from "@/types/course.type";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import CreateCourseModal from "@/components/modal/CreateCourseModal";
+import CreateCourseModal from "@/components/modal/ConfirmCourseModal";
 import { createCourse } from "@/lib/api/createCourse";
+import ConfirmCourseModal from "@/components/modal/ConfirmCourseModal";
 
 export default function CreateCourse() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [active, setActive] = useState(0);
 
-  const [courseInfo, setCourseInfo] = useState({
+  const [courseInfo, setCourseInfo] = useState<CourseInfo>({
     name: "Complete MERN Stack Web Development Bootcamp",
     description:
       "Master modern full-stack web development by building real-world applications with MongoDB, Express.js, React, and Node.js. This comprehensive course takes you from the fundamentals of JavaScript and React all the way to building production-ready full-stack applications with authentication, authorization, REST APIs, database design, file uploads, payment integration, deployment, and advanced application architecture. Throughout the course, you will work on practical projects that simulate real-world development environments and learn how to structure scalable applications using modern development best practices.",
-    price: 2000,
-    estimatePrice: 3000,
+    price: "",
+    estimatePrice: "",
     tags: "MERN, React, Node.js, Express, MongoDB, JavaScript, TypeScript, Full Stack, Web Development",
     level: "intermediate",
     demoUrl: "82b2350d035bca04a2806467f53b6b51",
@@ -80,8 +81,8 @@ export default function CreateCourse() {
     const data = {
       name: courseInfo.name,
       description: courseInfo.description,
-      price: courseInfo.price,
-      estimatePrice: courseInfo.estimatePrice,
+      price: Number(courseInfo.price),
+      estimatePrice: Number(courseInfo.estimatePrice),
       tags: courseInfo.tags,
       level: courseInfo.level,
       demoUrl: courseInfo.demoUrl,
@@ -155,6 +156,7 @@ export default function CreateCourse() {
             setActive={setActive}
             courseData={courseData}
             onOpen={() => setIsOpen(true)}
+            isEdit={false}
           />
         )}
       </main>
@@ -164,12 +166,13 @@ export default function CreateCourse() {
         <CourseOptions active={active} setActive={setActive} />
       </aside>
 
-      <CreateCourseModal
+      <ConfirmCourseModal
         open={isOpen}
         onClose={() => setIsOpen(false)}
         courseData={courseData}
         isCreating={createCourseMutation.isPending}
         onConfirm={handleCourseCreate}
+        isEdit={false}
       />
     </div>
   );

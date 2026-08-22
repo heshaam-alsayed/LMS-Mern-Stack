@@ -25,6 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Course } from "@/types/course.type";
 import CoursesTableSkeleton from "@/components/skeleton/CoursesTableSkeleton";
+import { useRouter } from "next/navigation";
 
 interface CoursesTableProps {
   courses: Course[];
@@ -38,7 +39,7 @@ export default function CoursesTable({
   error = null,
 }: CoursesTableProps) {
   // ==================== LOADING ====================
-
+  const router = useRouter();
   if (isLoading) {
     return <CoursesTableSkeleton />;
   }
@@ -202,7 +203,9 @@ export default function CoursesTable({
                         </DropdownMenuItem>
 
                         <DropdownMenuItem
-                          onClick={() => console.log("Edit:", course._id)}>
+                          onClick={() =>
+                            router.push(`/admin/edit-course/${course._id}`)
+                          }>
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
