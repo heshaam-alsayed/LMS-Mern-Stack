@@ -10,6 +10,7 @@ import courseRouter from "./routes/course.route";
 import orderRouter from "./routes/order.route";
 import notificationRouter from "./routes/notification.route";
 import layoutRouter from "./routes/layout.route";
+import categoryRouter from "./routes/category.route";
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use("/api/v1/courses", courseRouter);
 app.use("/api/v1/orders", orderRouter);
 app.use("/api/v1/notifications", notificationRouter);
 app.use("/api/v1/layouts", layoutRouter);
+app.use("/api/v1/categories", categoryRouter);
 
 app.all(/.*/, (req: Request, res: Response) => {
   res.status(404).json({

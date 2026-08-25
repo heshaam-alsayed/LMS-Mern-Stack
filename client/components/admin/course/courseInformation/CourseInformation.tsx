@@ -12,10 +12,15 @@ import CourseThumbnail from "./CourseThumbnail";
 import CourseNavigation from "./CourseNavigation";
 
 import { CourseInfo } from "@/types/course.type";
+import { ICategory } from "@/types/category.type";
+import CourseCategory from "./CourseCategory";
 
 type Props = {
   courseInfo: CourseInfo;
   setCourseInfo: React.Dispatch<React.SetStateAction<CourseInfo>>;
+  selectedCategory: string | null;
+  categoriesOptions: ICategory[];
+  setSelectedCategory: (selectedCategroy: string) => void;
   active: number;
   setActive: (active: number) => void;
 };
@@ -25,6 +30,9 @@ export default function CourseInformation({
   setCourseInfo,
   active,
   setActive,
+  selectedCategory,
+  categoriesOptions,
+  setSelectedCategory,
 }: Props) {
   const updateField = <K extends keyof CourseInfo>(
     field: K,
@@ -50,7 +58,6 @@ export default function CourseInformation({
     updateField("thumbnail", "");
   };
 
-  
   return (
     <form
       onSubmit={handleSubmit}
@@ -81,7 +88,11 @@ export default function CourseInformation({
         value={courseInfo.level}
         onChange={(value) => updateField("level", value)}
       />
-
+      <CourseCategory
+        value={selectedCategory}
+        onChange={setSelectedCategory}
+        options={categoriesOptions}
+      />
       <CourseDemoUrl
         value={courseInfo.demoUrl}
         onChange={(value) => updateField("demoUrl", value)}

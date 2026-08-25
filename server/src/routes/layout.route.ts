@@ -2,10 +2,13 @@ import express from "express";
 import { authorizeRoles, isAuthenticated } from "../middlewares/authMiddleware";
 import {
   createLayout,
+  getAllLayouts,
   getLayoutByType,
   updateLayout,
 } from "../controllers/layout.controller";
 const router = express.Router();
+
+router.get("/", getAllLayouts);
 
 router.post(
   "/create-layout",

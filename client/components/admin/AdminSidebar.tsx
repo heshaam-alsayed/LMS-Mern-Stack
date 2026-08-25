@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   UserCog,
   Pencil,
+  LucideLayoutDashboard,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -111,13 +112,18 @@ export default function AdminSidebar() {
         },
         {
           title: "FAQ",
-          href: "/admin/customization/faq",
+          href: "/admin/customization/FAQ",
           icon: CircleHelp,
         },
         {
           title: "Categories",
           href: "/admin/customization/categories",
           icon: Tags,
+        },
+        {
+          title: "Layout",
+          href: "/admin/customization/layout",
+          icon: LucideLayoutDashboard,
         },
       ],
     },

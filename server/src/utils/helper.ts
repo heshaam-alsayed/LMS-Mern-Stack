@@ -7,3 +7,15 @@ export const calcAverageReviews = (reviews: any[]) => {
   const sum = reviews.reduce((acc, cur) => acc + Number(cur.rating || 0), 0);
   return sum / reviews.length;
 };
+
+export const slugify = (value: string): string => {
+  return value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+};
+
+

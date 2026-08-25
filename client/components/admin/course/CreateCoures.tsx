@@ -8,12 +8,14 @@ import useScrollToTop from "@/customHooks/useScrollToTop";
 import CourseContent from "./courseContent/CourseContent";
 import CoursePreview from "./coursePreview/CoursePreview";
 import { CourseData, CourseInfo } from "@/types/course.type";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import CreateCourseModal from "@/components/modal/ConfirmCourseModal";
 import { createCourse } from "@/lib/api/createCourse";
 import ConfirmCourseModal from "@/components/modal/ConfirmCourseModal";
+import { ICategory } from "@/types/category.type";
+import { getAllCategories } from "@/lib/api/getAllCategories";
 
 export default function CreateCourse() {
   const router = useRouter();
@@ -31,7 +33,7 @@ export default function CreateCourse() {
     demoUrl: "82b2350d035bca04a2806467f53b6b51",
     thumbnail: "",
   });
-
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [benefits, setBenefits] = useState([{ title: "" }]);
 
   const [prerequisites, setPrerequisites] = useState([{ title: "" }]);
@@ -78,9 +80,11 @@ export default function CreateCourse() {
     }));
 
     // Create complete course object
+    if (!selectedCategory) return;
     const data = {
       name: courseInfo.name,
       description: courseInfo.description,
+      category: selectedCategory,
       price: Number(courseInfo.price),
       estimatePrice: Number(courseInfo.estimatePrice),
       tags: courseInfo.tags,
@@ -113,9 +117,15 @@ export default function CreateCourse() {
   });
   const handleCourseCreate = () => {
     if (!courseData) return;
-    createCourseMutation.mutate(courseData);
+    console.log(courseData);
+    // createCourseMutation.mutate(courseData);
   };
   useScrollToTop(active);
+  const { data } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getAllCategories,
+    staleTime: 1000 * 60 * 60,
+  });
   return (
     <div className="relative min-h-screen">
       {/* Main Content */}
@@ -126,6 +136,9 @@ export default function CreateCourse() {
             setCourseInfo={setCourseInfo}
             active={active}
             setActive={setActive}
+            categoriesOptions={data?.categories || []}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
           />
         )}
 

@@ -35,6 +35,7 @@ export type CourseContentData = {
 export type CourseData = {
   name: string;
   description: string;
+  category: string;
   price: number;
   estimatePrice: number;
   tags: string;

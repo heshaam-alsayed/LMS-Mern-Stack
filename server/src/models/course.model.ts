@@ -141,13 +141,16 @@ const courseSchema = new Schema<ICourse>(
       required: true,
       trim: true,
     },
-
     description: {
       type: String,
       required: true,
       trim: true,
     },
-
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
     price: {
       type: Number,
       required: true,

@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import { IUser } from "./userInterface";
 
 export interface IComment extends Document {
@@ -45,6 +45,7 @@ export interface ICourseData extends Document {
 export interface ICourse extends Document {
   name: string;
   description: string;
+  category: Types.ObjectId;
   price: number;
   estimatePrice: number;
   thumbnail: IThumbnail;

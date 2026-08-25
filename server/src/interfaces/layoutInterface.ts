@@ -1,5 +1,12 @@
 import { Document } from "mongoose";
 
+export type LayoutType = "banner" | "faq" | "categories";
+
+export interface IBannerImage {
+  public_Id: string;
+  url: string;
+}
+
 export interface IFaqItem {
   question: string;
   answer: string;
@@ -9,37 +16,58 @@ export interface ICategory {
   title: string;
 }
 
-export interface IBannerImage {
-  public_Id: string;
-  url: string;
-}
-
-// ✅ MongoDB Document
+// MongoDB Document
 export interface ILayoutDocument extends Document {
-  type: string;
+  type: LayoutType;
 
   faq?: IFaqItem[];
 
   categories?: ICategory[];
 
   banner?: {
-    image: IBannerImage;
+    lightBanner: IBannerImage;
+    darkBanner: IBannerImage;
     title: string;
     subtitle: string;
   };
 }
 
-// ✅ DTO / req.body
-export interface ICreateLayoutData {
-  type: "banner" | "faq" | "categories";
+// Create / Update request data
+export interface ILayoutData {
+  type: LayoutType;
+
+  lightBanner?: string;
+  darkBanner?: string;
+
+  title?: string;
+  subtitle?: string;
 
   faq?: IFaqItem[];
 
-  categories?: ICategory[];
+}
 
-  image?: string;
+export interface ICreateLayoutData {
+  type: LayoutType;
+
+  lightBanner?: string;
+  darkBanner?: string;
 
   title?: string;
-
   subtitle?: string;
+
+  faq?: IFaqItem[];
+
+}
+
+export interface IUpdateLayoutData {
+  type: LayoutType;
+
+  lightBanner?: string;
+  darkBanner?: string;
+
+  title?: string;
+  subtitle?: string;
+
+  faq?: IFaqItem[];
+
 }
