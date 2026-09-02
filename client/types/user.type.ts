@@ -66,3 +66,20 @@ export type SelectedMember = {
   name: string;
   email: string;
 };
+
+export interface IUsersStatistics {
+  totalUsers: number;
+  newUsers: number;
+  usersWithCourses: number;
+  deletedUsers: number;
+}
+
+export interface IUsersStatisticsResponse {
+  success: boolean;
+  data: IUsersStatistics;
+}
+
+export interface IChartAnalyticsUsers {
+  month: string;
+  count: number;
+}

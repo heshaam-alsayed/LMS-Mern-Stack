@@ -14,7 +14,6 @@ export const isAuthenticated = async (
 ) => {
   try {
     const token = req.cookies.access_token;
-
     if (!token) {
       return next(
         new AppError("invalid token, or Expired Please login again", 401),
@@ -25,7 +24,6 @@ export const isAuthenticated = async (
       token,
       process.env.ACCESS_TOKEN_SECRET as string,
     ) as IDecoded;
-
     if (!decoded?.id) {
       return next(new AppError("Invalid token please login again", 401));
     }

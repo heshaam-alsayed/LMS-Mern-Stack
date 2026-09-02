@@ -3,6 +3,7 @@ import { Document, Types } from "mongoose";
 export interface IOrder extends Document {
   user: Types.ObjectId;
   course: Types.ObjectId;
+  price: number;
   paymentInfo: object;
 }
 
@@ -13,6 +14,6 @@ export interface ICreateOrder {
 }
 
 export interface IOrderData {
-    courseId: string;
-    paymentInfo: object;
+  courseId: string;
+  paymentInfo: object;
 }

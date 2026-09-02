@@ -1,8 +1,10 @@
+"use client";
+
+import Dashboard from "@/components/admin/dashboard/Dashboard";
+
 
 export default function page() {
-  return (
-    <div>
-      hello
-    </div>
-  );
+  return <div>
+    <Dashboard/>
+  </div>;
 }

@@ -14,12 +14,13 @@ type Props = {
   onChange: (value: string) => void;
   options: ICategory[];
 };
-
 export default function CourseCategory({
   value,
   onChange,
   options = [],
 }: Props) {
+  console.log(value);
+
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium text-foreground">

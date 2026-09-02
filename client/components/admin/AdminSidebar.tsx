@@ -21,6 +21,8 @@ import {
   UserCog,
   Pencil,
   LucideLayoutDashboard,
+  ShoppingCart,
+  BarChart3,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -79,6 +81,28 @@ export default function AdminSidebar() {
           title: "Invoices",
           href: "/admin/invoices",
           icon: Receipt,
+        },
+      ],
+    },
+
+    {
+      title: "Analytics",
+      icon: BarChart3,
+      items: [
+        {
+          title: "Courses Analytics",
+          href: "/admin/analytics/courses-analytics",
+          icon: BookOpen,
+        },
+        {
+          title: "Orders Analytics",
+          href: "/admin/analytics/orders-analytics",
+          icon: ShoppingCart,
+        },
+        {
+          title: "Users Analytics",
+          href: "/admin/analytics/users-analytics",
+          icon: Users,
         },
       ],
     },

@@ -106,6 +106,7 @@ export default function CourseContent({
     const newContent: CourseContentData = {
       title: "",
       videoUrl: "",
+      videoLength: "",
       description: "",
       videoSection: item.videoSection,
       suggestion: "",
@@ -136,6 +137,7 @@ export default function CourseContent({
       const newSectionContent: CourseContentData = {
         title: "",
         videoUrl: "",
+        videoLength: "",
         description: "",
         videoSection: `Untitled Section ${active}`,
         suggestion: "",

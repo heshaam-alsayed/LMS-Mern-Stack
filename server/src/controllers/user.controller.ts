@@ -203,3 +203,69 @@ export const getMonthlyUsersAnalytics = async (
     next(error);
   }
 };
+
+
+export const getUsersStatistics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const year = Number(req.query.year);
+
+    if (!year || !Number.isInteger(year)) {
+      return res.status(400).json({
+        success: false,
+        message: "A valid year is required",
+      });
+    }
+
+    const startOfYear = new Date(year, 0, 1);
+    const startOfNextYear = new Date(year + 1, 0, 1);
+
+    const [
+      totalUsers,
+      newUsers,
+      usersWithCourses,
+      deletedUsers,
+    ] = await Promise.all([
+      // Total users
+      UserModel.countDocuments({
+        isDeleted: false,
+      }),
+
+      // Users created in selected year
+      UserModel.countDocuments({
+        createdAt: {
+          $gte: startOfYear,
+          $lt: startOfNextYear,
+        },
+      }),
+
+      // Users who have at least one course
+      UserModel.countDocuments({
+        courses: {
+          $exists: true,
+          $ne: [],
+        },
+      }),
+
+      // Deleted users
+      UserModel.countDocuments({
+        isDeleted: true,
+      }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalUsers,
+        newUsers,
+        usersWithCourses,
+        deletedUsers,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -109,9 +109,6 @@ export default function AllUsers() {
       toast.error(error.message);
     },
   });
-  const isLoading =
-    !hasFetched || getAllUsersMutation.isPending || editUserMutation.isPending;
-
   const handleUpdateMember = (
     id: string,
     role: "user" | "admin" | "instructor",
@@ -149,6 +146,10 @@ export default function AllUsers() {
     setSelectedMember(null);
     setOpenDelete(false);
   };
+  const isLoading =
+    !hasFetched ||
+    createMemberMutation.isPending ||
+    editUserMutation.isPending;
   return (
     <div className="space-y-4">
       <UsersFilter

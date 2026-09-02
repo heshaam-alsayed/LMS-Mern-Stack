@@ -24,34 +24,15 @@ export default function ContentForm({
   handleAddLink,
   handleAddNewContent,
 }: Props) {
-  const handleTitleChange = (value: string) => {
+  const handleChange = <K extends keyof CourseContentData>(
+    field: K,
+    value: CourseContentData[K],
+  ) => {
     const updatedContentData = [...courseContentData];
 
     updatedContentData[index] = {
       ...updatedContentData[index],
-      title: value,
-    };
-
-    setCourseContentData(updatedContentData);
-  };
-
-  const handleVideoUrlChange = (value: string) => {
-    const updatedContentData = [...courseContentData];
-
-    updatedContentData[index] = {
-      ...updatedContentData[index],
-      videoUrl: value,
-    };
-
-    setCourseContentData(updatedContentData);
-  };
-
-  const handleDescriptionChange = (value: string) => {
-    const updatedContentData = [...courseContentData];
-
-    updatedContentData[index] = {
-      ...updatedContentData[index],
-      description: value,
+      [field]: value,
     };
 
     setCourseContentData(updatedContentData);
@@ -66,7 +47,7 @@ export default function ContentForm({
         <input
           type="text"
           value={item.title}
-          onChange={(e) => handleTitleChange(e.target.value)}
+          onChange={(e) => handleChange("title", e.target.value)}
           placeholder="Enter content title"
           className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
         />
@@ -77,10 +58,31 @@ export default function ContentForm({
         <label className="mb-2 block text-sm font-medium">Video URL</label>
 
         <input
-          type="url"
+          type="text"
           value={item.videoUrl}
-          onChange={(e) => handleVideoUrlChange(e.target.value)}
+          onChange={(e) => handleChange("videoUrl", e.target.value)}
           placeholder="Enter video URL"
+          className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+
+      {/* Video Length */}
+      <div>
+        <label className="mb-2 block text-sm font-medium">
+          Video Length (minutes)
+        </label>
+
+        <input
+          type="number"
+          min={0}
+          value={item.videoLength ?? ""}
+          onChange={(e) =>
+            handleChange(
+              "videoLength",
+              e.target.value === "" ? "0" : e.target.value,
+            )
+          }
+          placeholder="Enter video length"
           className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
@@ -91,7 +93,7 @@ export default function ContentForm({
 
         <textarea
           value={item.description}
-          onChange={(e) => handleDescriptionChange(e.target.value)}
+          onChange={(e) => handleChange("description", e.target.value)}
           placeholder="Enter content description"
           className="min-h-24 max-h-48 w-full resize-y overflow-y-auto rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
         />

@@ -249,7 +249,7 @@ export const getMonthlyCoursesAnalytics = async (
 ) => {
   try {
     const year = req.query.year ? Number(req.query.year) : undefined;
-
+    console.log(year);
     const data = await getMonthlyAnalytics(CourseModel, year);
 
     res.status(200).json({
@@ -333,6 +333,72 @@ export const generateVideoUrl = async (
     );
     console.log(response.data);
     res.json(response.data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCoursesStatistics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const year = Number(req.query.year);
+
+    if (!year || !Number.isInteger(year)) {
+      return res.status(400).json({
+        success: false,
+        message: "A valid year is required",
+      });
+    }
+
+    const startOfYear = new Date(year, 0, 1);
+    const startOfNextYear = new Date(year + 1, 0, 1);
+    console.log(startOfYear, startOfNextYear);
+    const [totalCourses, coursesCreated, statistics] = await Promise.all([
+      // Total courses
+      CourseModel.countDocuments(),
+
+      // Courses created in selected year
+      CourseModel.countDocuments({
+        createdAt: {
+          $gte: startOfYear,
+          $lt: startOfNextYear,
+        },
+      }),
+
+      // Purchases + average rating
+      CourseModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalPurchases: {
+              $sum: "$purchased",
+            },
+            averageRating: {
+              $avg: "$ratings",
+            },
+          },
+        },
+      ]),
+    ]);
+
+    const totalPurchases = statistics[0]?.totalPurchases ?? 0;
+
+    const averageRating = statistics[0]?.averageRating
+      ? Number(statistics[0].averageRating.toFixed(1))
+      : 0;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalCourses,
+        coursesCreated,
+        totalPurchases,
+        averageRating,
+      },
+    });
   } catch (error) {
     next(error);
   }

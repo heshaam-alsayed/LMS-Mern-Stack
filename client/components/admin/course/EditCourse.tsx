@@ -29,6 +29,7 @@ import { updateCourse } from "@/lib/api/updateCourse";
 import { Loader2 } from "lucide-react";
 
 import ConfirmCourseModal from "@/components/modal/ConfirmCourseModal";
+import { getAllCategories } from "@/lib/api/getAllCategories";
 
 export default function EditCourse() {
   const params = useParams<{ id: string }>();
@@ -42,6 +43,7 @@ export default function EditCourse() {
   const [courseInfo, setCourseInfo] = useState<CourseInfo>({
     name: "",
     description: "",
+    category: "",
     price: "",
     estimatePrice: "",
     tags: "",
@@ -49,6 +51,8 @@ export default function EditCourse() {
     demoUrl: "",
     thumbnail: "",
   });
+
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const [benefits, setBenefits] = useState([{ title: "" }]);
 
@@ -59,6 +63,7 @@ export default function EditCourse() {
       videoUrl: "",
       title: "",
       description: "",
+      videoLength:"",
       videoSection: "",
       links: [
         {
@@ -100,7 +105,7 @@ export default function EditCourse() {
       description: courseContent.description,
       videoUrl: courseContent.videoUrl,
       videoSection: courseContent.videoSection,
-
+      videoLength:courseContent.videoLength,
       links: courseContent.links.map((link) => ({
         title: link.title,
         url: link.url,
@@ -113,10 +118,11 @@ export default function EditCourse() {
       toast.error("Please select course level");
       return;
     }
-
+    if (!courseInfo.category) return;
     const data: CourseData = {
       name: courseInfo.name,
       description: courseInfo.description,
+      category: courseInfo.category,
       price: Number(courseInfo.price),
       estimatePrice: Number(courseInfo.estimatePrice),
       tags: courseInfo.tags,
@@ -153,6 +159,7 @@ export default function EditCourse() {
     const initialCourseData: CourseData = {
       name: course.name,
       description: course.description,
+      category: course.category,
       price: course.price,
       estimatePrice: course.estimatePrice,
       tags: course.tags,
@@ -173,6 +180,7 @@ export default function EditCourse() {
         title: item.title,
         description: item.description,
         videoUrl: item.videoUrl,
+        videoLength: item.videoLength,
         videoSection: item.videoSection,
 
         links: item.links.map((link) => ({
@@ -190,6 +198,7 @@ export default function EditCourse() {
     setCourseInfo({
       name: course.name || "",
       description: course.description || "",
+      category: course.category.toString(),
       price: String(course.price ?? ""),
       estimatePrice: String(course.estimatePrice ?? ""),
       tags: course.tags || "",
@@ -197,12 +206,12 @@ export default function EditCourse() {
       demoUrl: course.demoUrl || "",
       thumbnail: course.thumbnail?.url || "",
     });
-
+    setSelectedCategory(course.category.toString());
     setBenefits(course.benefits);
     setPrerequisites(course.prerequisites);
     setCourseContentData(course.courseData);
   }, [data]);
-
+  console.log(data);
   // Update mutation
   const updateCourseMutation = useMutation({
     mutationFn: (courseData: CourseData) => {
@@ -252,6 +261,11 @@ export default function EditCourse() {
 
   useScrollToTop(active);
 
+  const { data: responseData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getAllCategories,
+    staleTime: 1000 * 60 * 60,
+  });
   if (!courseId) {
     return null;
   }
@@ -278,6 +292,9 @@ export default function EditCourse() {
             setCourseInfo={setCourseInfo}
             active={active}
             setActive={setActive}
+            categoriesOptions={responseData?.categories}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
           />
         )}
 

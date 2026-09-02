@@ -13,6 +13,10 @@ const orderSchema = new mongoose.Schema<IOrder>(
       ref: "Course",
       required: true,
     },
+    price: {
+      type: Number,
+      required: true,
+    },
     paymentInfo: Object,
   },
   {

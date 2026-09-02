@@ -11,10 +11,8 @@ import { CourseData, CourseInfo } from "@/types/course.type";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import CreateCourseModal from "@/components/modal/ConfirmCourseModal";
 import { createCourse } from "@/lib/api/createCourse";
 import ConfirmCourseModal from "@/components/modal/ConfirmCourseModal";
-import { ICategory } from "@/types/category.type";
 import { getAllCategories } from "@/lib/api/getAllCategories";
 
 export default function CreateCourse() {
@@ -45,6 +43,7 @@ export default function CreateCourse() {
       description:
         "In this lesson, we will introduce the MERN stack and explain how MongoDB, Express.js, React, and Node.js work together to create modern full-stack web applications. You will learn about the responsibilities of the frontend, backend, database, and API layers and understand how data flows between the client and server",
       videoSection: "Introduction",
+      videoLength:"",
       links: [
         {
           title: "Node.js Official Documentation",
@@ -70,6 +69,7 @@ export default function CreateCourse() {
       title: courseContent.title,
       description: courseContent.description,
       videoUrl: courseContent.videoUrl,
+      videoLength: courseContent.videoLength,
       videoSection: courseContent.videoSection,
       links: courseContent.links.map((link) => ({
         title: link.title,
@@ -118,7 +118,7 @@ export default function CreateCourse() {
   const handleCourseCreate = () => {
     if (!courseData) return;
     console.log(courseData);
-    // createCourseMutation.mutate(courseData);
+    createCourseMutation.mutate(courseData);
   };
   useScrollToTop(active);
   const { data } = useQuery({

@@ -84,15 +84,21 @@ export default function CourseInformation({
         onChange={(value) => updateField("tags", value)}
       />
 
-      <CourseLevel
-        value={courseInfo.level}
-        onChange={(value) => updateField("level", value)}
-      />
-      <CourseCategory
-        value={selectedCategory}
-        onChange={setSelectedCategory}
-        options={categoriesOptions}
-      />
+      <div className="flex items-center gap-4 w-full">
+        <div className="w-full">
+          <CourseLevel
+            value={courseInfo.level}
+            onChange={(value) => updateField("level", value)}
+          />
+        </div>
+        <div className="w-full">
+          <CourseCategory
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+            options={categoriesOptions}
+          />
+        </div>
+      </div>
       <CourseDemoUrl
         value={courseInfo.demoUrl}
         onChange={(value) => updateField("demoUrl", value)}

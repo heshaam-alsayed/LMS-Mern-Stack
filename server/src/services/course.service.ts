@@ -355,10 +355,13 @@ export const getAllCoursesPurchases = async () => {
 export const getTopSellingCourses = async (limit?: number) => {
   const finalLimit = Math.min(limit || 10, 10);
 
-  return await CourseModel.find()
+  return await CourseModel.find({
+    purchased: { $gt: 0 },
+  })
     .sort({ purchased: -1 })
     .limit(finalLimit)
-    .select("name purchased price");
+    .select("name purchased price")
+    .lean();
 };
 
 const courseService = {

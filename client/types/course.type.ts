@@ -2,6 +2,7 @@ export type CourseLevelType = "" | "beginner" | "intermediate" | "advanced";
 export type CourseInfo = {
   name: string;
   description: string;
+  category?: string;
   price: string;
   estimatePrice: string;
   tags: string;
@@ -25,6 +26,7 @@ export type CourseLink = {
 
 export type CourseContentData = {
   videoUrl: string;
+  videoLength: string;
   title: string;
   description: string;
   videoSection: string;
@@ -58,6 +60,7 @@ export type CourseResponseAdmin = {
   course: {
     name: string;
     description: string;
+    category: string;
     price: number;
     estimatePrice: number;
     tags: string;
@@ -116,3 +119,32 @@ export type CoursesResponseAdmin = {
     hasPreviousPage: boolean;
   };
 };
+
+export interface ICoursesStatistics {
+  totalCourses: number;
+  coursesCreated: number;
+  totalPurchases: number;
+  averageRating: number;
+}
+
+export interface ICoursesStatisticsResponse {
+  success: boolean;
+  data: ICoursesStatistics;
+}
+
+export interface IChartAnalyticsCourses {
+  month: string;
+  count: number;
+}
+
+export interface ITopSellingCourse {
+  _id: string;
+  name: string;
+  price: number;
+  purchased: number;
+}
+
+export interface ITopSellingCoursesResponse {
+  success: boolean;
+  courses: ITopSellingCourse[];
+}

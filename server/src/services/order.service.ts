@@ -7,6 +7,8 @@ import orderRepository from "../repositories/order.repository";
 import sendEmail from "../utils/SendEmail";
 import notificationRepository from "../repositories/notification.repository";
 import UserModel from "../models/user.model";
+import OrderModel from "../models/order.model";
+import CourseModel from "../models/course.model";
 
 export const createOrder = async (
   orderData: IOrderData,
@@ -76,8 +78,234 @@ export const createOrder = async (
   return order;
 };
 
-export const getOrders = async () => {
-  return await orderRepository.getOrders();
+export const getOrders = async (transactions = false) => {
+  return await orderRepository.getOrders(transactions);
 };
-const orderService = { createOrder , getOrders };
+
+export const getOrdersMonthlyAnalytics = async (year: number) => {
+  if (!year || !Number.isInteger(year)) {
+    throw new AppError("A valid year is required", 400);
+  }
+
+  const startOfYear = new Date(year, 0, 1);
+  const startOfNextYear = new Date(year + 1, 0, 1);
+
+  const result = await OrderModel.aggregate([
+    {
+      $facet: {
+        yearlyRevenue: [
+          {
+            $match: {
+              createdAt: {
+                $gte: startOfYear,
+                $lt: startOfNextYear,
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalRevenue: {
+                $sum: "$price",
+              },
+            },
+          },
+        ],
+
+        allTimeRevenue: [
+          {
+            $group: {
+              _id: null,
+              totalRevenue: {
+                $sum: "$price",
+              },
+            },
+          },
+        ],
+
+        monthly: [
+          {
+            $match: {
+              createdAt: {
+                $gte: startOfYear,
+                $lt: startOfNextYear,
+              },
+            },
+          },
+          {
+            $group: {
+              _id: {
+                month: {
+                  $month: "$createdAt",
+                },
+              },
+              orders: {
+                $sum: 1,
+              },
+              revenue: {
+                $sum: "$price",
+              },
+            },
+          },
+          {
+            $sort: {
+              "_id.month": 1,
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  const yearlyRevenue = result[0]?.yearlyRevenue?.[0]?.totalRevenue ?? 0;
+
+  const allTimeRevenue = result[0]?.allTimeRevenue?.[0]?.totalRevenue ?? 0;
+
+  const monthlyData = result[0]?.monthly ?? [];
+
+  const monthly = Array.from({ length: 12 }, (_, index) => {
+    const monthNumber = index + 1;
+
+    const monthData = monthlyData.find(
+      (item: { _id: { month: number } }) => item._id.month === monthNumber,
+    );
+
+    return {
+      month: new Date(year, index, 1).toLocaleString("en-US", {
+        month: "long",
+      }),
+      orders: monthData?.orders ?? 0,
+      revenue: monthData?.revenue ?? 0,
+    };
+  });
+
+  return {
+    yearlyRevenue,
+    allTimeRevenue,
+    monthly,
+  };
+};
+
+export const getMonthlyGrowthAnalytics = async () => {
+  const now = new Date();
+
+  const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  const startOfPreviousMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    1,
+  );
+
+  const [
+    currentUsers,
+    previousUsers,
+    currentCourses,
+    previousCourses,
+    currentOrders,
+    previousOrders,
+  ] = await Promise.all([
+    UserModel.countDocuments({
+      createdAt: {
+        $gte: startOfCurrentMonth,
+        $lt: startOfNextMonth,
+      },
+    }),
+
+    UserModel.countDocuments({
+      createdAt: {
+        $gte: startOfPreviousMonth,
+        $lt: startOfCurrentMonth,
+      },
+    }),
+
+    CourseModel.countDocuments({
+      createdAt: {
+        $gte: startOfCurrentMonth,
+        $lt: startOfNextMonth,
+      },
+    }),
+
+    CourseModel.countDocuments({
+      createdAt: {
+        $gte: startOfPreviousMonth,
+        $lt: startOfCurrentMonth,
+      },
+    }),
+
+    OrderModel.countDocuments({
+      createdAt: {
+        $gte: startOfCurrentMonth,
+        $lt: startOfNextMonth,
+      },
+    }),
+
+    OrderModel.countDocuments({
+      createdAt: {
+        $gte: startOfPreviousMonth,
+        $lt: startOfCurrentMonth,
+      },
+    }),
+  ]);
+
+  const calculatePercentage = (current: number, previous: number): number => {
+    if (previous === 0) {
+      return current === 0 ? 0 : 100;
+    }
+
+    return Number((((current - previous) / previous) * 100).toFixed(2));
+  };
+
+  const getTrend = (percentage: number) => {
+    if (percentage > 0) {
+      return "up";
+    }
+
+    if (percentage < 0) {
+      return "down";
+    }
+
+    return "same";
+  };
+
+  const usersPercentage = calculatePercentage(currentUsers, previousUsers);
+
+  const coursesPercentage = calculatePercentage(
+    currentCourses,
+    previousCourses,
+  );
+
+  const ordersPercentage = calculatePercentage(currentOrders, previousOrders);
+
+  return {
+    users: {
+      current: currentUsers,
+      previous: previousUsers,
+      percentage: usersPercentage,
+      trend: getTrend(usersPercentage),
+    },
+
+    courses: {
+      current: currentCourses,
+      previous: previousCourses,
+      percentage: coursesPercentage,
+      trend: getTrend(coursesPercentage),
+    },
+
+    orders: {
+      current: currentOrders,
+      previous: previousOrders,
+      percentage: ordersPercentage,
+      trend: getTrend(ordersPercentage),
+    },
+  };
+};
+const orderService = {
+  createOrder,
+  getOrders,
+  getOrdersMonthlyAnalytics,
+  getMonthlyGrowthAnalytics,
+};
 export default orderService;

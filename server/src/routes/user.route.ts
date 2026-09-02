@@ -6,6 +6,7 @@ import {
   getMonthlyUsersAnalytics,
   getUserById,
   getUsers,
+  getUsersStatistics,
   toggleUserDeleted,
   updateAvatar,
   updatePassword,
@@ -19,6 +20,21 @@ router.get("/me", isAuthenticated, getMe);
 router.patch("/update-me", isAuthenticated, updateUserInfo);
 router.patch("/update-password", isAuthenticated, updatePassword);
 router.patch("/update-avatar", isAuthenticated, updateAvatar);
+
+router.get(
+  "/analytics/statistics",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  getUsersStatistics,
+);
+
+router.get(
+  "/monthly-analytics",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  getMonthlyUsersAnalytics,
+);
+
 router.patch(
   "/change-role",
   isAuthenticated,
@@ -31,13 +47,6 @@ router.patch(
   isAuthenticated,
   authorizeRoles("admin"),
   toggleUserDeleted,
-);
-
-router.get(
-  "/monthly-analytics",
-  isAuthenticated,
-  authorizeRoles("admin"),
-  getMonthlyUsersAnalytics,
 );
 
 router.get("/:id", getUserById);
