@@ -1,11 +1,6 @@
-import Header from "@/components/shared/Header";
-import Hero from "@/components/shared/Hero";
+"use client"
+import LandingPage from "@/components/Landing/LandingPage";
 
 export default function page() {
-  return (
-    <main>
-      <Header />
-      <Hero />
-    </main>
-  );
+  return <LandingPage />;
 }

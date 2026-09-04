@@ -31,7 +31,7 @@ export const getPublicCourse = async (courseId: string) => {
 
 // public courses not purchased
 export const getAllCourses = async () => {
-  return await CourseModel.find().select(
+  const courses =  await CourseModel.find().select(
     "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links",
   );
 };

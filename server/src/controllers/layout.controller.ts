@@ -65,6 +65,7 @@ export const getLayoutByType = async (
   next: NextFunction,
 ) => {
   try {
+    console.log("calling banner layout")
     const type = req?.params.type as LayoutType;
 
     const layout = await layoutService.getLayoutByType(type);

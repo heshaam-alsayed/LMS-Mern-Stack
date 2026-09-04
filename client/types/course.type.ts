@@ -100,7 +100,7 @@ export interface Course {
   ratings: number;
 
   purchased: number;
-
+  courseData?: CourseContentData[];
   createdAt: string;
 
   updatedAt: string;
@@ -147,4 +147,9 @@ export interface ITopSellingCourse {
 export interface ITopSellingCoursesResponse {
   success: boolean;
   courses: ITopSellingCourse[];
+}
+
+export interface IPublicCoursesResponse {
+  success: boolean;
+  courses: Course[];
 }
