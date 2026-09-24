@@ -64,3 +64,12 @@ export interface IUpdateLayoutData {
   categories?: Category[];
 }
 
+export interface IHeroStatsResponse {
+  success: boolean;
+  stats: {
+    totalStudents: number;
+    totalCourses: number;
+    totalCertificates: number;
+    totalEnrollments: number;
+  };
+}

@@ -7,26 +7,27 @@ import OrderModel from "../models/order.model";
 import UserModel from "../models/user.model";
 import ApiFeatures from "../utils/apiFeatures";
 import CourseModel from "../models/course.model";
+import { stripe } from "../config/stripe";
 
-export const createOrder = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const data = req.body;
-    const coursersUserList = req.user?.courses || [];
-    const user: IUser = req.user as IUser;
-    const order = await orderService.createOrder(data, coursersUserList, user);
+// export const createOrder = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction,
+// ) => {
+//   try {
+//     const data = req.body;
+//     const coursersUserList = req.user?.courses || [];
+//     const user: IUser = req.user as IUser;
+//     const order = await orderService.createOrder(data, coursersUserList, user);
 
-    res.status(200).json({
-      success: true,
-      order,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+//     res.status(200).json({
+//       success: true,
+//       order,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export const getOrders = async (
   req: Request,
@@ -48,7 +49,6 @@ export const getOrders = async (
           select: "title",
         },
       });
-    
 
     // Search by user name OR course name
     if (search) {
@@ -265,3 +265,5 @@ export const getMonthlyGrowthAnalytics = async (
     next(error);
   }
 };
+
+

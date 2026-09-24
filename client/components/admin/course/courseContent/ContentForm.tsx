@@ -4,6 +4,7 @@ import React from "react";
 import { Link2, PlusIcon } from "lucide-react";
 import { CourseContentData, CourseLink } from "@/types/course.type";
 import ContentLink from "./ContentLink";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Props = {
   index: number;
@@ -87,6 +88,21 @@ export default function ContentForm({
         />
       </div>
 
+      <div className="flex items-center gap-3">
+        <Checkbox
+          id={`is-free-${index}`}
+          checked={item.isFree}
+          onCheckedChange={(checked: boolean) =>
+            handleChange("isFree", checked === true)
+          }
+        />
+
+        <label
+          htmlFor={`is-free-${index}`}
+          className="cursor-pointer text-sm font-medium text-foreground">
+          Free Preview
+        </label>
+      </div>
       {/* Description */}
       <div>
         <label className="mb-2 block text-sm font-medium">Description</label>

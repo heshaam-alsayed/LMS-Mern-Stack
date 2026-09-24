@@ -23,7 +23,7 @@ export default function VerificationForm() {
   } = useVerification();
 
   return (
-    <div className="w-full max-w-[400px] mx-4">
+    <div className="w-full max-w-[400px] px-4">
       <div className="space-y-8">
         <VerificationHeader />
         <VerificationInputs

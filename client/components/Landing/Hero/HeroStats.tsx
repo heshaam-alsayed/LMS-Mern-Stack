@@ -4,42 +4,68 @@ import {
   FaGraduationCap,
   FaUsers,
 } from "react-icons/fa";
+
 import HeroStatCard from "./HeroStatCard";
 
+type Stats = {
+  totalStudents: number;
+  totalCourses: number;
+  totalCertificates: number;
+  totalEnrollments: number;
+};
 
-const stats = [
-  {
-    value: "10K+",
-    label: "Students",
-    icon: FaUsers,
-  },
-  {
-    value: "500+",
-    label: "Courses",
-    icon: FaBookOpen,
-  },
-  {
-    value: "2K+",
-    label: "Certificates",
-    icon: FaCertificate,
-  },
-  {
-    value: "95%",
-    label: "Success Rate",
-    icon: FaGraduationCap,
-  },
-];
+type Props = {
+  statsData?: Stats;
+  isLoading: boolean;
+  isError: boolean;
+};
 
-export default function HeroStats() {
+export default function HeroStats({ statsData, isLoading, isError }: Props) {
+  if (isLoading) {
+    return (
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-28 animate-pulse rounded-xl border border-border bg-muted/50"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (isError || !statsData) {
+    return null;
+  }
+
+  const { totalStudents, totalCourses, totalCertificates, totalEnrollments } =
+    statsData;
+
+  const stats = [
+    {
+      value: totalStudents,
+      label: "Students Learning on the Platform",
+      icon: FaUsers,
+    },
+    {
+      value: totalCourses,
+      label: "Courses Available to Learn",
+      icon: FaBookOpen,
+    },
+    {
+      value: totalCertificates,
+      label: "Certificates Awarded to Students",
+      icon: FaCertificate,
+    },
+    {
+      value: totalEnrollments,
+      label: "Total Course Enrollments",
+      icon: FaGraduationCap,
+    },
+  ];
+
   return (
-    <div
-      className="
-        mt-10
-        grid
-        grid-cols-2
-        gap-3
-        sm:grid-cols-4
-      ">
+    <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
       {stats.map((stat) => (
         <HeroStatCard
           key={stat.label}

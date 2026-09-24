@@ -2,10 +2,9 @@ import { ICreateNotification } from "../interfaces/notificationInterface";
 import notificationRepository from "../repositories/notification.repository";
 import AppError from "../utils/AppError";
 
-export const getAllNotifications = async (filter = {}) => {
-  const notifications =
-    await notificationRepository.getAllNotifications(filter);
-  return notifications;
+export const getAllNotifications = async (queryString: any) => {
+  const result = await notificationRepository.getAllNotifications(queryString);
+  return result;
 };
 
 export const createNotification = async (data: ICreateNotification) => {
@@ -42,9 +41,11 @@ export const updateNotification = async (
     return existingNotification;
   }
 
-  await notificationRepository.updateNotification(notificationId, filterData);
-  const notifications = await notificationRepository.getAllNotifications();
-  return notifications;
+  const notification = await notificationRepository.updateNotification(
+    notificationId,
+    filterData,
+  );
+  return notification;
 };
 
 const notificationService = {

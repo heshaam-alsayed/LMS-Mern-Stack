@@ -9,73 +9,127 @@ import notificationRepository from "../repositories/notification.repository";
 import UserModel from "../models/user.model";
 import OrderModel from "../models/order.model";
 import CourseModel from "../models/course.model";
+import { stripe } from "../config/stripe";
+import redis from "../utils/redis";
+import Stripe from "stripe";
+import { initializeCourseProgress } from "./courseProgress.service";
+import { getIO } from "../socketServer";
 
 export const createOrder = async (
-  orderData: IOrderData,
-  coursesUserList: Types.ObjectId[],
-  userData: IUser,
+  userId: string,
+  courseId: string,
+  paymentIntent: Stripe.PaymentIntent,
 ) => {
-  const { courseId, paymentInfo } = orderData;
-
-  if (!paymentInfo) {
-    throw new AppError("Payment info is required", 400);
+  if (!Types.ObjectId.isValid(userId)) {
+    throw new AppError("Invalid user ID", 400);
   }
 
-  const userFromDb = await UserModel.findById(userData._id).select("courses");
+  if (!Types.ObjectId.isValid(courseId)) {
+    throw new AppError("Invalid course ID", 400);
+  }
 
-  const alreadyPurchased = userFromDb?.courses?.some(
-    (id) => id.toString() === courseId.toString(),
+  if (!paymentIntent?.id) {
+    throw new AppError("Payment intent is required", 400);
+  }
+
+  // Prevent duplicate order
+  const existingOrder = await OrderModel.findOne({
+    "paymentInfo.id": paymentIntent.id,
+  });
+
+  if (existingOrder) {
+    return null;
+  }
+
+  const user = await UserModel.findById(userId);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  const alreadyPurchased = user.courses?.some(
+    (id) => id.toString() === courseId,
   );
 
   if (alreadyPurchased) {
-    throw new AppError("You have already purchased this course", 400);
+    return null;
   }
 
-  const course = await courseRepository.getFullCourseById(courseId.toString());
+  const course = await courseRepository.getFullCourseById(courseId);
 
   if (!course) {
     throw new AppError("Course not found", 404);
   }
 
+  // Create order
   const order = await orderRepository.createOrder({
-    user: userData._id,
+    user: user._id,
     course: course._id,
-    paymentInfo,
+    price: course.price,
+    paymentInfo: {
+      id: paymentIntent.id,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      status: paymentIntent.status,
+      payment_method: paymentIntent.payment_method,
+      created: paymentIntent.created,
+      metadata: paymentIntent.metadata,
+    },
   });
 
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    user._id,
+    {
+      $addToSet: {
+        courses: course._id,
+      },
+    },
+    {
+      new: true,
+    },
+  );
+
+  if (!updatedUser) {
+    throw new AppError("Failed to update user", 500);
+  }
+
+  await redis.set(user._id.toString(), JSON.stringify(updatedUser));
+
+  course.purchased = (course.purchased ?? 0) + 1;
+
+  await course.save({
+    validateBeforeSave: false,
+  });
+
+  await initializeCourseProgress(user._id.toString(), course._id.toString());
+  const notificationData = {
+    title: "New Order Received",
+    message: `You have a new order from ${user.name}. The user purchased the course "${course.name}"`,
+    user: user._id,
+  };
+
+  const notification =
+    await notificationRepository.createNotification(notificationData);
+
+  const io = getIO();
+  // make event for admin only with create new order
+  io.to("admins").emit("notification", notification);
   await sendEmail({
-    email: userData.email,
+    email: user.email,
     subject: "Course Enrollment Confirmation",
     template: "order-confirmation.ejs",
     data: {
-      name: userData.name,
+      name: user.name,
       courseName: course.name,
       orderId: order._id.toString(),
       courseUrl: `${process.env.CLIENT_URL}/course/${course._id}`,
     },
   });
 
-  await UserModel.findByIdAndUpdate(userData._id, {
-    $addToSet: {
-      courses: course._id,
-    },
-  });
-
-  await notificationRepository.createNotification({
-    title: "New Order Received",
-    message: `${userData.name} purchased "${course.name}"`,
-    user: userData._id,
-  });
-
-  if (course.purchased) {
-    course.purchased = course.purchased + 1;
-  }
-
-  await course.save({
-    validateBeforeSave: false,
-  });
-
-  return order;
+  return {
+    order,
+    notification,
+  };
 };
 
 export const getOrders = async (transactions = false) => {
@@ -302,6 +356,8 @@ export const getMonthlyGrowthAnalytics = async () => {
     },
   };
 };
+
+
 const orderService = {
   createOrder,
   getOrders,

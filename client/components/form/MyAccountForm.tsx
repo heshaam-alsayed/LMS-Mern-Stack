@@ -119,12 +119,12 @@ export default function MyAccountForm() {
       {/* Crop Modal */}
       {isOpen && selectedImage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="w-full max-w-md rounded-xl bg-background p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-xl bg-background p-4 shadow-xl sm:p-6">
             <h2 className="mb-6 text-center text-lg font-semibold">
               Crop Profile Photo
             </h2>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center overflow-x-auto">
               <AvatarEditor
                 ref={editorRef}
                 image={selectedImage}

@@ -3,6 +3,7 @@ import userService from "../services/user.service";
 import { getMonthlyAnalytics } from "../utils/analytics";
 import UserModel from "../models/user.model";
 import ApiFeatures from "../utils/apiFeatures";
+import AppError from "../utils/AppError";
 
 export const getUserById = async (
   req: Request,
@@ -148,6 +149,26 @@ export const getUsers = async (
   }
 };
 
+export const getOperationUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.params.userId as string;
+
+    const data = await userService.getOperationUser(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "User details retrieved successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const changeRole = async (
   req: Request,
   res: Response,
@@ -173,7 +194,6 @@ export const toggleUserDeleted = async (
 ) => {
   try {
     const userId = req.params.id as string;
-
     const result = await userService.toggleUserDeleted(userId);
 
     res.status(200).json({
@@ -204,7 +224,6 @@ export const getMonthlyUsersAnalytics = async (
   }
 };
 
-
 export const getUsersStatistics = async (
   req: Request,
   res: Response,
@@ -223,38 +242,34 @@ export const getUsersStatistics = async (
     const startOfYear = new Date(year, 0, 1);
     const startOfNextYear = new Date(year + 1, 0, 1);
 
-    const [
-      totalUsers,
-      newUsers,
-      usersWithCourses,
-      deletedUsers,
-    ] = await Promise.all([
-      // Total users
-      UserModel.countDocuments({
-        isDeleted: false,
-      }),
+    const [totalUsers, newUsers, usersWithCourses, deletedUsers] =
+      await Promise.all([
+        // Total users
+        UserModel.countDocuments({
+          isDeleted: false,
+        }),
 
-      // Users created in selected year
-      UserModel.countDocuments({
-        createdAt: {
-          $gte: startOfYear,
-          $lt: startOfNextYear,
-        },
-      }),
+        // Users created in selected year
+        UserModel.countDocuments({
+          createdAt: {
+            $gte: startOfYear,
+            $lt: startOfNextYear,
+          },
+        }),
 
-      // Users who have at least one course
-      UserModel.countDocuments({
-        courses: {
-          $exists: true,
-          $ne: [],
-        },
-      }),
+        // Users who have at least one course
+        UserModel.countDocuments({
+          courses: {
+            $exists: true,
+            $ne: [],
+          },
+        }),
 
-      // Deleted users
-      UserModel.countDocuments({
-        isDeleted: true,
-      }),
-    ]);
+        // Deleted users
+        UserModel.countDocuments({
+          isDeleted: true,
+        }),
+      ]);
 
     return res.status(200).json({
       success: true,

@@ -125,7 +125,7 @@ export default function EditFaq() {
 
   return (
     <section className="w-full py-10">
-      <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">FAQ Data</h1>
 
@@ -135,7 +135,7 @@ export default function EditFaq() {
         </div>
 
         {faqData.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
             <button
               onClick={() => setOpenModal(true)}
               disabled={updateFaqDataMutation.isPending}
@@ -149,7 +149,7 @@ export default function EditFaq() {
               type="button"
               onClick={handleSave}
               disabled={!hasChange || updateFaqDataMutation.isPending}
-              className="inline-flex w-[170px] shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary">
+              className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary sm:w-auto sm:min-w-[170px]">
               <Save className="h-4 w-4" />
               {updateFaqDataMutation.isPending ? (
                 <span className="flex items-center gap-1">

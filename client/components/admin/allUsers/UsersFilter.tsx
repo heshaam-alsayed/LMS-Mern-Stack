@@ -84,7 +84,7 @@ export default function UsersFilter({
       {/* ==================== SELECT FILTERS ==================== */}
 
       {isTeam ? (
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <UserSelectFilters
             searchParams={searchParams}
             updateQuery={updateQuery}
@@ -95,7 +95,7 @@ export default function UsersFilter({
             </label>
 
             <Select value={currentLimit} onValueChange={handleLimitChange}>
-              <SelectTrigger className="h-9 w-[160px]">
+              <SelectTrigger className="h-9 w-full sm:w-[160px]">
                 <SelectValue />
               </SelectTrigger>
 
@@ -108,7 +108,7 @@ export default function UsersFilter({
               </SelectContent>
             </Select>
           </div>
-          <div className="mt-6">
+          <div className="sm:mt-0">
             <UserSearchFilter
               search={search}
               setSearch={setSearch}
@@ -124,7 +124,7 @@ export default function UsersFilter({
         />
       )}
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Search */}
         {!isTeam && (
           <UserSearchFilter
@@ -135,7 +135,7 @@ export default function UsersFilter({
           />
         )}
 
-        <div className=" flex items-center justify-between w-full gap-3">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
           <Button onClick={onClickAdd} className="h-9 gap-2">
             <Plus className="h-4 w-4" />
             Add New Member

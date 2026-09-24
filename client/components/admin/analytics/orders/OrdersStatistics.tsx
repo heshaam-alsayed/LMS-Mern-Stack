@@ -77,7 +77,7 @@ export default function OrdersStatistics({
               </div>
 
               {/* Value */}
-              <p className="text-2xl font-bold tracking-tight text-card-foreground">
+              <p className="min-w-0 truncate text-2xl font-bold tracking-tight text-card-foreground">
                 {stat.value}
               </p>
             </div>

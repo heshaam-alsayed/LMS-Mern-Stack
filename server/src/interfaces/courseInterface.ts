@@ -36,6 +36,7 @@ export interface ICourseData extends Document {
   videoThumbnail: object;
   videoSection: string;
   videoLength: number;
+  isFree: boolean;
   videoPlayer: string;
   links: ILink[];
   suggestion: string;
@@ -49,6 +50,7 @@ export interface ICourse extends Document {
   price: number;
   estimatePrice: number;
   thumbnail: IThumbnail;
+  organization: Types.ObjectId;
   tags: string;
   level: string;
   demoUrl: string;
@@ -85,3 +87,17 @@ export interface IAddReplyReviewData {
   reviewId: string;
   courseId: string;
 }
+
+export type IPublicCourseData = {
+  title: string;
+  description: string;
+  videoThumbnail: object;
+  videoSection: string;
+  videoLength: number;
+  isFree: boolean;
+  videoPlayer: string;
+  suggestion?: string;
+  questions?: IComment[];
+  videoUrl?: string;
+  links?: ILink[];
+};

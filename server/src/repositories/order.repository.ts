@@ -7,8 +7,8 @@ export const createOrder = async (orderData: ICreateOrder) => {
 
 export const getOrders = async (transactions = false) => {
   const query = OrderModel.find()
-    .populate("user" , "name email")
-    .populate("course" , "name estimatePrice price thumbnail purchased")
+    .populate("user", "name email")
+    .populate("course", "name estimatePrice price thumbnail purchased")
     .sort({ createdAt: -1 });
 
   if (transactions) {
@@ -18,5 +18,16 @@ export const getOrders = async (transactions = false) => {
   return await query;
 };
 
-const orderRepository = { createOrder, getOrders };
+export const getUserOrders = async (id: string) => {
+  return OrderModel.find({
+    user: id,
+  })
+    .populate({
+      path: "course",
+      select: "name description price estimatePrice thumbnail level ratings purchased",
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+};
+const orderRepository = { createOrder, getOrders, getUserOrders };
 export default orderRepository;

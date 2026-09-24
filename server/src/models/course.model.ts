@@ -8,11 +8,25 @@ import {
   IReview,
 } from "../interfaces/courseInterface";
 
+const replyQuestionSchema = new Schema(
+  {
+    user: Object,
+
+    answer: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
 const commentSchema = new Schema<IComment>(
   {
     user: Object,
     question: String,
-    questionReplies: [Object],
+    questionReplies: [replyQuestionSchema],
   },
   {
     timestamps: true,
@@ -126,6 +140,10 @@ const courseDataSchema = new Schema<ICourseData>(
     suggestion: {
       type: String,
     },
+    isFree: {
+      type: Boolean,
+      default: false,
+    },
 
     questions: [commentSchema],
   },
@@ -160,7 +178,12 @@ const courseSchema = new Schema<ICourse>(
       type: Number,
       required: true,
     },
-
+    organization: {
+      type: Schema.Types.ObjectId,
+      ref: "Organization",
+      required: true,
+      index: true,
+    },
     thumbnail: {
       public_Id: {
         type: String,

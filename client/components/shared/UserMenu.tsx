@@ -103,7 +103,7 @@ export default function UserMenu() {
       <DropdownMenuContent
         align="end"
         sideOffset={10}
-        className="w-[290px] overflow-hidden rounded-2xl border border-border/60 bg-background/95 p-1.5 shadow-xl backdrop-blur-xl">
+        className="w-[290px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-border/60 bg-background/95 p-1.5 shadow-xl backdrop-blur-xl">
         {isAuthenticated ? (
           <>
             {/* User Header */}

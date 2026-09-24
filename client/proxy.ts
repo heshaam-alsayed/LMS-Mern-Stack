@@ -1,26 +1,30 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import type { NextAuthRequest } from "next-auth";
+import jwt from "jsonwebtoken";
 import { auth } from "./auth";
-import { refreshAccessToken } from "./lib/api/refreshAccessToken";
+
 import { socialAuth } from "./lib/api/socialAuth";
 import { refreshAccessTokenServer } from "./lib/api/refreshAccessTokenServer";
 
-const protectedRoutes = ["/profile", "/dashboard", "/courses"];
-
-const adminRoutes = ["/admin"];
+type Role = "user" | "instructor" | "admin";
 
 type JwtPayload = {
   id: string;
-  role: "user" | "instructor" | "admin";
+  role: Role;
 };
 
 type SessionUser = {
   email?: string | null;
   name?: string | null;
   image?: string | null;
-  role?: "user" | "instructor" | "admin";
+  role?: Role;
 };
+
+const protectedRoutes = ["/profile", "/dashboard", "/access-course"];
+
+const adminRoutes = ["/admin"];
+
+const instructorRoutes = ["/instructor"];
 
 const isRouteMatch = (pathname: string, routes: string[]) => {
   return routes.some(
@@ -28,11 +32,26 @@ const isRouteMatch = (pathname: string, routes: string[]) => {
   );
 };
 
-const isAuthPage = (pathname: string) =>
-  pathname === "/login" || pathname === "/signup";
+const isAuthPage = (pathname: string) => {
+  return (
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password"
+  );
+};
 
-// Return payload if token is valid
-// Return null if token is expired or invalid
+const isRoleAllowed = (pathname: string, role: Role) => {
+  if (isRouteMatch(pathname, adminRoutes)) {
+    return role === "admin";
+  }
+
+  if (isRouteMatch(pathname, instructorRoutes)) {
+    return role === "instructor";
+  }
+
+  return true;
+};
+
 const verifyAccessToken = (token: string): JwtPayload | null => {
   try {
     return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as JwtPayload;
@@ -69,8 +88,14 @@ const setAuthCookies = (
   return response;
 };
 
-// `auth()` also decrypts the next-auth session cookie, so provider logins
-// (Google / GitHub) are recognized even without an app access_token cookie.
+const redirectToHome = (request: NextAuthRequest) => {
+  return NextResponse.redirect(new URL("/", request.url));
+};
+
+const redirectToLogin = (request: NextAuthRequest) => {
+  return NextResponse.redirect(new URL("/login", request.url));
+};
+
 const proxy = auth(async (request: NextAuthRequest) => {
   const { pathname } = request.nextUrl;
 
@@ -78,55 +103,68 @@ const proxy = auth(async (request: NextAuthRequest) => {
 
   const isAdminRoute = isRouteMatch(pathname, adminRoutes);
 
-  // 1. Access token is valid -> allow the request
+  const isInstructorRoute = isRouteMatch(pathname, instructorRoutes);
+
+  const requiresAuthentication =
+    isProtectedRoute || isAdminRoute || isInstructorRoute;
+
+  // 1 Check access token from cookies
   const accessToken = request.cookies.get("access_token")?.value;
 
   if (accessToken) {
     const payload = verifyAccessToken(accessToken);
 
     if (payload) {
-      // User is already logged in, don't allow login/signup
+      // Already authenticated
       if (isAuthPage(pathname)) {
-        return NextResponse.redirect(new URL("/", request.url));
+        return redirectToHome(request);
       }
 
-      // Admin authorization
-      if (isAdminRoute && payload.role !== "admin") {
-        return NextResponse.redirect(new URL("/", request.url));
+      // Role authorization
+      if (!isRoleAllowed(pathname, payload.role)) {
+        return redirectToHome(request);
       }
 
       return NextResponse.next();
     }
   }
 
-  // 2. Try to refresh the app access token using the refresh_token cookie
+  // 2. Refresh access token when access token is expired
   try {
     const result = await refreshAccessTokenServer(
       request.headers.get("cookie") ?? "",
     );
 
+    // return check new access token is valid or not Expired
     const payload = verifyAccessToken(result.accessToken);
 
     if (payload) {
-      if (isAdminRoute && payload.role !== "admin") {
-        return NextResponse.redirect(new URL("/", request.url));
+      if (isAuthPage(pathname)) {
+        return setAuthCookies(
+          redirectToHome(request),
+          result.accessToken,
+          result.refreshToken,
+        );
+      }
+
+      if (!isRoleAllowed(pathname, payload.role)) {
+        return redirectToHome(request);
       }
 
       return setAuthCookies(
-        isAuthPage(pathname)
-          ? NextResponse.redirect(new URL("/", request.url))
-          : NextResponse.next(),
+        NextResponse.next(),
         result.accessToken,
         result.refreshToken,
       );
     }
-  } catch {}
+  } catch {
+    // Continue to NextAuth session fallback
+  }
 
-  // 3. Fallback: provider login via the next-auth session
+  // 3. Check NextAuth session (social auth)
   const sessionUser = request.auth?.user as SessionUser | undefined;
 
   if (sessionUser?.email) {
-    // Re-mint the app tokens from the provider session so backend calls work
     try {
       const result = await socialAuth({
         email: sessionUser.email,
@@ -137,35 +175,32 @@ const proxy = auth(async (request: NextAuthRequest) => {
       const payload = verifyAccessToken(result.accessToken);
 
       if (payload) {
-        if (isAdminRoute && payload.role !== "admin") {
-          return NextResponse.redirect(new URL("/", request.url));
+        if (isAuthPage(pathname)) {
+          return setAuthCookies(
+            redirectToHome(request),
+            result.accessToken,
+            result.refreshToken,
+          );
+        }
+
+        if (!isRoleAllowed(pathname, payload.role)) {
+          return redirectToHome(request);
         }
 
         return setAuthCookies(
-          isAuthPage(pathname)
-            ? NextResponse.redirect(new URL("/", request.url))
-            : NextResponse.next(),
+          NextResponse.next(),
           result.accessToken,
           result.refreshToken,
         );
       }
-    } catch {}
-
-    // Session is valid but the app tokens could not be created -> still let the user in
-    if (isAuthPage(pathname)) {
-      return NextResponse.redirect(new URL("/", request.url));
+    } catch {
+      // Backend authentication failed.
     }
-
-    if (isAdminRoute && sessionUser.role !== "admin") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-
-    return NextResponse.next();
   }
 
   // 4. Not authenticated
-  if (isProtectedRoute || isAdminRoute) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  if (requiresAuthentication) {
+    return redirectToLogin(request);
   }
 
   return NextResponse.next();

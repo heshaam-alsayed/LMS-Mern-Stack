@@ -10,8 +10,9 @@ type CourseCardProps = {
 };
 
 export default function CourseCard({ course }: CourseCardProps) {
+  console.log(course);
   return (
-    <div className="group overflow-hidden rounded-xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+    <div className="group overflow-hidden rounded-xl border border-border bg-card ">
       {/* Thumbnail */}
       <div className="relative aspect-video overflow-hidden">
         <Image

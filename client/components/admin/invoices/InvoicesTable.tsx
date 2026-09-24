@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Eye, Receipt } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Order } from "@/types/order.type";
-import { fakeInvoices } from "@/lib/fakeData/FakeInVoices";
 
 type Props = {
   orders: Order[];
@@ -32,7 +31,7 @@ export default function InvoicesTable({ orders = [], onView }: Props) {
       </div>
 
       {/* Table */}
-      {fakeInvoices.length > 0 ? (
+      {orders.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px]">
             <thead>
@@ -60,7 +59,7 @@ export default function InvoicesTable({ orders = [], onView }: Props) {
             </thead>
 
             <tbody className="divide-y divide-border">
-              {fakeInvoices.map((order) => (
+              {orders.map((order) => (
                 <tr
                   key={order._id}
                   className="transition-colors hover:bg-muted/20">

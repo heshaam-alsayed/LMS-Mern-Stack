@@ -1,6 +1,5 @@
 import express from "express";
 import {
-  createOrder,
   getMonthlyGrowthAnalytics,
   getMonthlyOrdersAnalytics,
   getOrders,
@@ -10,7 +9,7 @@ import {
 import { authorizeRoles, isAuthenticated } from "../middlewares/authMiddleware";
 const router = express.Router();
 
-router.post("/create-order", isAuthenticated, createOrder);
+// router.post("/create-order", isAuthenticated, createOrder);
 router.get(
   "/monthly-analytics",
   isAuthenticated,
@@ -35,6 +34,7 @@ router.get(
   authorizeRoles("admin"),
   getMonthlyGrowthAnalytics,
 );
+
 router.get("/", isAuthenticated, authorizeRoles("admin"), getOrders);
 
 export default router;

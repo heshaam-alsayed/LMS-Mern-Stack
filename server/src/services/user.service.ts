@@ -4,10 +4,13 @@ import {
   IUpdateRole,
   IUpdateUserInfo,
 } from "../interfaces/userInterface";
+import orderRepository from "../repositories/order.repository";
 import userRepository from "../repositories/user.repository";
 import AppError from "../utils/AppError";
 import redis from "../utils/redis";
 import cloudinary from "cloudinary";
+import { getUserCoursesProgressService } from "./courseProgress.service";
+import { Types } from "mongoose";
 
 export const getUserById = async (userId: string) => {
   if (!userId) {
@@ -25,7 +28,7 @@ export const getUserById = async (userId: string) => {
   if (!user) {
     throw new AppError("User not found", 404);
   }
-  // 🔥 cache result
+  //  cache result
   await redis.set(userId, JSON.stringify(user)); // 1 hour
 
   return user;
@@ -77,8 +80,6 @@ export const getMe = async (userId: string) => {
   return user;
 };
 
-
-
 export const updateUserInfo = async (userId: string, body: IUpdateUserInfo) => {
   const { name } = body;
   if (!userId) {
@@ -97,8 +98,6 @@ export const updateUserInfo = async (userId: string, body: IUpdateUserInfo) => {
 
   return updatedUser;
 };
-
-
 
 export const updatePassword = async (userId: string, body: IUpdatePassword) => {
   const { oldPassword, newPassword } = body;
@@ -194,6 +193,16 @@ export const changeRole = async (
   return updatedUser;
 };
 
+export const enrolledUserCourses = async (userId: string) => {
+  if (!userId) {
+    throw new AppError("User id is required", 400);
+  }
+  const user = await userRepository.getUserCourses(userId);
+  if (!user) {
+    throw new AppError("user not found", 400);
+  }
+  return user;
+};
 export const toggleUserDeleted = async (userId: string) => {
   if (!userId) {
     throw new AppError("User id is required", 400);
@@ -221,6 +230,55 @@ export const getUsers = async () => {
   return await userRepository.getUsers();
 };
 
+export const getOperationUser = async (userId: string) => {
+  if (!userId) {
+    throw new AppError("User ID is required", 400);
+  }
+
+  if (!Types.ObjectId.isValid(userId)) {
+    throw new AppError("Invalid user ID", 400);
+  }
+  const [user, orders, progress] = await Promise.all([
+    userRepository.getSafeUser(userId),
+    orderRepository.getUserOrders(userId),
+    getUserCoursesProgressService(userId),
+  ]);
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+  const completedCourses = progress.filter(
+    (item) => item?.progressPercentage === 100,
+  ).length;
+
+  const notStartedCourses = progress.filter(
+    (item) => item?.progressPercentage === 0,
+  ).length;
+
+  const totalSpent = orders.reduce((total, order) => total + order.price, 0);
+
+  return {
+    user,
+    statistics: {
+      totalCourses: orders.length,
+      completedCourses,
+      notStartedCourses,
+      totalSpent,
+    },
+    courses: orders.map((order) => ({
+      course: order.course,
+      purchase: {
+        _id: order._id,
+        price: order.price,
+        createdAt: order.createdAt,
+        paymentInfo: order.paymentInfo,
+      },
+      progress: progress.find(
+        (item) => item?.course._id.toString() === order.course._id.toString(),
+      ),
+    })),
+    orders,
+  };
+};
 const userService = {
   getUserById,
   updateUserInfo,
@@ -231,5 +289,7 @@ const userService = {
   changeRole,
   toggleUserDeleted,
   createUser,
+  enrolledUserCourses,
+  getOperationUser
 };
 export default userService;

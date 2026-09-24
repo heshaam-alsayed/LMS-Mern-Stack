@@ -43,7 +43,7 @@ export default function CreateCourse() {
       description:
         "In this lesson, we will introduce the MERN stack and explain how MongoDB, Express.js, React, and Node.js work together to create modern full-stack web applications. You will learn about the responsibilities of the frontend, backend, database, and API layers and understand how data flows between the client and server",
       videoSection: "Introduction",
-      videoLength:"",
+      videoLength: "",
       links: [
         {
           title: "Node.js Official Documentation",
@@ -51,6 +51,7 @@ export default function CreateCourse() {
         },
       ],
       suggestion: "",
+      isFree: false,
     },
   ]);
 
@@ -77,6 +78,7 @@ export default function CreateCourse() {
       })),
 
       suggestion: courseContent.suggestion,
+      isFree: courseContent.isFree,
     }));
 
     // Create complete course object
@@ -128,8 +130,13 @@ export default function CreateCourse() {
   });
   return (
     <div className="relative min-h-screen">
+      {/* Mobile Course Options */}
+      <div className="mb-6 rounded-xl border border-border bg-card p-4 lg:hidden">
+        <CourseOptions active={active} setActive={setActive} />
+      </div>
+
       {/* Main Content */}
-      <main className="w-full pr-72">
+      <main className="w-full lg:pr-72">
         {active === 0 && (
           <CourseInformation
             courseInfo={courseInfo}
@@ -175,7 +182,7 @@ export default function CreateCourse() {
       </main>
 
       {/* Fixed Course Options */}
-      <aside className="fixed right-0 top-24 z-50 w-64">
+      <aside className="fixed right-0 top-24 z-50 hidden w-64 lg:block">
         <CourseOptions active={active} setActive={setActive} />
       </aside>
 

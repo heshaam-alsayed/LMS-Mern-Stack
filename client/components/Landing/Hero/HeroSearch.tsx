@@ -1,10 +1,22 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
-
-
+import { toast } from "sonner";
 
 export default function HeroSearch() {
+  const [search, setSearch] = useState("");
+  const router = useRouter();
+  const handleClickSearch = () => {
+    if (!search.trim()) {
+      toast.error("please enter a search value");
+      return;
+    }
+    router.push(`/courses/?search=${search}`);
+  };
+
   return (
     <div className="mx-auto mt-8 max-w-2xl lg:mx-0 lg:max-w-xl">
       <div
@@ -33,6 +45,7 @@ export default function HeroSearch() {
 
           <Input
             placeholder="Search courses..."
+            onChange={(e) => setSearch(e.target.value)}
             className="
               h-11
               border-0
@@ -43,7 +56,10 @@ export default function HeroSearch() {
           />
         </div>
 
-        <Button size="lg" className="w-full sm:w-auto">
+        <Button
+          onClick={handleClickSearch}
+          size="lg"
+          className="w-full sm:w-auto">
           Search
         </Button>
       </div>

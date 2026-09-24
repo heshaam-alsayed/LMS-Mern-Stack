@@ -8,6 +8,20 @@ export type loginFormData = {
   email: string;
   password: string;
 }
+
+export type forgotPasswordFormData = {
+  email: string;
+};
+
+export type resetPasswordFormData = {
+  password: string;
+  confirmPassword: string;
+};
+
+export type resetPasswordRequest = {
+  token: string;
+  password: string;
+};
 export type registerResponse = {
   success: boolean;
   message: string;

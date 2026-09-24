@@ -29,11 +29,17 @@ const findUserByEmail = async (email: string) => {
 export const getUserById = async (userId: string) => {
   return await UserModel.findById(userId);
 };
+
+export const findUserByIdWithPassword = async (userId: string) => {
+  return await UserModel.findById(userId).select("+password");
+};
+
 const authRepository = {
   createUser,
   getUserByEmail,
   findUserByEmail,
   getUserById,
+  findUserByIdWithPassword,
   createSocialUser,
 };
 export default authRepository;

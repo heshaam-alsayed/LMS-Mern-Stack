@@ -15,27 +15,32 @@ export interface PaginationData {
 }
 
 interface PaginationProps {
-  pagination: PaginationData;
+  pagination: PaginationData | undefined;
   onNext: () => void;
   onPrevious: () => void;
+  itemLabel?: string;
 }
 
 export default function Pagination({
   pagination,
   onNext,
   onPrevious,
+  itemLabel,
 }: PaginationProps) {
+  const pathName = usePathname();
+  const isTeam = pathName.includes("/team");
+  if (!pagination) return;
   const { currentPage, total, totalPages, hasNextPage, hasPreviousPage } =
     pagination;
-const pathName = usePathname();
-  const isTeam = pathName.includes("/team");
+  const label = itemLabel ?? (isTeam ? "admin" : "users");
   return (
-    <div className="flex items-center justify-between gap-4  px-4 py-3">
-      <p className="text-sm text-muted-foreground">
+    <div className="flex w-full flex-col items-center justify-between gap-4 px-4 py-4 sm:flex-row sm:gap-x-6">
+      <p className="min-w-0 flex-1 truncate text-center text-sm text-muted-foreground sm:text-left">
         Page <span className="font-medium text-foreground">{currentPage}</span>{" "}
         of <span className="font-medium text-foreground">{totalPages}</span>
         {" • "}
-        <span className="font-medium text-foreground">{total}</span> {isTeam ? "admin" : "users"}
+        <span className="font-medium text-foreground">{total}</span>{" "}
+        {label}
       </p>
 
       <div className="flex items-center gap-2">

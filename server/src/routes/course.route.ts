@@ -15,18 +15,27 @@ import {
   getCourses,
   getCoursesStatistics,
   getMonthlyCoursesAnalytics,
+  getOperationCourse,
   getPublicCourse,
   getTopSellingCourses,
   updateCourse,
 } from "../controllers/course.controller";
 
 import { authorizeRoles, isAuthenticated } from "../middlewares/authMiddleware";
+import {
+  completeLecture,
+  getCourseProgress,
+  getUserCoursesProgress,
+  updateCurrentLecture,
+} from "../controllers/courseProgress.controller";
 
 const router = express.Router();
 
 // Get all courses - Admin
 router.get("/", isAuthenticated, authorizeRoles("admin"), getCourses);
 
+// Get all public courses
+router.get("/public-courses", getAllCourses);
 // Create course - Admin
 router.post(
   "/create-course",
@@ -66,6 +75,28 @@ router.get(
   getAllCoursesPurchases,
 );
 
+router.get(
+  "/operation-course/:courseId",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  getOperationCourse,
+);
+
+router.get("/:courseId/progress", isAuthenticated, getCourseProgress);
+
+router.get(
+  "/courseProgress/my-courses",
+  isAuthenticated,
+  getUserCoursesProgress,
+);
+
+router.patch(
+  "/:courseId/progress/current-lecture",
+  isAuthenticated,
+  updateCurrentLecture,
+);
+
+router.patch("/:courseId/progress/complete", isAuthenticated, completeLecture);
 // Get purchases for a specific course - Admin
 router.get(
   "/:id/purchases",
@@ -74,15 +105,11 @@ router.get(
   getCoursePurchases,
 );
 
-// Get all public courses
-router.get("/public-courses", getAllCourses);
-
 // Get public course by ID
 router.get("/public-course/:id", getPublicCourse);
 
 // Get course content for authenticated user
 router.get("/content-course/:id", isAuthenticated, getContentCourseByUser);
-
 // Add question
 router.put("/add-question", isAuthenticated, addQuestion);
 

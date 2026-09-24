@@ -122,7 +122,7 @@ export default function EditCategory() {
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
             Categories Data
@@ -161,7 +161,7 @@ export default function EditCategory() {
               key={category._id}
               className="group rounded-xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
               {/* Top */}
-              <div className="flex items-start justify-between gap-4">
+<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <h2 className="truncate font-semibold text-foreground">
                     {category.title}

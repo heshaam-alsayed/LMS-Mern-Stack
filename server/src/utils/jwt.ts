@@ -42,15 +42,38 @@ export const createActivationToken = (
   };
 };
 
+export const createResetPasswordToken = (user: IUser): string => {
+  return jwt.sign(
+    { id: user._id.toString() },
+    process.env.JWT_SECRET as string,
+    {
+      expiresIn: (process.env.RESET_TOKEN_EXPIRE as StringValue) || "10m",
+    },
+  );
+};
+
+export const verifyResetPasswordToken = (token: string): { id: string } => {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
+      id: string;
+    };
+
+    if (!decoded.id) {
+      throw new AppError("Invalid reset token payload", 400);
+    }
+
+    return decoded;
+  } catch {
+    throw new AppError("Reset token is invalid or expired", 400);
+  }
+};
+
 export const verifyActivationToken = (
   token: string,
   code: string,
 ): IRegistrationBody => {
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET!,
-    ) as IJwtPayload;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as IJwtPayload;
 
     if (!decoded?.activationCode) {
       throw new AppError("Invalid Token Payload", 400);
@@ -80,7 +103,7 @@ export const refreshExpireDays = parseInt(
 // cookies config
 export const accessCookieOptions: ITokenOptions = {
   expires: new Date(Date.now() + accessExpireMin * 60 * 1000),
-  maxAge: accessExpireMin * 60 * 1000, 
+  maxAge: accessExpireMin * 60 * 1000,
   httpOnly: true,
   sameSite: "lax",
 };
@@ -105,7 +128,7 @@ export const sendToken = async (user: IUser) => {
     refreshExpireDays * 24 * 60 * 60,
   );
 
-  return { accessToken, refreshToken }; 
+  return { accessToken, refreshToken };
 };
 
 // REFRESH FLOW
@@ -133,13 +156,13 @@ export const handleRefreshAccessToken = async (token: string) => {
   const userId = user._id?.toString() ?? user.id;
 
   const accessToken = jwt.sign(
-    { id: userId , role: user.role},
+    { id: userId, role: user.role },
     process.env.ACCESS_TOKEN_SECRET as Secret,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRE as StringValue },
   );
 
   const newRefreshToken = jwt.sign(
-    { id: userId , role: user.role},
+    { id: userId, role: user.role },
     process.env.REFRESH_TOKEN_SECRET as Secret,
     { expiresIn: process.env.REFRESH_TOKEN_EXPIRE as StringValue },
   );

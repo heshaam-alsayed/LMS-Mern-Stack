@@ -42,6 +42,11 @@ const userSchema = new mongoose.Schema<IUser>(
       },
       default: "user",
     },
+    status: {
+      type: String,
+      enum: ["pending", "active", "suspended"],
+      default: "active",
+    },
     avatar: {
       public_Id: String,
       url: String,

@@ -24,7 +24,7 @@ export default function UserSelectFilters({
   const isTeam = pathName.includes("/team");
 
   return (
-    <div className="flex items-end gap-4">
+    <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
       {/* ==================== ROLE ==================== */}
       {!isTeam && (
         <div className="flex flex-col gap-1.5">
@@ -33,7 +33,7 @@ export default function UserSelectFilters({
           <Select
             value={searchParams.get("role") || "all"}
             onValueChange={(value) => updateQuery("role", value)}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
 
@@ -59,7 +59,7 @@ export default function UserSelectFilters({
         <Select
           value={searchParams.get("isVerified") || "all"}
           onValueChange={(value) => updateQuery("isVerified", value)}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Select verification" />
           </SelectTrigger>
 
@@ -80,7 +80,7 @@ export default function UserSelectFilters({
         <Select
           value={searchParams.get("sort") || "all"}
           onValueChange={(value) => updateQuery("sort", value)}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Select sorting" />
           </SelectTrigger>
 

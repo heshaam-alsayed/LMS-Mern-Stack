@@ -1,3 +1,6 @@
+import { IUser } from "./auth.type";
+import { ICourseProgress } from "./courseProgress.type";
+
 export type CourseLevelType = "" | "beginner" | "intermediate" | "advanced";
 export type CourseInfo = {
   name: string;
@@ -13,10 +16,44 @@ export type CourseInfo = {
 
 export type CourseBenefit = {
   title: string;
+  _id?: string;
 };
 
+export type QuestionReply = {
+  _id: string;
+  user: IUser;
+  answer: string;
+  createdAt: string;
+  updatedAt: string;
+};
+export type QuestionContent = {
+  _id: string;
+  user: IUser;
+  question: string;
+  questionReplies: QuestionReply[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ReviewReply = {
+  _id: string;
+  user: IUser;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+};
+export type reviewContent = {
+  _id: string;
+  user: IUser;
+  rating: number;
+  comment: string;
+  commentReplies: ReviewReply[];
+  createdAt: string;
+  updatedAt: string;
+};
 export type CoursePrerequisite = {
   title: string;
+  _id?: string;
 };
 
 export type CourseLink = {
@@ -25,6 +62,7 @@ export type CourseLink = {
 };
 
 export type CourseContentData = {
+  _id: string;
   videoUrl: string;
   videoLength: string;
   title: string;
@@ -32,6 +70,8 @@ export type CourseContentData = {
   videoSection: string;
   links: CourseLink[];
   suggestion: string;
+  isFree: boolean;
+  questions: QuestionContent[];
 };
 
 export type CourseData = {
@@ -46,6 +86,7 @@ export type CourseData = {
   thumbnail: string;
   totalVideos: number;
   benefits: CourseBenefit[];
+  reviews: reviewContent[];
   prerequisites: CoursePrerequisite[];
   courseData: CourseContentData[];
   createdAt?: string;
@@ -152,4 +193,65 @@ export interface ITopSellingCoursesResponse {
 export interface IPublicCoursesResponse {
   success: boolean;
   courses: Course[];
+  categories: {
+    slug: string;
+    title: string;
+    _id: string;
+  }[];
+  result: number;
+  pagination: {
+    currentPage: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
+export interface IReviewCourse {
+  _id: string;
+  user: IUser;
+  rating: number;
+  comment: string;
+  commentReplies: ReviewReply[];
+  createdAt: string;
+  updatedAt: string;
+}
+export interface ICoursePublicDetails {
+  _id: string;
+  name: string;
+  description: string;
+  category: {
+    _id: string;
+    slug: string;
+    title: string;
+  };
+  price: number;
+  estimatePrice: number;
+  tags: string;
+  level: CourseLevelType;
+  demoUrl: string;
+
+  thumbnail?: {
+    public_Id?: string;
+    url?: string;
+  };
+  ratings: number;
+  purchased: number;
+  benefits: CourseBenefit[];
+  prerequisites: CoursePrerequisite[];
+  reviews: IReviewCourse[];
+  courseData: CourseContentData[];
+  createdAt?: string;
+}
+export interface IPublicCourseDetailsResponse {
+  success: boolean;
+  course: ICoursePublicDetails;
+}
+
+export interface IContentCourseResponse {
+  success: boolean;
+  course: ICoursePublicDetails;
+  progress: ICourseProgress;
 }

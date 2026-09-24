@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { EditingMember, SelectedMember, User } from "@/types/user.type";
 import UsersTableSkeleton from "@/components/skeleton/UsersTableSkeleton";
 import { timeAgo } from "@/lib/utils";
+import Link from "next/link";
 
 interface UsersTableProps {
   users: User[];
@@ -194,11 +195,12 @@ export default function UsersTable({
 
                       <DropdownMenuContent align="end">
                         {/* View */}
+                        <Link href={`/admin/users/operation-user/${user._id}`}>
                         <DropdownMenuItem
-                          onClick={() => console.log("View:", user._id)}>
+                          >
                           <Eye className="mr-2 h-4 w-4" />
                           View
-                        </DropdownMenuItem>
+                        </DropdownMenuItem></Link>
 
                         {/* Edit */}
                         <DropdownMenuItem onClick={() => onClickEdit(user)}>

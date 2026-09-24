@@ -9,6 +9,7 @@ export interface IUser extends Document {
     public_Id: string;
     url: string;
   };
+  status: "pending" | "active" | "suspended";
   isDeleted?: boolean;
   isVerified?: boolean;
   courses: mongoose.Types.ObjectId[]; // array of course IDs the user is enrolled
@@ -35,6 +36,15 @@ export interface IActivationRequest {
 
 export interface ILoginRequest {
   email: string;
+  password: string;
+}
+
+export interface IForgotPasswordRequest {
+  email: string;
+}
+
+export interface IResetPasswordRequest {
+  token: string;
   password: string;
 }
 

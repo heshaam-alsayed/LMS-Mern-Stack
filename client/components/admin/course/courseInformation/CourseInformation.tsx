@@ -84,7 +84,7 @@ export default function CourseInformation({
         onChange={(value) => updateField("tags", value)}
       />
 
-      <div className="flex items-center gap-4 w-full">
+      <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
         <div className="w-full">
           <CourseLevel
             value={courseInfo.level}

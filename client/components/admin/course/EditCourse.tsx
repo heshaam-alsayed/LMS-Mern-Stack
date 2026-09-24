@@ -72,6 +72,7 @@ export default function EditCourse() {
         },
       ],
       suggestion: "",
+      isFree:false
     },
   ]);
 
@@ -112,6 +113,7 @@ export default function EditCourse() {
       })),
 
       suggestion: courseContent.suggestion,
+      isFree:courseContent.isFree
     }));
 
     if (!courseInfo.level) {
@@ -189,6 +191,7 @@ export default function EditCourse() {
         })),
 
         suggestion: item.suggestion,
+        isFree:item.isFree
       })),
     };
 
@@ -284,8 +287,13 @@ export default function EditCourse() {
 
   return (
     <div className="relative min-h-screen">
+      {/* Mobile Course Options */}
+      <div className="mb-6 rounded-xl border border-border bg-card p-4 lg:hidden">
+        <CourseOptions active={active} setActive={setActive} />
+      </div>
+
       {/* Main Content */}
-      <main className="w-full pr-72">
+      <main className="w-full lg:pr-72">
         {active === 0 && (
           <CourseInformation
             courseInfo={courseInfo}
@@ -331,7 +339,7 @@ export default function EditCourse() {
       </main>
 
       {/* Fixed Course Options */}
-      <aside className="fixed right-0 top-24 z-50 w-64">
+      <aside className="fixed right-0 top-24 z-50 hidden w-64 lg:block">
         <CourseOptions active={active} setActive={setActive} />
       </aside>
 

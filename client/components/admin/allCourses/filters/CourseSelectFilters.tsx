@@ -18,13 +18,13 @@ export default function CourseSelectFilters({
   updateQuery,
 }: CourseSelectFiltersProps) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
       {/* ==================== LEVEL ==================== */}
 
       <Select
         value={searchParams.get("level") || "all"}
         onValueChange={(value) => updateQuery("level", value)}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Level" />
         </SelectTrigger>
 
@@ -44,7 +44,7 @@ export default function CourseSelectFilters({
       <Select
         value={searchParams.get("ratings[gte]") || "all"}
         onValueChange={(value) => updateQuery("ratings[gte]", value)}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Rating" />
         </SelectTrigger>
 
@@ -68,7 +68,7 @@ export default function CourseSelectFilters({
       <Select
         value={searchParams.get("purchased[gte]") || "all"}
         onValueChange={(value) => updateQuery("purchased[gte]", value)}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Purchased" />
         </SelectTrigger>
 
@@ -90,7 +90,7 @@ export default function CourseSelectFilters({
       <Select
         value={searchParams.get("sort") || "all"}
         onValueChange={(value) => updateQuery("sort", value)}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Sort" />
         </SelectTrigger>
 

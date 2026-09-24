@@ -110,6 +110,7 @@ export default function CourseContent({
       description: "",
       videoSection: item.videoSection,
       suggestion: "",
+      isFree: false,
       links: [
         {
           title: "",
@@ -141,6 +142,7 @@ export default function CourseContent({
         description: "",
         videoSection: `Untitled Section ${active}`,
         suggestion: "",
+        isFree:false,
         links: [
           {
             title: "",

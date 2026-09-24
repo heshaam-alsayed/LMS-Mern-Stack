@@ -15,6 +15,10 @@ import sendEmail from "../utils/SendEmail";
 import { IOrder } from "../interfaces/orderInterface";
 import notificationRepository from "../repositories/notification.repository";
 import CourseModel from "../models/course.model";
+import userRepository from "../repositories/user.repository";
+import UserModel from "../models/user.model";
+import { getIO } from "../socketServer";
+import OrderModel from "../models/order.model";
 
 export const createCourse = async (data: any) => {
   const thumbnail = data.thumbnail;
@@ -96,37 +100,40 @@ export const getPublicCourse = async (courseId: string) => {
   const course = await courseRepository.getPublicCourse(courseId);
   if (!course) throw new AppError("Course not found", 404);
 
-  await redis.set(courseId, JSON.stringify(course), "EX", 7 * 24 * 60 * 60);
+  await redis.set(courseId, JSON.stringify(course), "EX", 900);
   return course;
 };
 
 // get all courses public not purchased
-export const getAllCourses = async () => {
-  const isCachedCourses = await redis.get("allCourses");
+// Get all public courses
+export const getAllCourses = async (queryString: any) => {
+  const { courses, pagination } =
+    await courseRepository.getAllCourses(queryString);
 
-  if (isCachedCourses) {
-    return JSON.parse(isCachedCourses);
-  }
-  const courses = await courseRepository.getAllCourses();
+  const result = {
+    courses,
+    pagination,
+  };
 
-  await redis.set("allCourses", JSON.stringify(courses));
-  return courses;
+  return result;
 };
 
 // get course by user for purchased
-export const getCourseByUser = async (
-  courseId: string,
-  coursesUserList: Types.ObjectId[],
-) => {
-  if (!courseId) throw new AppError("Course id is required", 400);
+export const getCourseByUser = async (courseId: string, userId: string) => {
+  if (!courseId) {
+    throw new AppError("Course id is required", 400);
+  }
 
-  // check course is exist in list of course user enrolled
-  const courseExist = coursesUserList.some((id) => id.toString() === courseId);
-  if (!courseExist)
-    throw new AppError("you have not purchased to access this course", 404);
-  const contentCourse = await courseRepository.getContentCourse(courseId);
+  const hasAccess = await UserModel.exists({
+    _id: userId,
+    courses: courseId,
+  });
 
-  return contentCourse;
+  if (!hasAccess) {
+    throw new AppError("You have not purchased this course", 403);
+  }
+
+  return await courseRepository.getContentCourse(courseId);
 };
 
 export const getAdminCourse = async (courseId: string) => {
@@ -135,21 +142,32 @@ export const getAdminCourse = async (courseId: string) => {
   if (!course) throw new AppError("Course id not found", 400);
   return course;
 };
-export const addQuestion = async (data: IAddQuestionData, userData: IUser) => {
+export const addQuestion = async (data: IAddQuestionData, userId: string) => {
   const { question, contentId, courseId } = data;
   // get course by id
   if (!isValidId(contentId) || !isValidId(courseId))
     throw new AppError("Content id or course id is invalid", 400);
   const course = await courseRepository.getFullCourseById(courseId);
+  if (!course) {
+    throw new AppError("Course not found", 404);
+  }
+
+  const user = await userRepository.getSafeUser(userId);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
 
   // find content by id
-  const courseContent = course?.courseData.find(
+  const courseContent = course.courseData.find(
     (item) => item._id.toString() === contentId,
   );
-  if (!courseContent) throw new AppError("Content Id not found", 404);
 
+  if (!courseContent) {
+    throw new AppError("Content not found", 404);
+  }
   const questionData: any = {
-    user: userData,
+    user,
     question,
     questionReplies: [],
   };
@@ -158,19 +176,23 @@ export const addQuestion = async (data: IAddQuestionData, userData: IUser) => {
   courseContent.questions.push(questionData);
 
   // send and create notification
-  await notificationRepository.createNotification({
-    user: userData._id,
+  const notification = await notificationRepository.createNotification({
+    user: user._id,
     title: " new question received",
-    message: `${userData.name} ask a question in ${courseContent?.title} lesson`,
+    message: `${user.name} ask a question in ${courseContent?.title} lesson`,
   });
 
   await course?.save({
     validateBeforeSave: false,
   });
+  await redis.set(courseId, JSON.stringify(course), "EX", "604800");
+
+  const io = getIO();
+  io.to("admins").emit("notification", notification);
   return course;
 };
 
-export const addAnswer = async (data: IAnswerData, userData: IUser) => {
+export const addAnswer = async (data: IAnswerData, userId: string) => {
   const { answer, questionId, contentId, courseId } = data;
 
   const course = await courseRepository.getFullCourseById(courseId);
@@ -179,6 +201,11 @@ export const addAnswer = async (data: IAnswerData, userData: IUser) => {
     throw new AppError("Course not found", 404);
   }
 
+  const user = await userRepository.getSafeUser(userId);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
   const courseContent = course.courseData.find(
     (item) => item._id.toString() === contentId,
   );
@@ -196,7 +223,7 @@ export const addAnswer = async (data: IAnswerData, userData: IUser) => {
   }
 
   const answerData: any = {
-    user: userData,
+    user,
     answer,
   };
 
@@ -205,15 +232,21 @@ export const addAnswer = async (data: IAnswerData, userData: IUser) => {
   isExistQuestion.questionReplies.push(answerData);
 
   await course.save({ validateBeforeSave: false });
+  await redis.set(courseId, JSON.stringify(course), "EX", "604800");
 
-  if (userData._id.toString() === isExistQuestion.user._id.toString()) {
+  if (user._id.toString() === isExistQuestion.user._id.toString()) {
     // send and create notification
     await notificationRepository.createNotification({
-      user: userData._id,
-      title: " new question reply received",
-      message: `${userData.name} ask a question in ${courseContent?.title}`,
+      user: user._id,
+      title: "New Reply",
+      message: `You replied to your question in "${courseContent.title}".`,
     });
   } else {
+    await notificationRepository.createNotification({
+      user: isExistQuestion.user._id,
+      title: "Question Answered",
+      message: `${user.name} replied to your question in "${courseContent.title}".`,
+    });
     const emailData = {
       name: isExistQuestion.user.name,
       courseTitle: course.name,
@@ -236,8 +269,7 @@ export const addAnswer = async (data: IAnswerData, userData: IUser) => {
 export const addReviewCourse = async (
   courseId: string,
   data: IAddReviewData,
-  coursesUserList: Types.ObjectId[],
-  userData: IUser,
+  userId: string,
 ) => {
   const { review, rating } = data;
 
@@ -245,7 +277,11 @@ export const addReviewCourse = async (
     throw new AppError("Rating must be between 1 and 5", 400);
   }
 
-  const courseExist = coursesUserList.some(
+  const user = await userRepository.getSafeUser(userId);
+  if (!user) {
+    throw new AppError("user not found", 404);
+  }
+  const courseExist = user.courses.some(
     (id) => id.toString() === courseId.toString(),
   );
 
@@ -260,7 +296,7 @@ export const addReviewCourse = async (
   }
 
   const alreadyReviewed = course.reviews.find(
-    (r: any) => r.user._id === userData._id.toString(),
+    (review: any) => review.user._id === user._id.toString(),
   );
 
   if (alreadyReviewed) {
@@ -268,7 +304,7 @@ export const addReviewCourse = async (
   }
 
   const reviewData: any = {
-    user: userData,
+    user,
     comment: review,
     rating,
   };
@@ -279,13 +315,22 @@ export const addReviewCourse = async (
   course.ratings = averageRating;
 
   await course.save({ validateBeforeSave: false });
+  await redis.set(courseId, JSON.stringify(course), "EX", "604800");
+  const notification = await notificationRepository.createNotification({
+    user: user._id,
+    title: "New Review Recieved",
+    message: `${user.name} has give a review in "${course.name}".`,
+  });
+
+  const io = getIO();
+  io.to("admins").emit("notification", notification);
 
   return course;
 };
 
 export const addReplyReview = async (
   data: IAddReplyReviewData,
-  userData: IUser,
+  userId: string,
 ) => {
   const { comment, reviewId, courseId } = data;
 
@@ -293,6 +338,12 @@ export const addReplyReview = async (
 
   if (!course) {
     throw new AppError("Course not found", 404);
+  }
+
+  const user = await userRepository.getSafeUser(userId);
+
+  if (!user) {
+    throw new AppError("user not found", 404);
   }
 
   const review = course.reviews.find(
@@ -304,13 +355,7 @@ export const addReplyReview = async (
   }
 
   const replyData: any = {
-    user: {
-      _id: userData._id,
-      name: userData.name,
-      email: userData.email,
-      avatar: userData.avatar,
-    },
-
+    user,
     comment,
   };
 
@@ -320,6 +365,7 @@ export const addReplyReview = async (
   await course.save({
     validateBeforeSave: false,
   });
+  await redis.set(courseId, JSON.stringify(course), "EX", "604800");
 
   return course;
 };
@@ -364,6 +410,46 @@ export const getTopSellingCourses = async (limit?: number) => {
     .lean();
 };
 
+export const getOperationCourse = async (courseId: string) => {
+  if (!courseId) {
+    throw new AppError("Course ID is required", 400);
+  }
+
+  if (!Types.ObjectId.isValid(courseId)) {
+    throw new AppError("Invalid course ID", 400);
+  }
+
+  const course = await CourseModel.findById(courseId)
+    .select(
+      "name description price category estimatePrice thumbnail level reviews ratings purchased",
+    )
+    .populate("category", "slug title");
+  if (!course) {
+    throw new AppError("Course not found", 404);
+  }
+  // Get all purchases for this course
+  const orders = await OrderModel.find({
+    course: courseId,
+  })
+    .populate({
+      path: "user",
+      select: "-password",
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+  const totalStudents = orders.length;
+  const totalRevenue = orders.reduce((total, order) => {
+    return total + order.price;
+  }, 0);
+  return {
+    course,
+    statistics: {
+      totalStudents,
+      totalRevenue,
+    },
+    orders,
+  };
+};
 const courseService = {
   createCourse,
   updateCourse,
@@ -379,5 +465,6 @@ const courseService = {
   getCoursePurchases,
   getAllCoursesPurchases,
   getTopSellingCourses,
+  getOperationCourse,
 };
 export default courseService;

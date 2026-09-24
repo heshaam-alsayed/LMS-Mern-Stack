@@ -1,7 +1,7 @@
 import type { IconType } from "react-icons";
 
 type HeroStatCardProps = {
-  value: string;
+  value: number;
   label: string;
   icon: IconType;
 };

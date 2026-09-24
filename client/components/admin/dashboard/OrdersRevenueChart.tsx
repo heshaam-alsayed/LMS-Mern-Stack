@@ -32,10 +32,10 @@ import { IRevenueOrdersMonthly } from "@/types/order.type";
 
 type Props = {
   year: string;
-  monthlyData: IRevenueOrdersMonthly[];
+  monthlyData: IRevenueOrdersMonthly[] | undefined;
 
-  yearlyRevenue: number;
-  allTimeRevenue: number;
+  yearlyRevenue: number | undefined;
+  allTimeRevenue: number | undefined;
 
   isError: boolean;
   isLoading: boolean;
@@ -65,7 +65,7 @@ export function OrdersRevenueChart({
   error,
 }: Props) {
   const isEmpty =
-    monthlyData.length === 0 || monthlyData.every((item) => item.revenue === 0);
+    monthlyData?.length === 0 || monthlyData?.every((item) => item.revenue === 0);
 
   return (
     <Card className="overflow-hidden">
@@ -103,7 +103,7 @@ export function OrdersRevenueChart({
                 {/* Year Revenue */}
                 <div className="min-w-0 text-center">
                   <p className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
-                    ${yearlyRevenue.toLocaleString()}
+                    ${yearlyRevenue?.toLocaleString()}
                   </p>
 
                   <p className="mt-0.5 whitespace-nowrap text-[10px] font-medium text-muted-foreground sm:text-xs">
@@ -116,7 +116,7 @@ export function OrdersRevenueChart({
                 {/* All Time Revenue */}
                 <div className="min-w-0 text-center">
                   <p className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
-                    ${allTimeRevenue.toLocaleString()}
+                    ${allTimeRevenue?.toLocaleString()}
                   </p>
 
                   <p className="mt-0.5 whitespace-nowrap text-[10px] font-medium text-muted-foreground sm:text-xs">

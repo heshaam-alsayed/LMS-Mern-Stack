@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Course } from "@/types/course.type";
 import CoursesTableSkeleton from "@/components/skeleton/CoursesTableSkeleton";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface CoursesTableProps {
   courses: Course[];
@@ -196,11 +197,13 @@ export default function CoursesTable({
                       </DropdownMenuTrigger>
 
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => console.log("View:", course._id)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </DropdownMenuItem>
+                        <Link
+                          href={`/admin/courses/operation-course/${course._id}`}>
+                          <DropdownMenuItem>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View
+                          </DropdownMenuItem>
+                        </Link>
 
                         <DropdownMenuItem
                           onClick={() =>

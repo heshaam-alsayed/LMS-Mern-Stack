@@ -1,12 +1,13 @@
 "use client";
 import ProfileSideBar from "@/components/shared/ProfileSideBar";
 import React, { useEffect, useState } from "react";
-import { GraduationCap, KeyRound, LogOut, User } from "lucide-react";
+import { GraduationCap, KeyRound, LogOut, Menu, User } from "lucide-react";
 import MyAccountForm from "@/components/form/MyAccountForm";
 import ChangePasswordForm from "@/components/form/ChangePasswordForm";
 import { useAppSelector } from "@/redux/hooks";
 import ProfilePageSkeleton from "@/components/skeleton/ProfilePageSkeleton";
 import Header from "@/components/shared/Header";
+import EnrolledCourses from "@/components/enrolledCourses/EnrolledCourses";
 
 type ProfileTab = "account" | "password" | "courses";
 
@@ -19,6 +20,8 @@ export type MenuItem = {
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("account");
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems: MenuItem[] = [
     {
@@ -55,22 +58,41 @@ export default function ProfilePage() {
     return <ProfilePageSkeleton />;
   }
 
+  console.log(user)
   return (
     <div>
       <Header />
-      <div className="mx-auto flex max-w-7xl gap-8 px-6 py-10">
+
+      {/* Mobile sidebar toggle */}
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 pt-4 sm:px-6 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open sidebar"
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+          <Menu className="h-5 w-5" />
+        </button>
+
+        <span className="text-sm font-medium text-muted-foreground">
+          Profile Menu
+        </span>
+      </div>
+
+      <div className="mx-auto flex max-w-7xl gap-4 px-4 py-4 sm:px-6 lg:gap-8 lg:py-10 lg:pl-[270px]">
         <ProfileSideBar
           menuItems={menuItems}
           setActiveTab={setActiveTab}
           activeTab={activeTab}
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
 
-        <div className="flex-1  px-4 ">
+        <div className="min-w-0 flex-1 px-4">
           {activeTab === "account" && <MyAccountForm />}
 
           {activeTab === "password" && <ChangePasswordForm />}
 
-          {activeTab === "courses" && <div>Enrolled Courses Content</div>}
+          {activeTab === "courses" && <EnrolledCourses/>}
         </div>
       </div>
     </div>

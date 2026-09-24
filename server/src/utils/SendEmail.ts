@@ -13,6 +13,9 @@ export interface IEmailOptions {
 
 const sendEmail = async (options: IEmailOptions): Promise<void> => {
   try {
+    // Gmail app passwords are shown with spaces - remove them to avoid login failures
+    const smtpPassword = (process.env.SMTP_PASSWORD || "").replace(/\s/g, "");
+
     // 1. create transporter
     const transporter = createTransport({
       service: process.env.SMTP_SERVICE,
@@ -20,7 +23,7 @@ const sendEmail = async (options: IEmailOptions): Promise<void> => {
       port: Number(process.env.SMTP_PORT),
       auth: {
         user: process.env.SMTP_MAIL,
-        pass: process.env.SMTP_PASSWORD,
+        pass: smtpPassword,
       },
     });
 
@@ -44,7 +47,19 @@ const sendEmail = async (options: IEmailOptions): Promise<void> => {
       html,
     });
   } catch (error: any) {
-    console.error(" Email sending failed:");
+    console.error(" Email sending failed:", error?.message);
+
+    if (
+      error?.message?.includes("535") ||
+      error?.message?.includes("Username and Password not accepted") ||
+      error?.message?.includes("BadCredentials")
+    ) {
+      throw new AppError(
+        "Email login failed: SMTP credentials (SMTP_MAIL / SMTP_PASSWORD) are invalid or expired. For Gmail, generate a new App Password at https://myaccount.google.com/apppasswords",
+        400,
+      );
+    }
+
     throw new AppError(error?.message || "Failed to send email", 400);
   }
 };

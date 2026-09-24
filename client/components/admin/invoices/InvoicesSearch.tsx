@@ -25,7 +25,7 @@ export default function InvoicesSearch({
     <Input
       type="text"
       placeholder="Search by userName or courseName..."
-      className="h-10 w-[300px]"
+      className="h-10 w-full sm:w-[300px]"
       value={search}
       onChange={(e) => setSearch(e.target.value)}
     />

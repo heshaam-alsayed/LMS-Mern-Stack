@@ -23,7 +23,7 @@ export default function VerificationInputs({
   handlePaste,
 }: Props) {
   return (
-    <div className="flex justify-center gap-2 sm:gap-3">
+    <div className="flex justify-center gap-1.5 sm:gap-3">
       {code.map((digit, index) => (
         <input
           key={index}
@@ -38,7 +38,7 @@ export default function VerificationInputs({
           onKeyDown={(e) => handleKeyDown(index, e)}
           onChange={(e) => handleChange(index, e.target.value)}
           className={cn(
-            "bg-background h-14 w-12 sm:w-14 rounded-xl border text-center text-lg font-semibold outline-none transition-all focus:ring-2",
+            "bg-background h-14 w-10 sm:w-14 rounded-xl border text-center text-lg font-semibold outline-none transition-all focus:ring-2",
             invalidError
               ? "border-destructive focus:border-destructive focus:ring-destructive"
               : "border-input",

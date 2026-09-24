@@ -55,7 +55,7 @@ export default function ChangePasswordForm() {
           </p>
         )}
 
-        <div className="flex items-start gap-4 w-full">
+        <div className="flex w-full flex-col gap-4 md:flex-row md:items-start">
           {/* New Password */}
           <div className="flex-1">
             <label

@@ -28,7 +28,7 @@ export default function CourseSearchFilter({
     <Input
       type="text"
       placeholder="Search courses..."
-      className="h-10 w-[300px]"
+      className="h-10 w-full sm:w-[300px]"
       value={search}
       onChange={(e) => setSearch(e.target.value)}
     />
