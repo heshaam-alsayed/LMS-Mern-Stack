@@ -4,6 +4,7 @@ import {
   createUser,
   getMe,
   getMonthlyUsersAnalytics,
+  getOperationUser,
   getUserById,
   getUsers,
   getUsersStatistics,
@@ -35,6 +36,12 @@ router.get(
   getMonthlyUsersAnalytics,
 );
 
+router.get(
+  "/operation-user/:userId",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  getOperationUser,
+);
 router.patch(
   "/change-role",
   isAuthenticated,

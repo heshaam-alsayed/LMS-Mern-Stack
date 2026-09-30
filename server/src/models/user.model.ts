@@ -25,6 +25,15 @@ const userSchema = new mongoose.Schema<IUser>(
       trim: true,
       match: [emailRegex, "Please enter a valid email address"],
     },
+    provider: {
+      type: String,
+      enum: ["local", "google", "github"],
+      default: "local",
+      required: true,
+    },
+    passwordUpdatedAt: {
+      type: Date,
+    },
     password: {
       type: String,
       minlength: [6, "Password must be at least 6 characters"],
@@ -34,6 +43,10 @@ const userSchema = new mongoose.Schema<IUser>(
       ],
       select: false,
     },
+    phone: {
+      type: String,
+      trim: true,
+    },
     role: {
       type: String,
       enum: {
@@ -41,6 +54,11 @@ const userSchema = new mongoose.Schema<IUser>(
         message: "Role must be user, instructor, or admin",
       },
       default: "user",
+    },
+    status: {
+      type: String,
+      enum: ["pending", "active", "suspended"],
+      default: "active",
     },
     avatar: {
       public_Id: String,
@@ -69,11 +87,12 @@ const userSchema = new mongoose.Schema<IUser>(
   },
 );
 
-// hash password before saving
+// hash password before saving and stamp the change time
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
   this.password = await bcrypt.hash(this.password, 10);
+  this.passwordUpdatedAt = new Date();
 });
 
 // compare entered password with hashed password in database

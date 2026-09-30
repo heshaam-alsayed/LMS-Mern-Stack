@@ -4,8 +4,18 @@ import UserModel from "../models/user.model";
 const getUserById = (id: string) => {
   return UserModel.findById(id).select("+password");
 };
+const findUserByEmail = async (email: string) => {
+  return UserModel.findOne({ email }).select("+password");
+};
+const getUserCourses = (id: string) => {
+  return UserModel.findById(id).select("-password").populate("courses");
+};
+
+const getSafeUser = (id: string) => {
+  return UserModel.findById(id).select("-password");
+};
 export const getUserByEmail = async (email: string) => {
-  return await UserModel.findOne({ email });
+  return await UserModel.findOne({ email , isDeleted: false });
 };
 
 export const createUser = async (userData: any) => {
@@ -43,7 +53,9 @@ const userRepository = {
   getUsers,
   toggleUserDeleted,
   createUser,
-  
+  getSafeUser,
+  getUserCourses,
+  findUserByEmail,
 };
 
 export default userRepository;

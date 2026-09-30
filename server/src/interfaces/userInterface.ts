@@ -4,11 +4,15 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
+  phone?: string;
+  provider: "local" | "google" | "github";
+  passwordUpdatedAt?: Date;
   role: "user" | "instructor" | "admin";
   avatar: {
     public_Id: string;
     url: string;
   };
+  status: "pending" | "active" | "suspended";
   isDeleted?: boolean;
   isVerified?: boolean;
   courses: mongoose.Types.ObjectId[]; // array of course IDs the user is enrolled
@@ -38,9 +42,19 @@ export interface ILoginRequest {
   password: string;
 }
 
+export interface IForgotPasswordRequest {
+  email: string;
+}
+
+export interface IResetPasswordRequest {
+  token: string;
+  password: string;
+}
+
 export interface ISocialAuthBody {
   email: string;
   name: string;
+  provider?: string;
   avatar?: {
     public_Id?: string;
     url: string;
@@ -49,6 +63,7 @@ export interface ISocialAuthBody {
 export interface IUpdateUserInfo {
   name?: string;
   email?: string;
+  phone?: string;
 }
 export interface IUpdatePassword {
   oldPassword: string;
