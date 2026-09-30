@@ -1,0 +1,11 @@
+import StudentProgress from "@/components/instructor/organizationStudents/StudentProgress";
+
+type Params = {
+  id: string;
+};
+
+export default async function Page({ params }: { params: Promise<Params> }) {
+  const { id } = await params;
+
+  return <StudentProgress id={id} />;
+}
