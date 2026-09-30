@@ -1,6 +1,10 @@
 import { Document, Types } from "mongoose";
 import { IUser } from "./userInterface";
 
+export const COURSE_STATUSES = ["draft", "published", "archived"] as const;
+
+export type CourseStatus = (typeof COURSE_STATUSES)[number];
+
 export interface IComment extends Document {
   user: IUser;
   question: string;
@@ -36,6 +40,7 @@ export interface ICourseData extends Document {
   videoThumbnail: object;
   videoSection: string;
   videoLength: number;
+  isFree: boolean;
   videoPlayer: string;
   links: ILink[];
   suggestion: string;
@@ -49,9 +54,13 @@ export interface ICourse extends Document {
   price: number;
   estimatePrice: number;
   thumbnail: IThumbnail;
+  organization: Types.ObjectId;
+  instructor: Types.ObjectId;
+  createdBy: Types.ObjectId;
   tags: string;
   level: string;
   demoUrl: string;
+  status: CourseStatus;
   benefits: { title: string }[];
   prerequisites: { title: string }[];
   reviews: IReview[];
@@ -85,3 +94,17 @@ export interface IAddReplyReviewData {
   reviewId: string;
   courseId: string;
 }
+
+export type IPublicCourseData = {
+  title: string;
+  description: string;
+  videoThumbnail: object;
+  videoSection: string;
+  videoLength: number;
+  isFree: boolean;
+  videoPlayer: string;
+  suggestion?: string;
+  questions?: IComment[];
+  videoUrl?: string;
+  links?: ILink[];
+};

@@ -15,18 +15,27 @@ import {
   getCourses,
   getCoursesStatistics,
   getMonthlyCoursesAnalytics,
+  getOperationCourse,
   getPublicCourse,
   getTopSellingCourses,
   updateCourse,
 } from "../controllers/course.controller";
 
 import { authorizeRoles, isAuthenticated } from "../middlewares/authMiddleware";
+import {
+  completeLecture,
+  getCourseProgress,
+  getUserCoursesProgress,
+  updateCurrentLecture,
+} from "../controllers/courseProgress.controller";
 
 const router = express.Router();
 
 // Get all courses - Admin
 router.get("/", isAuthenticated, authorizeRoles("admin"), getCourses);
 
+// Get all public courses
+router.get("/public-courses", getAllCourses);
 // Create course - Admin
 router.post(
   "/create-course",
@@ -66,6 +75,28 @@ router.get(
   getAllCoursesPurchases,
 );
 
+router.get(
+  "/operation-course/:courseId",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  getOperationCourse,
+);
+
+router.get("/:courseId/progress", isAuthenticated, getCourseProgress);
+
+router.get(
+  "/courseProgress/my-courses",
+  isAuthenticated,
+  getUserCoursesProgress,
+);
+
+router.patch(
+  "/:courseId/progress/current-lecture",
+  isAuthenticated,
+  updateCurrentLecture,
+);
+
+router.patch("/:courseId/progress/complete", isAuthenticated, completeLecture);
 // Get purchases for a specific course - Admin
 router.get(
   "/:id/purchases",
@@ -74,37 +105,39 @@ router.get(
   getCoursePurchases,
 );
 
-// Get all public courses
-router.get("/public-courses", getAllCourses);
-
 // Get public course by ID
 router.get("/public-course/:id", getPublicCourse);
 
 // Get course content for authenticated user
 router.get("/content-course/:id", isAuthenticated, getContentCourseByUser);
-
 // Add question
 router.put("/add-question", isAuthenticated, addQuestion);
 
-// Add answer
-router.put("/add-answer", isAuthenticated, addAnswer);
+// Add answer - course owner (instructor) or admin
+router.put(
+  "/add-answer",
+  isAuthenticated,
+  authorizeRoles("admin", "instructor"),
+  addAnswer,
+);
 
 // Add course review
 router.put("/add-review/:id", isAuthenticated, addReviewCourse);
 
-// Add admin reply to review
+// Add reply to review - course owner (instructor) or admin
 router.post(
   "/add-reply-review",
   isAuthenticated,
-  authorizeRoles("admin"),
+  authorizeRoles("admin", "instructor"),
   addReplyReview,
 );
 
-// Update course - Admin
+// Update course - admin can edit any course, instructor only their own
+// organization's courses (enforced in courseService.updateCourse)
 router.patch(
   "/edit-course/:id",
   isAuthenticated,
-  authorizeRoles("admin"),
+  authorizeRoles("admin", "instructor"),
   updateCourse,
 );
 

@@ -60,7 +60,7 @@ export type Course = {
   price: number;
   category: {
     _id: string;
-    name: string;
+    title: string;
   };
   thumbnail?: {
     url: string;
@@ -88,4 +88,14 @@ export type ResponseOrdersInvoices = {
     hasNextPage: boolean;
     hasPreviousPage: boolean;
   };
+};
+
+export type ResponsePublishableKey = {
+  success: boolean;
+  publishableKey: string;
+};
+
+export type ResponseCreatePaymentIntent = {
+  success: boolean;
+  clientSecret: string;
 };

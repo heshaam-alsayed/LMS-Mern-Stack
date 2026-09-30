@@ -13,6 +13,12 @@ const orderSchema = new mongoose.Schema<IOrder>(
       ref: "Course",
       required: true,
     },
+    organization: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Organization",
+      required: true,
+      index: true,
+    },
     price: {
       type: Number,
       required: true,

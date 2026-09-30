@@ -13,6 +13,8 @@ import CourseModel from "../models/course.model";
 import axios from "axios";
 import ApiFeatures from "../utils/apiFeatures";
 import AppError from "../utils/AppError";
+import { getAllCategoriesService } from "../services/category.service";
+import { getCourseProgressService } from "../services/courseProgress.service";
 
 export const createCourse = async (
   req: Request,
@@ -21,7 +23,15 @@ export const createCourse = async (
 ) => {
   try {
     const data = req.body;
-    const course = await courseService.createCourse(data);
+
+    const user = req.user as IUser;
+
+    const course = await courseService.createCourse(
+      data,
+      user._id.toString(),
+      user.role,
+    );
+
     res.status(201).json({
       success: true,
       course,
@@ -39,7 +49,14 @@ export const updateCourse = async (
   try {
     const courseId = req.params.id.toString();
     const data = req.body;
-    const course = await courseService.updateCourse(courseId, data);
+
+    // role and id come from the session, the client cannot influence them
+    const actor = {
+      id: req.user!._id.toString(),
+      role: req.user!.role,
+    };
+
+    const course = await courseService.updateCourse(courseId, data, actor);
     res.status(200).json({
       success: true,
       course,
@@ -83,6 +100,7 @@ export const getAdminCourse = async (
     next(error);
   }
 };
+
 // get all public courses not purchased
 export const getAllCourses = async (
   req: Request,
@@ -90,32 +108,33 @@ export const getAllCourses = async (
   next: NextFunction,
 ) => {
   try {
-    const courses = await courseService.getAllCourses();
+    const result = await courseService.getAllCourses(req.query);
     res.status(200).json({
       success: true,
-      courses,
+      result: result.courses.length,
+      pagination: result.pagination,
+      courses: result.courses,
     });
   } catch (error) {
     next(error);
   }
 };
 
-// get content course by user for purchased
 export const getContentCourseByUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const coursesUserList: Types.ObjectId[] = req.user?.courses || [];
-    const courseId = req.params.id.toString();
-    const content = await courseService.getCourseByUser(
-      courseId,
-      coursesUserList,
-    );
+    const userId = req.user?._id.toString() as string;
+    const courseId = req.params.id.toString() as string;
+
+    const course = await courseService.getCourseByUser(courseId, userId);
+    const progress = await getCourseProgressService(userId, courseId);
     res.status(200).json({
       success: true,
-      content,
+      course,
+      progress,
     });
   } catch (error) {
     next(error);
@@ -129,8 +148,11 @@ export const addQuestion = async (
 ) => {
   try {
     const data: IAddQuestionData = req.body;
-    const userData: IUser = req?.user as IUser;
-    const course = await courseService.addQuestion(data, userData);
+    const userId = req.user?._id;
+    if (!userId) {
+      throw new AppError("Unauthorized", 401);
+    }
+    const course = await courseService.addQuestion(data, userId.toString());
     res.status(200).json({
       success: true,
       course,
@@ -147,9 +169,14 @@ export const addAnswer = async (
 ) => {
   try {
     const data: IAnswerData = req.body;
-    const userData: IUser = req?.user as IUser;
-
-    const course = await courseService.addAnswer(data, userData);
+    const userId = req?.user?._id;
+    if (!userId) {
+      throw new AppError("Unauthorized", 401);
+    }
+    const course = await courseService.addAnswer(data, {
+      id: userId.toString(),
+      role: req.user!.role,
+    });
     res.status(200).json({
       success: true,
       course,
@@ -166,15 +193,15 @@ export const addReviewCourse = async (
 ) => {
   try {
     const data: IAddReviewData = req.body;
-    const userData: IUser = req?.user as IUser;
-    const coursesUserList: Types.ObjectId[] = req.user?.courses || [];
+    const userId = req.user?._id;
     const courseId = req.params.id.toString();
-
+    if (!userId) {
+      throw new AppError("Unauthorized", 401);
+    }
     const course = await courseService.addReviewCourse(
       courseId,
       data,
-      coursesUserList,
-      userData,
+      userId.toString(),
     );
     res.status(200).json({
       success: true,
@@ -192,8 +219,14 @@ export const addReplyReview = async (
 ) => {
   try {
     const data: IAddReplyReviewData = req.body;
-    const userData: IUser = req?.user as IUser;
-    const course = await courseService.addReplyReview(data, userData);
+    const userId = req.user?._id;
+    if (!userId) {
+      throw new AppError("Unauthorized", 401);
+    }
+    const course = await courseService.addReplyReview(data, {
+      id: userId.toString(),
+      role: req.user!.role,
+    });
     res.status(200).json({
       success: true,
       course,
@@ -212,7 +245,7 @@ export const getCourses = async (
     console.log(req.query);
     const features = new ApiFeatures(
       CourseModel.find().select(
-        "name description price estimatePrice thumbnail level ratings purchased createdAt updatedAt",
+        "name description price estimatePrice thumbnail level ratings purchased status createdAt updatedAt",
       ),
       req.query,
     )
@@ -398,6 +431,23 @@ export const getCoursesStatistics = async (
         totalPurchases,
         averageRating,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getOperationCourse = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const courseId = req.params.courseId as string;
+    const data = await courseService.getOperationCourse(courseId);
+    res.status(200).json({
+      success: true,
+      data,
     });
   } catch (error) {
     next(error);

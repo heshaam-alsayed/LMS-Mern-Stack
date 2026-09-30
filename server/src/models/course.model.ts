@@ -1,5 +1,6 @@
 import mongoose, { Model, Schema } from "mongoose";
 import {
+  COURSE_STATUSES,
   IComment,
   ICourse,
   ICourseData,
@@ -8,11 +9,25 @@ import {
   IReview,
 } from "../interfaces/courseInterface";
 
+const replyQuestionSchema = new Schema(
+  {
+    user: Object,
+
+    answer: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
 const commentSchema = new Schema<IComment>(
   {
     user: Object,
     question: String,
-    questionReplies: [Object],
+    questionReplies: [replyQuestionSchema],
   },
   {
     timestamps: true,
@@ -98,16 +113,6 @@ const courseDataSchema = new Schema<ICourseData>(
       required: true,
     },
 
-    // videoThumbnail: {
-    //   public_Id: {
-    //     type: String,
-    //   },
-
-    //   url: {
-    //     type: String,
-    //   },
-    // },
-
     videoSection: {
       type: String,
       required: true,
@@ -125,6 +130,10 @@ const courseDataSchema = new Schema<ICourseData>(
 
     suggestion: {
       type: String,
+    },
+    isFree: {
+      type: Boolean,
+      default: false,
     },
 
     questions: [commentSchema],
@@ -160,7 +169,23 @@ const courseSchema = new Schema<ICourse>(
       type: Number,
       required: true,
     },
-
+    organization: {
+      type: Schema.Types.ObjectId,
+      ref: "Organization",
+      required: true,
+      index: true,
+    },
+    instructor: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     thumbnail: {
       public_Id: {
         type: String,
@@ -177,6 +202,13 @@ const courseSchema = new Schema<ICourse>(
       type: String,
       enum: ["beginner", "intermediate", "advanced"],
       required: true,
+    },
+
+    status: {
+      type: String,
+      enum: COURSE_STATUSES,
+      default: "draft",
+      index: true,
     },
 
     demoUrl: {
