@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { getLayout } from "@/lib/api/getLayout";
+import { getHeroStatsData } from "@/lib/api/getHeroStats";
+
 import HeroBadge from "./HeroBadge";
 import HeroSearch from "./HeroSearch";
 import HeroImage from "./HeroImage";
@@ -15,6 +17,16 @@ export default function Hero() {
     queryKey: ["banner-layout"],
     queryFn: () => getLayout("banner"),
     staleTime: 15 * 24 * 60 * 60 * 1000,
+  });
+
+  const {
+    data: statsData,
+    isLoading: statsLoading,
+    isError: statsError,
+  } = useQuery({
+    queryKey: ["hero-stats"],
+    queryFn: getHeroStatsData,
+    staleTime: 24 * 60 * 60 * 1000,
   });
 
   if (isLoading) {
@@ -37,14 +49,14 @@ export default function Hero() {
 
             <h1
               className="
-                text-4xl
+                text-3xl
                 font-extrabold
                 tracking-tight
                 text-foreground
-                sm:text-2xl
-                md:text-3xl
-                lg:text-4xl
-                xl:text-5xl
+                sm:text-4xl
+                md:text-5xl
+                lg:text-5xl
+                xl:text-6xl
               ">
               {banner.title}
             </h1>
@@ -76,7 +88,11 @@ export default function Hero() {
 
         <HeroActions />
 
-        <HeroStats />
+        <HeroStats
+          statsData={statsData?.stats}
+          isLoading={statsLoading}
+          isError={statsError}
+        />
       </div>
     </section>
   );

@@ -2,6 +2,9 @@ import { NextFunction, Request, Response } from "express";
 
 import layoutService from "../services/layout.service";
 import { LayoutType } from "../interfaces/layoutInterface";
+import UserModel from "../models/user.model";
+import CourseModel from "../models/course.model";
+import CertificateModel from "../models/certificate.model";
 
 export const getAllLayouts = async (
   req: Request,
@@ -65,7 +68,7 @@ export const getLayoutByType = async (
   next: NextFunction,
 ) => {
   try {
-    console.log("calling banner layout")
+    console.log("calling banner layout");
     const type = req?.params.type as LayoutType;
 
     const layout = await layoutService.getLayoutByType(type);
@@ -73,6 +76,46 @@ export const getLayoutByType = async (
     res.status(200).json({
       success: true,
       layout,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getHeroStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const [totalStudents, totalCourses, totalCertificates, enrollmentResult] =
+      await Promise.all([
+        UserModel.find({ role: "user" }).countDocuments(),
+        CourseModel.countDocuments(),
+        CertificateModel.countDocuments(),
+        UserModel.aggregate([
+          {
+            $match: {
+              role: "user",
+            },
+          },
+          {
+            $unwind: "$courses",
+          },
+          {
+            $count: "totalEnrollments",
+          },
+        ]),
+      ]);
+    const totalEnrollments = enrollmentResult[0]?.totalEnrollments ?? 0;
+    res.status(200).json({
+      success: true,
+      stats: {
+        totalStudents,
+        totalCourses,
+        totalCertificates,
+        totalEnrollments,
+      },
     });
   } catch (error) {
     next(error);

@@ -1,9 +1,16 @@
 import mongoose, { Model, Schema, Types } from "mongoose";
 
-export interface ICategory {
-  _id?: Types.ObjectId;
+interface ICategory {
+  _id: Types.ObjectId;
   title: string;
   slug: string;
+
+  status: "pending" | "approved" | "rejected";
+
+  requestedBy?: Types.ObjectId;
+  reviewedBy?: Types.ObjectId;
+  reviewedAt?: Date;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -23,6 +30,25 @@ const categorySchema = new Schema<ICategory>(
       trim: true,
       unique: true,
       lowercase: true,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    requestedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    reviewedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    reviewedAt: {
+      type: Date,
+      default: null,
     },
   },
   {

@@ -22,8 +22,11 @@ export const findCategoryBySlug = async (slug: string) => {
 };
 
 export const findAllCategories = async () => {
-  return await CategoryModel.find().populate("courses");
+  // only the course ids are sent back, the callers just need the count.
+  // populating the full course documents made this response tens of megabytes.
+  return await CategoryModel.find()
 };
+
 export const updateCategory = async (categoryId: string, data: ICategory) => {
   return await CategoryModel.findByIdAndUpdate(categoryId, data, {
     new: true,

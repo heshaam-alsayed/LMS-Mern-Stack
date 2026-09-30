@@ -24,7 +24,7 @@ export default function CoursesSection() {
   }
 
   const courses = data.courses.slice(0, 12);
-
+  console.log(data)
   return (
     <section className="py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -47,7 +47,9 @@ export default function CoursesSection() {
         {/* Courses */}
         <div className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
           {courses.map((course) => (
-            <CourseCard key={course._id} course={course} />
+            <Link key={course._id} href={`/course/${course._id}`}>
+              <CourseCard course={course} />
+            </Link>
           ))}
         </div>
 

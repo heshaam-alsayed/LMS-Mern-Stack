@@ -10,6 +10,8 @@ import {
 
 const router = Router();
 
+router.route("/").get(getAllCategories);
+
 router.use(isAuthenticated);
 router.use(authorizeRoles("admin"));
 
