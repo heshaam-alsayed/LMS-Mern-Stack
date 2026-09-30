@@ -65,6 +65,41 @@ export const login = async (
   }
 };
 
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    await authService.forgotPassword(req.body);
+
+    res.status(200).json({
+      success: true,
+      message:
+        "If that email address is registered, a password reset link has been sent to it.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    await authService.resetPassword(req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully. You can now login with your new password.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const logout = async (
   req: Request,
   res: Response,
@@ -132,15 +167,10 @@ export const refreshAccessToken = async (
 ) => {
   try {
     const oldRefreshToken = req.cookies.refresh_token;
-
-    console.log("Refresh token exists:", !!oldRefreshToken);
-    console.log("oldRefreshToken=>>>>", oldRefreshToken);
     const { accessToken, newRefreshToken } =
       await handleRefreshAccessToken(oldRefreshToken);
 
-    console.log("New access token generated");
-    console.log("accessToken=>>>", accessToken);
-    console.log("NewRefreshToken=>>>", newRefreshToken);
+    
     res.cookie("access_token", accessToken, {
       httpOnly: true,
       secure: false,
@@ -167,6 +197,7 @@ export const refreshAccessToken = async (
     next(err);
   }
 };
+
 export const socialAuth = async (
   req: Request,
   res: Response,

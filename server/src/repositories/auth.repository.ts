@@ -5,15 +5,30 @@ import {
 import UserModel from "../models/user.model";
 
 const createUser = async (userData: IRegistrationBody) => {
-  return await UserModel.create(userData);
+  const { name, email, password } = userData;
+
+  return await UserModel.create({
+    name,
+    email,
+    password,
+    provider: "local",
+  });
 };
 
-const createSocialUser = async (userData: ISocialAuthBody) => {
-  console.log(userData);
+const createSocialUser = async (
+  userData: ISocialAuthBody,
+  provider: "google" | "github",
+) => {
+  const { email, name, avatar } = userData;
+
   const user = await UserModel.create({
-    ...userData,
+    email,
+    name,
+    avatar,
+    provider,
     isVerified: true,
   });
+
   return user;
 };
 
@@ -29,11 +44,17 @@ const findUserByEmail = async (email: string) => {
 export const getUserById = async (userId: string) => {
   return await UserModel.findById(userId);
 };
+
+export const findUserByIdWithPassword = async (userId: string) => {
+  return await UserModel.findById(userId).select("+password");
+};
+
 const authRepository = {
   createUser,
   getUserByEmail,
   findUserByEmail,
   getUserById,
+  findUserByIdWithPassword,
   createSocialUser,
 };
 export default authRepository;
