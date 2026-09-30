@@ -5,7 +5,16 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "seed:users": "ts-node --transpile-only src/scripts/seedUsers.ts",
+    "seed:applications": "ts-node --transpile-only src/scripts/seedInstructorApplications.ts",
+    "seed:approve": "ts-node --transpile-only src/scripts/approveInstructorApplications.ts",
+    "db:clear": "ts-node --transpile-only src/scripts/clearDatabase.ts",
+    "db:repair": "ts-node --transpile-only src/scripts/repairRelations.ts",
+    "db:status": "ts-node --transpile-only src/scripts/backfillCourseStatus.ts",
+    "seed:catalog": "ts-node --transpile-only src/scripts/seedCourseCatalog.ts",
+    "seed:enrollments": "ts-node --transpile-only src/scripts/seedEnrollments.ts",
+    "seed:certificates": "ts-node --transpile-only src/scripts/seedCertificates.ts"
   },
   "author": "",
   "license": "ISC",
@@ -22,11 +31,14 @@
     "dotenv": "^17.4.2",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
     "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.2",
     "node-cron": "^4.2.1",
-    "nodemailer": "^8.0.7"
+    "nodemailer": "^8.0.7",
+    "socket.io": "^4.8.3",
+    "stripe": "^22.6.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

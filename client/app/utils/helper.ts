@@ -9,3 +9,9 @@ export const getShortName = (name: string): string => {
 
   return `${words[0][0]}${words[1][0]}`.toUpperCase();
 };
+
+export const getRecentYears = (count = 3): number[] => {
+  const currentYear = new Date().getFullYear();
+
+  return Array.from({ length: count + 1 }, (_, index) => currentYear - index);
+};
