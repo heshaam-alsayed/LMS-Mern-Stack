@@ -58,17 +58,11 @@ export default function DeleteConfirmationModal({
       }}>
       <div className="relative w-full max-w-[480px] overflow-hidden rounded-2xl border border-border bg-background shadow-2xl">
         <div className="p-6">
-          {/* ==================== HEADER ==================== */}
-
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              {/* Warning Icon */}
-
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10">
                 <AlertTriangle className="h-5 w-5 text-destructive" />
               </div>
-
-              {/* Header Content */}
 
               <div className="pt-0.5">
                 <h2 className="text-lg font-semibold tracking-tight text-foreground">
@@ -82,8 +76,6 @@ export default function DeleteConfirmationModal({
               </div>
             </div>
 
-            {/* ==================== CLOSE ==================== */}
-
             <button
               type="button"
               onClick={onClose}
@@ -94,8 +86,6 @@ export default function DeleteConfirmationModal({
             </button>
           </div>
 
-          {/* ==================== CONFIRMATION ==================== */}
-
           <form onSubmit={handleSubmit} className="mt-5 space-y-4">
             <div className="space-y-2.5">
               <label
@@ -104,15 +94,11 @@ export default function DeleteConfirmationModal({
                 Type the following to confirm:
               </label>
 
-              {/* Confirmation Text */}
-
               <div className="flex min-h-10 items-center rounded-lg border border-border bg-muted/50 px-3">
                 <code className="break-all text-sm font-semibold text-foreground">
                   {confirmationText}
                 </code>
               </div>
-
-              {/* Input */}
 
               <div className="relative">
                 <Input
@@ -142,23 +128,7 @@ export default function DeleteConfirmationModal({
                   </div>
                 )}
               </div>
-
-              {/* Validation message */}
-
-              {value.length > 0 && !isConfirmed && (
-                <p className="text-xs text-destructive">
-                  The confirmation text does not match.
-                </p>
-              )}
-
-              {isConfirmed && (
-                <p className="text-xs text-green-600 dark:text-green-500">
-                  Confirmation text matches.
-                </p>
-              )}
             </div>
-
-            {/* ==================== BUTTONS ==================== */}
 
             <div className="flex items-center justify-end gap-2 border-t border-border pt-5">
               <Button

@@ -2,9 +2,9 @@
 
 import { Camera } from "lucide-react";
 import Image from "next/image";
-import AvatarEditor from "react-avatar-editor";
 
 import Loader from "../shared/Loader";
+import AvatarPreviewModal from "@/components/modal/AvatarPreviewModal";
 import { useMyAccount } from "@/hooks/user/useMyAccount";
 
 export default function MyAccountForm() {
@@ -12,16 +12,14 @@ export default function MyAccountForm() {
     formData,
     setFormData,
     preview,
-    selectedImage,
-    isOpen,
-    scale,
-    setScale,
+    previewImage,
+    pendingFileName,
+    isPreviewOpen,
     fileInputRef,
-    editorRef,
     handleSelectImage,
     handleFileChange,
-    handleSave,
-    handleCloseModal,
+    releasePreview,
+    saveAvatar,
     handleUpdateProfile,
     uploadLoading,
     updateLoading,
@@ -40,7 +38,7 @@ export default function MyAccountForm() {
               alt="Profile"
               width={120}
               height={120}
-              className="h-30 w-30 rounded-full border border-border object-cover transition group-hover:brightness-75"
+              className="h-30 w-30 rounded-full border border-border bg-muted/40 object-contain transition group-hover:brightness-75"
             />
 
             <button
@@ -116,60 +114,14 @@ export default function MyAccountForm() {
         </form>
       </div>
 
-      {/* Crop Modal */}
-      {isOpen && selectedImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="w-full max-w-md rounded-xl bg-background p-6 shadow-xl">
-            <h2 className="mb-6 text-center text-lg font-semibold">
-              Crop Profile Photo
-            </h2>
-
-            <div className="flex justify-center">
-              <AvatarEditor
-                ref={editorRef}
-                image={selectedImage}
-                width={250}
-                height={250}
-                border={20}
-                borderRadius={125}
-                scale={scale}
-              />
-            </div>
-
-            <div className="mt-6">
-              <input
-                type="range"
-                min={1}
-                max={3}
-                step={0.1}
-                value={scale}
-                onChange={(e) => setScale(Number(e.target.value))}
-                className="w-full"
-              />
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={handleCloseModal}
-                disabled={uploadLoading}
-                className="rounded-lg border px-4 py-2 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={uploadLoading}
-                className="flex min-w-24 items-center justify-center rounded-lg bg-primary px-4 py-2 text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {uploadLoading ? <Loader /> : "Save"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AvatarPreviewModal
+        isOpen={isPreviewOpen}
+        imageSrc={previewImage}
+        fileName={pendingFileName}
+        isLoading={uploadLoading}
+        onClose={releasePreview}
+        onSave={saveAvatar}
+      />
     </>
   );
 }

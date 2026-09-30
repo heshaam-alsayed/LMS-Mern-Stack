@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -8,10 +8,11 @@ import { updateAvatar } from "@/lib/api/updateAvatar";
 import { updateMe } from "@/lib/api/updateMe";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setUser } from "@/redux/features/auth/authSlice";
+import { IUpdateUserInfo } from "@/types/auth.type";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-export function useMyAccount() {
+export default function useProfile() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
 
@@ -19,27 +20,9 @@ export function useMyAccount() {
   const pendingFileRef = useRef<File | null>(null);
   const previewUrlRef = useRef<string | null>(null);
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-  });
-
-  const [preview, setPreview] = useState("/image.png");
-
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [pendingFileName, setPendingFileName] = useState("");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-
-  useEffect(() => {
-    if (!user) return;
-
-    setFormData({
-      name: user.name,
-      email: user.email,
-    });
-
-    setPreview(user.avatar?.url || "/image.png");
-  }, [user]);
 
   const handleSelectImage = () => {
     fileInputRef.current?.click();
@@ -58,10 +41,10 @@ export function useMyAccount() {
     setIsPreviewOpen(false);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
 
-    e.target.value = "";
+    event.target.value = "";
 
     if (!file) return;
 
@@ -95,7 +78,7 @@ export function useMyAccount() {
     mutationFn: updateAvatar,
 
     onSuccess: (data) => {
-      toast.success("Avatar uploaded successfully!");
+      toast.success("Avatar updated successfully!");
 
       dispatch(setUser(data.user));
 
@@ -103,27 +86,7 @@ export function useMyAccount() {
     },
 
     onError: (error: Error) => {
-      toast.error(
-        error.message ||
-          "Failed to upload avatar. Please try again.",
-      );
-    },
-  });
-
-  const editProfileMutation = useMutation({
-    mutationFn: updateMe,
-
-    onSuccess: (data) => {
-      toast.success("Profile updated successfully!");
-
-      dispatch(setUser(data.user));
-    },
-
-    onError: (error: Error) => {
-      toast.error(
-        error.message ||
-          "Failed to update profile. Please try again.",
-      );
+      toast.error(error.message || "Failed to upload avatar.");
     },
   });
 
@@ -141,44 +104,46 @@ export function useMyAccount() {
     reader.readAsDataURL(file);
   };
 
-  const handleUpdateProfile = (
-    e: React.MouseEvent<HTMLButtonElement>,
+  const updateProfileMutation = useMutation({
+    mutationFn: updateMe,
+
+    onSuccess: (data) => {
+      toast.success("Profile updated successfully!");
+
+      dispatch(setUser(data.user));
+    },
+
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update profile.");
+    },
+  });
+
+  const saveProfile = (
+    payload: IUpdateUserInfo,
+    onSuccess?: () => void,
   ) => {
-    e.preventDefault();
-
-    const oldName = user?.name ?? "";
-
-    if (formData.name.trim() === oldName.trim()) {
-      toast.error("No changes detected.");
-      return;
-    }
-
-    editProfileMutation.mutate({
-      name: formData.name.trim(),
+    updateProfileMutation.mutate(payload, {
+      onSuccess: () => onSuccess?.(),
     });
   };
 
   return {
     user,
 
-    formData,
-    setFormData,
-
-    preview,
+    fileInputRef,
 
     previewImage,
     pendingFileName,
     isPreviewOpen,
 
-    fileInputRef,
-
     handleSelectImage,
     handleFileChange,
     releasePreview,
     saveAvatar,
-    handleUpdateProfile,
 
-    uploadLoading: uploadAvatarMutation.isPending,
-    updateLoading: editProfileMutation.isPending,
+    saveProfile,
+
+    isUploadingAvatar: uploadAvatarMutation.isPending,
+    isUpdatingProfile: updateProfileMutation.isPending,
   };
 }
