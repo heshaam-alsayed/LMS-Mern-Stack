@@ -7,18 +7,17 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 import {
   User,
   LogIn,
-  Settings,
   LogOut,
   ShieldCheck,
   LayoutDashboard,
   ChevronRight,
+  GraduationCap,
 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
@@ -32,16 +31,16 @@ export default function UserMenu() {
 
   const { status } = useSession();
 
-  const user = useAppSelector((state) => state.auth.user);
+  const user = useAppSelector((state) => state?.auth?.user);
 
   const isProviderUser = status === "authenticated";
-
   const isEmailUser = !!user;
 
   const isAuthenticated = isProviderUser || isEmailUser;
-
   const isLoading = status === "loading";
 
+  const isUser = user?.role === "user";
+  const isInstructor = user?.role === "instructor";
   const isAdmin = user?.role === "admin";
 
   const handleLogout = async () => {
@@ -68,7 +67,6 @@ export default function UserMenu() {
       );
     }
   };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -76,7 +74,6 @@ export default function UserMenu() {
           type="button"
           aria-label="Open user menu"
           className="group relative flex h-10 w-10 items-center justify-center rounded-full outline-none transition-all focus-visible:ring-2 focus-visible:ring-primary/40">
-          {/* Avatar ring */}
           <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-border bg-muted transition-all group-hover:border-primary/40 group-hover:shadow-md">
             {isLoading ? (
               <div className="flex h-full w-full items-center justify-center">
@@ -93,7 +90,6 @@ export default function UserMenu() {
             )}
           </div>
 
-          {/* Online indicator */}
           {isAuthenticated && (
             <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-emerald-500" />
           )}
@@ -103,13 +99,12 @@ export default function UserMenu() {
       <DropdownMenuContent
         align="end"
         sideOffset={10}
-        className="w-[290px] overflow-hidden rounded-2xl border border-border/60 bg-background/95 p-1.5 shadow-xl backdrop-blur-xl">
+        className="w-[290px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-border/60 bg-background/95 p-1.5 shadow-xl backdrop-blur-xl">
         {isAuthenticated ? (
           <>
             {/* User Header */}
             <div className="rounded-xl bg-muted/50 p-3">
               <div className="flex items-center gap-3">
-                {/* Avatar */}
                 <div className="relative shrink-0">
                   <div className="h-12 w-12 overflow-hidden rounded-full border border-border bg-background">
                     <Image
@@ -124,7 +119,6 @@ export default function UserMenu() {
                   <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-emerald-500" />
                 </div>
 
-                {/* User Info */}
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-sm font-semibold text-foreground">
                     {user?.name || "User"}
@@ -152,29 +146,53 @@ export default function UserMenu() {
               </div>
             </div>
 
-            <div className="my-1.5 h-px bg-border/60" />
+            {/* User Profile */}
+            {isUser && (
+              <DropdownMenuItem
+                className="group cursor-pointer rounded-xl px-3 py-3 outline-none focus:bg-muted"
+                onClick={() => router.push("/user/profile")}>
+                <div className="mr-3 flex h-9 w-9 items-center justify-center rounded-lg bg-muted transition-colors group-hover:bg-background">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                </div>
 
-            {/* Profile */}
-            <DropdownMenuItem
-              className="group cursor-pointer rounded-xl px-3 py-3 outline-none focus:bg-muted"
-              onClick={() => router.push("/profile")}>
-              <div className="mr-3 flex h-9 w-9 items-center justify-center rounded-lg bg-muted transition-colors group-hover:bg-background">
-                <User className="h-4 w-4 text-muted-foreground" />
-              </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">My Profile</p>
 
-              <div className="flex-1">
-                <p className="text-sm font-medium">My Profile</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Manage your account
+                  </p>
+                </div>
 
-                <p className="text-[11px] text-muted-foreground">
-                  Manage your account
-                </p>
-              </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
+              </DropdownMenuItem>
+            )}
 
-              <ChevronRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
-            </DropdownMenuItem>
+            {isInstructor && (
+              <>
+                <div className="my-1.5 h-px bg-border/60" />
 
+                <DropdownMenuItem
+                  className="group cursor-pointer rounded-xl bg-primary/[0.06] px-3 py-3 text-primary outline-none focus:bg-primary/10"
+                  onClick={() => router.push("/instructor")}>
+                  <div className="mr-3 flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                    <GraduationCap className="h-4 w-4 text-primary" />
+                  </div>
 
-            {/* Admin */}
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold">
+                      Instructor Dashboard
+                    </p>
+
+                    <p className="text-[11px] text-primary/60">
+                      Manage your courses
+                    </p>
+                  </div>
+
+                  <ChevronRight className="h-4 w-4 text-primary/50 transition-transform group-hover:translate-x-0.5" />
+                </DropdownMenuItem>
+              </>
+            )}
+
             {isAdmin && (
               <>
                 <div className="my-1.5 h-px bg-border/60" />
@@ -201,7 +219,6 @@ export default function UserMenu() {
 
             <div className="my-1.5 h-px bg-border/60" />
 
-            {/* Logout */}
             <DropdownMenuItem
               className="group cursor-pointer rounded-xl px-3 py-3 text-destructive outline-none focus:bg-destructive/10 focus:text-destructive"
               onClick={handleLogout}>
@@ -220,7 +237,6 @@ export default function UserMenu() {
           </>
         ) : (
           <>
-            {/* Guest Header */}
             <div className="rounded-xl bg-muted/50 p-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-background">

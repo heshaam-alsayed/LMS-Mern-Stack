@@ -24,13 +24,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
 
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user, account, trigger }) {
       // Run only when the user just signed in with a provider
       if ((trigger === "signIn" || trigger === "signUp") && user?.email) {
         const result = await socialAuth({
           email: user.email,
           name: user.name ?? user.email,
           avatar: user.image ?? "",
+          provider: account?.provider ?? "",
         });
 
         await setAuthCookies(result.accessToken, result.refreshToken);

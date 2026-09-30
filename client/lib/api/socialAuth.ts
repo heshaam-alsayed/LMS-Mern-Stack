@@ -2,6 +2,7 @@ interface SocialAuthBody {
   email: string;
   name: string;
   avatar?: string;
+  provider: string;
 }
 
 export const socialAuth = async (body: SocialAuthBody) => {

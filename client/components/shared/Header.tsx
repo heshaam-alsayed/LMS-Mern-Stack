@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 
 import ThemeToggle from "./ThemeToggle";
 import MobileMenu from "./MobileMenu";
@@ -13,7 +13,11 @@ import UserMenu from "./UserMenu";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { openLoginModal } from "@/redux/features/ui/uiSlice";
 
-export default function Header() {
+type Props = {
+  isCoursesPage?: boolean;
+  setSearchOpen?: (searchOpen: boolean) => void;
+};
+export default function Header({ isCoursesPage, setSearchOpen }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useAppDispatch();
   const { isAuthModalOpen } = useAppSelector((state) => state.ui);
@@ -41,8 +45,6 @@ export default function Header() {
           top-0
           z-40
           w-full
-        
-        
           bg-background/80
           backdrop-blur-xl
         ">
@@ -51,7 +53,7 @@ export default function Header() {
             mx-auto
             flex
             h-16
-            max-w-7xl
+            container
             items-center
             justify-between
             px-4
@@ -87,6 +89,32 @@ export default function Header() {
           {/* Desktop */}
 
           <div className="hidden items-center gap-4 md:flex">
+            {isCoursesPage && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!setSearchOpen) return;
+                  setSearchOpen(true);
+                }}
+                aria-label="Search"
+                className="
+    inline-flex
+    size-9
+    cursor-pointer
+    items-center
+    justify-center
+    rounded-full
+    border
+    border-border
+    bg-muted
+    text-foreground
+    shadow-sm
+    transition-colors
+    hover:bg-accent
+  ">
+                <Search className="size-4.5" />
+              </button>
+            )}
             <nav className="flex items-center gap-2">
               {navItems.map((item) => {
                 const isActive =

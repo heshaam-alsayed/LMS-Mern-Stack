@@ -8,6 +8,20 @@ export type loginFormData = {
   email: string;
   password: string;
 }
+
+export type forgotPasswordFormData = {
+  email: string;
+};
+
+export type resetPasswordFormData = {
+  password: string;
+  confirmPassword: string;
+};
+
+export type resetPasswordRequest = {
+  token: string;
+  password: string;
+};
 export type registerResponse = {
   success: boolean;
   message: string;
@@ -31,6 +45,9 @@ export interface IUser {
   _id: string;
   name: string;
   email: string;
+  phone?: string;
+  provider: "local" | "google" | "github";
+  passwordUpdatedAt?: string;
   role: "user" | "instructor" | "admin";
   avatar?: {
     public_Id?: string;
@@ -51,6 +68,7 @@ export interface AuthState {
 
 export interface IUpdateUserInfo {
   name?: string;
+  phone?: string;
 }
 
 export interface IUpdatePassword {

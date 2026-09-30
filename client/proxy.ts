@@ -1,38 +1,77 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import type { NextAuthRequest } from "next-auth";
+import jwt from "jsonwebtoken";
 import { auth } from "./auth";
-import { refreshAccessToken } from "./lib/api/refreshAccessToken";
+
 import { socialAuth } from "./lib/api/socialAuth";
 import { refreshAccessTokenServer } from "./lib/api/refreshAccessTokenServer";
 
-const protectedRoutes = ["/profile", "/dashboard", "/courses"];
-
-const adminRoutes = ["/admin"];
+type Role = "user" | "instructor" | "admin";
 
 type JwtPayload = {
   id: string;
-  role: "user" | "instructor" | "admin";
+  role: Role;
 };
 
 type SessionUser = {
   email?: string | null;
   name?: string | null;
   image?: string | null;
-  role?: "user" | "instructor" | "admin";
+  provider?: string | null;
 };
 
-const isRouteMatch = (pathname: string, routes: string[]) => {
-  return routes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`),
+const LAST_ROUTE_COOKIE = "last_route";
+
+const roleRoutes = {
+  user: "/user",
+  instructor: "/instructor",
+  admin: "/admin",
+};
+
+const isAuthPage = (pathname: string) => {
+  return (
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password"
   );
 };
 
-const isAuthPage = (pathname: string) =>
-  pathname === "/login" || pathname === "/signup";
+const getRouteRole = (pathname: string): Role | null => {
+  if (
+    pathname === roleRoutes.user ||
+    pathname.startsWith(`${roleRoutes.user}/`)
+  ) {
+    return "user";
+  }
 
-// Return payload if token is valid
-// Return null if token is expired or invalid
+  if (
+    pathname === roleRoutes.instructor ||
+    pathname.startsWith(`${roleRoutes.instructor}/`)
+  ) {
+    return "instructor";
+  }
+
+  if (
+    pathname === roleRoutes.admin ||
+    pathname.startsWith(`${roleRoutes.admin}/`)
+  ) {
+    return "admin";
+  }
+
+  return null;
+};
+
+const isRoleAllowed = (pathname: string, role: Role) => {
+  const routeRole = getRouteRole(pathname);
+
+  if (!routeRole) {
+    return true;
+  }
+
+  return routeRole === role;
+};
+
 const verifyAccessToken = (token: string): JwtPayload | null => {
   try {
     return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as JwtPayload;
@@ -47,7 +86,6 @@ const setAuthCookies = (
   refreshToken: string,
 ) => {
   const accessExpireMin = Number(process.env.ACCESS_TOKEN_EXPIRE);
-
   const refreshExpireDays = Number(process.env.REFRESH_TOKEN_EXPIRE);
 
   response.cookies.set("access_token", accessToken, {
@@ -69,37 +107,80 @@ const setAuthCookies = (
   return response;
 };
 
-// `auth()` also decrypts the next-auth session cookie, so provider logins
-// (Google / GitHub) are recognized even without an app access_token cookie.
+const redirectToHome = (request: NextAuthRequest) => {
+  return NextResponse.redirect(new URL("/", request.url));
+};
+
+const redirectToLastRoute = (request: NextAuthRequest) => {
+  const lastRoute = request.cookies.get(LAST_ROUTE_COOKIE)?.value;
+
+  if (lastRoute && !isAuthPage(lastRoute)) {
+    return NextResponse.redirect(new URL(lastRoute, request.url));
+  }
+
+  return redirectToHome(request);
+};
+
+const saveLastRoute = (response: NextResponse, pathname: string) => {
+  response.cookies.set(LAST_ROUTE_COOKIE, pathname, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+  });
+
+  return response;
+};
+
+const redirectToLogin = (request: NextAuthRequest) => {
+  return NextResponse.redirect(new URL("/login", request.url));
+};
+
 const proxy = auth(async (request: NextAuthRequest) => {
   const { pathname } = request.nextUrl;
 
-  const isProtectedRoute = isRouteMatch(pathname, protectedRoutes);
+  // =========================
+  // Protected routes
+  // =========================
 
-  const isAdminRoute = isRouteMatch(pathname, adminRoutes);
+  const routeRole = getRouteRole(pathname);
 
-  // 1. Access token is valid -> allow the request
+  const requiresAuthentication = routeRole !== null;
+
+  // =========================
+  // 1. Access Token
+  // =========================
+
   const accessToken = request.cookies.get("access_token")?.value;
 
   if (accessToken) {
     const payload = verifyAccessToken(accessToken);
 
     if (payload) {
-      // User is already logged in, don't allow login/signup
+      // Authenticated user cannot access auth pages
       if (isAuthPage(pathname)) {
-        return NextResponse.redirect(new URL("/", request.url));
+        return redirectToLastRoute(request);
       }
 
-      // Admin authorization
-      if (isAdminRoute && payload.role !== "admin") {
-        return NextResponse.redirect(new URL("/", request.url));
+      // Check role
+      if (!isRoleAllowed(pathname, payload.role)) {
+        return redirectToHome(request);
       }
 
-      return NextResponse.next();
+      const response = NextResponse.next();
+
+      // Save only protected role routes
+      if (requiresAuthentication) {
+        saveLastRoute(response, pathname);
+      }
+
+      return response;
     }
   }
 
-  // 2. Try to refresh the app access token using the refresh_token cookie
+  // =========================
+  // 2. Refresh Token
+  // =========================
+
   try {
     const result = await refreshAccessTokenServer(
       request.headers.get("cookie") ?? "",
@@ -108,64 +189,97 @@ const proxy = auth(async (request: NextAuthRequest) => {
     const payload = verifyAccessToken(result.accessToken);
 
     if (payload) {
-      if (isAdminRoute && payload.role !== "admin") {
-        return NextResponse.redirect(new URL("/", request.url));
+      // Authenticated user cannot access auth pages
+      if (isAuthPage(pathname)) {
+        return setAuthCookies(
+          redirectToLastRoute(request),
+          result.accessToken,
+          result.refreshToken,
+        );
       }
 
-      return setAuthCookies(
-        isAuthPage(pathname)
-          ? NextResponse.redirect(new URL("/", request.url))
-          : NextResponse.next(),
-        result.accessToken,
-        result.refreshToken,
-      );
-    }
-  } catch {}
+      // Check role
+      if (!isRoleAllowed(pathname, payload.role)) {
+        return setAuthCookies(
+          redirectToHome(request),
+          result.accessToken,
+          result.refreshToken,
+        );
+      }
 
-  // 3. Fallback: provider login via the next-auth session
+      const response = NextResponse.next();
+
+      // Save only protected role routes
+      if (requiresAuthentication) {
+        saveLastRoute(response, pathname);
+      }
+
+      return setAuthCookies(response, result.accessToken, result.refreshToken);
+    }
+  } catch {
+    // Continue to social authentication
+  }
+
+  // =========================
+  // 3. Social Authentication
+  // =========================
+
   const sessionUser = request.auth?.user as SessionUser | undefined;
 
   if (sessionUser?.email) {
-    // Re-mint the app tokens from the provider session so backend calls work
     try {
       const result = await socialAuth({
         email: sessionUser.email,
         name: sessionUser.name ?? sessionUser.email,
         avatar: sessionUser.image ?? "",
+        provider: sessionUser.provider ?? "",
       });
 
       const payload = verifyAccessToken(result.accessToken);
 
       if (payload) {
-        if (isAdminRoute && payload.role !== "admin") {
-          return NextResponse.redirect(new URL("/", request.url));
+        // Authenticated user cannot access auth pages
+        if (isAuthPage(pathname)) {
+          return setAuthCookies(
+            redirectToLastRoute(request),
+            result.accessToken,
+            result.refreshToken,
+          );
+        }
+
+        // Check role
+        if (!isRoleAllowed(pathname, payload.role)) {
+          return setAuthCookies(
+            redirectToHome(request),
+            result.accessToken,
+            result.refreshToken,
+          );
+        }
+
+        const response = NextResponse.next();
+
+        // Save only protected role routes
+        if (requiresAuthentication) {
+          saveLastRoute(response, pathname);
         }
 
         return setAuthCookies(
-          isAuthPage(pathname)
-            ? NextResponse.redirect(new URL("/", request.url))
-            : NextResponse.next(),
+          response,
           result.accessToken,
           result.refreshToken,
         );
       }
-    } catch {}
-
-    // Session is valid but the app tokens could not be created -> still let the user in
-    if (isAuthPage(pathname)) {
-      return NextResponse.redirect(new URL("/", request.url));
+    } catch {
+      // Backend authentication failed
     }
-
-    if (isAdminRoute && sessionUser.role !== "admin") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-
-    return NextResponse.next();
   }
 
-  // 4. Not authenticated
-  if (isProtectedRoute || isAdminRoute) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // =========================
+  // 4. Not Authenticated
+  // =========================
+
+  if (requiresAuthentication) {
+    return redirectToLogin(request);
   }
 
   return NextResponse.next();

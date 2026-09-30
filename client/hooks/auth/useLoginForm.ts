@@ -7,7 +7,7 @@ import { login } from "@/lib/api/login";
 import { toast } from "sonner";
 import { setUser } from "@/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/redux/hooks";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // 1 define schema with zod
 const loginSchema = z.object({
@@ -22,6 +22,7 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 
 export function useLoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const form = useForm<LoginFormData>({
@@ -36,7 +37,9 @@ export function useLoginForm() {
     onSuccess: (data) => {
       dispatch(setUser(data.user));
       toast.success("login successfully");
-      router.push("/profile");
+      const callbackUrl = searchParams.get("callbackUrl");
+      router.push(callbackUrl || "/");
+
     },
     onError: (error) => {
       toast.error(error.message || "Login failed");
