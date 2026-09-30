@@ -7,6 +7,7 @@ import CourseDescription from "./CourseDescription";
 import CoursePrice from "./CoursePrice";
 import CourseTags from "./CourseTags";
 import CourseLevel from "./CourseLevel";
+import CourseStatus from "./CourseStatus";
 import CourseDemoUrl from "./CourseDemoUrl";
 import CourseThumbnail from "./CourseThumbnail";
 import CourseNavigation from "./CourseNavigation";
@@ -14,15 +15,20 @@ import CourseNavigation from "./CourseNavigation";
 import { CourseInfo } from "@/types/course.type";
 import { ICategory } from "@/types/category.type";
 import CourseCategory from "./CourseCategory";
+import { Organization } from "@/types/organization.type";
+import OrganizationSelector from "./OrganizationSelector";
 
 type Props = {
   courseInfo: CourseInfo;
   setCourseInfo: React.Dispatch<React.SetStateAction<CourseInfo>>;
   selectedCategory: string | null;
   categoriesOptions: ICategory[];
-  setSelectedCategory: (selectedCategroy: string) => void;
+  setSelectedCategory: (selectedCategory: string) => void;
   active: number;
   setActive: (active: number) => void;
+  selectedOrganization?: Organization | null;
+  setSelectedOrganization?: (organization: Organization | null) => void;
+  role?: string;
 };
 
 export default function CourseInformation({
@@ -33,6 +39,9 @@ export default function CourseInformation({
   selectedCategory,
   categoriesOptions,
   setSelectedCategory,
+  selectedOrganization,
+  setSelectedOrganization,
+  role,
 }: Props) {
   const updateField = <K extends keyof CourseInfo>(
     field: K,
@@ -84,7 +93,7 @@ export default function CourseInformation({
         onChange={(value) => updateField("tags", value)}
       />
 
-      <div className="flex items-center gap-4 w-full">
+      <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
         <div className="w-full">
           <CourseLevel
             value={courseInfo.level}
@@ -99,9 +108,26 @@ export default function CourseInformation({
           />
         </div>
       </div>
+      {role === "admin" && (
+        <div className="w-full">
+          <OrganizationSelector
+            value={selectedOrganization}
+            onChange={setSelectedOrganization}
+          />
+        </div>
+      )}
+
+      <div className="w-full sm:max-w-[320px]">
+        <CourseStatus
+          value={courseInfo.status}
+          onChange={(value) => updateField("status", value)}
+        />
+      </div>
+
       <CourseDemoUrl
         value={courseInfo.demoUrl}
         onChange={(value) => updateField("demoUrl", value)}
+        videoTitle={`${courseInfo.name || "Course"} - Demo`.trim()}
       />
 
       <CourseThumbnail

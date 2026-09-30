@@ -14,11 +14,15 @@ import { useRouter } from "next/navigation";
 import { createCourse } from "@/lib/api/createCourse";
 import ConfirmCourseModal from "@/components/modal/ConfirmCourseModal";
 import { getAllCategories } from "@/lib/api/getAllCategories";
+import { Organization } from "@/types/organization.type";
+import { useAppSelector } from "@/redux/hooks";
 
 export default function CreateCourse() {
+  const { user } = useAppSelector((state) => state.auth);
+
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(2);
 
   const [courseInfo, setCourseInfo] = useState<CourseInfo>({
     name: "Complete MERN Stack Web Development Bootcamp",
@@ -28,22 +32,25 @@ export default function CreateCourse() {
     estimatePrice: "",
     tags: "MERN, React, Node.js, Express, MongoDB, JavaScript, TypeScript, Full Stack, Web Development",
     level: "intermediate",
-    demoUrl: "82b2350d035bca04a2806467f53b6b51",
+    status: "draft",
+    demoUrl: "",
     thumbnail: "",
   });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedOrganization, setSelectedOrganization] =
+    useState<Organization | null>(null);
   const [benefits, setBenefits] = useState([{ title: "" }]);
 
   const [prerequisites, setPrerequisites] = useState([{ title: "" }]);
 
   const [courseContentData, setCourseContentData] = useState([
     {
-      videoUrl: "82b2350d035bca04a2806467f53b6b51",
+      videoUrl: "",
       title: "Introduction to Full Stack Development",
       description:
         "In this lesson, we will introduce the MERN stack and explain how MongoDB, Express.js, React, and Node.js work together to create modern full-stack web applications. You will learn about the responsibilities of the frontend, backend, database, and API layers and understand how data flows between the client and server",
       videoSection: "Introduction",
-      videoLength:"",
+      videoLength: "",
       links: [
         {
           title: "Node.js Official Documentation",
@@ -51,6 +58,7 @@ export default function CreateCourse() {
         },
       ],
       suggestion: "",
+      isFree: false,
     },
   ]);
 
@@ -77,18 +85,34 @@ export default function CreateCourse() {
       })),
 
       suggestion: courseContent.suggestion,
+      isFree: courseContent.isFree,
     }));
 
     // Create complete course object
-    if (!selectedCategory) return;
+    if (!selectedCategory) {
+      toast.error("Please select a category");
+      return;
+    }
+
+    if (user?.role === "admin") {
+      if (!selectedOrganization) {
+        toast.error("Please select an organization");
+        return;
+      }
+    }
     const data = {
       name: courseInfo.name,
       description: courseInfo.description,
       category: selectedCategory,
       price: Number(courseInfo.price),
       estimatePrice: Number(courseInfo.estimatePrice),
+
+      organizationId: selectedOrganization?._id,
+      instructorId: selectedOrganization?.instructor._id,
+
       tags: courseInfo.tags,
       level: courseInfo.level,
+      status: courseInfo.status,
       demoUrl: courseInfo.demoUrl,
       thumbnail: courseInfo.thumbnail,
       totalVideos: courseContentData.length,
@@ -99,7 +123,6 @@ export default function CreateCourse() {
 
     // Save all course data in state
     setCourseData(data);
-
     console.log("Course Data:", data);
   };
 
@@ -128,8 +151,13 @@ export default function CreateCourse() {
   });
   return (
     <div className="relative min-h-screen">
+      {/* Mobile Course Options */}
+      <div className="mb-6 rounded-xl border border-border bg-card p-4 lg:hidden">
+        <CourseOptions active={active} setActive={setActive} />
+      </div>
+
       {/* Main Content */}
-      <main className="w-full pr-72">
+      <main className="w-full lg:pr-72">
         {active === 0 && (
           <CourseInformation
             courseInfo={courseInfo}
@@ -139,6 +167,9 @@ export default function CreateCourse() {
             categoriesOptions={data?.categories || []}
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
+            selectedOrganization={selectedOrganization}
+            setSelectedOrganization={setSelectedOrganization} 
+            role={user?.role}
           />
         )}
 
@@ -174,8 +205,7 @@ export default function CreateCourse() {
         )}
       </main>
 
-      {/* Fixed Course Options */}
-      <aside className="fixed right-0 top-24 z-50 w-64">
+      <aside className="fixed right-0 top-24 z-50 hidden w-64 lg:block">
         <CourseOptions active={active} setActive={setActive} />
       </aside>
 

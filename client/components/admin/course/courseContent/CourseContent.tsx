@@ -5,6 +5,7 @@ import React, { useRef, useState } from "react";
 import { FolderPlus } from "lucide-react";
 import { toast } from "sonner";
 import CourseNavigation from "../courseData/CourseNavigation";
+import RemoveConfirmationModal from "@/components/modal/RemoveConfirmationModal";
 import ContentForm from "./ContentForm";
 import ContentHeader from "./ContentHeader";
 import CourseSection from "./CourseSection";
@@ -16,6 +17,7 @@ type Props = {
   setCourseContentData: (courseContentData: CourseContentData[]) => void;
   handleSubmitCourse: () => void;
 };
+
 
 export default function CourseContent({
   active,
@@ -29,6 +31,10 @@ export default function CourseContent({
   );
 
   const [activeSection, setActiveSection] = useState(0);
+
+  const [pendingRemovalIndex, setPendingRemovalIndex] = useState<number | null>(
+    null,
+  );
 
   const sectionInputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
@@ -53,11 +59,27 @@ export default function CourseContent({
   const handleDeleteContent = (index: number) => {
     if (index === 0) return;
 
+    setPendingRemovalIndex(index);
+  };
+
+  const handleConfirmDeleteContent = () => {
+    if (pendingRemovalIndex === null || pendingRemovalIndex === 0) {
+      setPendingRemovalIndex(null);
+      return;
+    }
+
     const updatedContentData = [...courseContentData];
 
-    updatedContentData.splice(index, 1);
+    updatedContentData.splice(pendingRemovalIndex, 1);
 
     setCourseContentData(updatedContentData);
+
+    setIsCollapsed((prev) => prev.filter((_, i) => i !== pendingRemovalIndex));
+    setPendingRemovalIndex(null);
+  };
+
+  const handleCancelDeleteContent = () => {
+    setPendingRemovalIndex(null);
   };
 
   const handleEditSection = (index: number) => {
@@ -110,6 +132,7 @@ export default function CourseContent({
       description: "",
       videoSection: item.videoSection,
       suggestion: "",
+      isFree: false,
       links: [
         {
           title: "",
@@ -141,6 +164,7 @@ export default function CourseContent({
         description: "",
         videoSection: `Untitled Section ${active}`,
         suggestion: "",
+        isFree:false,
         links: [
           {
             title: "",
@@ -181,7 +205,7 @@ export default function CourseContent({
           return (
             <div
               key={index}
-              className={`bg-accent ${showSectionInput ? "mt-10" : "mt-0"}`}>
+              className={` bg-muted/80 ${showSectionInput ? "mt-10" : "mt-0"}`}>
               {/* Section */}
               {showSectionInput && (
                 <CourseSection
@@ -233,6 +257,18 @@ export default function CourseContent({
         active={active}
         onPrevious={() => setActive(active - 1)}
         onNext={handelNext}
+      />
+
+      <RemoveConfirmationModal
+        isOpen={pendingRemovalIndex !== null}
+        onClose={handleCancelDeleteContent}
+        onConfirm={handleConfirmDeleteContent}
+        itemName={
+          pendingRemovalIndex !== null
+            ? (courseContentData[pendingRemovalIndex]?.title ?? "")
+            : ""
+        }
+        itemLabel="lecture"
       />
     </div>
   );

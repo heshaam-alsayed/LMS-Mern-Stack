@@ -1,7 +1,6 @@
 "use client";
-/* eslint-disable react-hooks/set-state-in-effect */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import CourseOptions from "./CourseOptions";
 import CourseInformation from "./courseInformation/CourseInformation";
@@ -16,26 +15,40 @@ import {
   CourseInfo,
   CourseLevelType,
   CourseResponseAdmin,
+  CourseStatusType,
 } from "@/types/course.type";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
 import { getAdminCourse } from "@/lib/api/getAdminCourse";
+import { getMyOrganizationCourse } from "@/lib/api/getMyOrganizationCourse";
 import { updateCourse } from "@/lib/api/updateCourse";
 
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 
 import ConfirmCourseModal from "@/components/modal/ConfirmCourseModal";
 import { getAllCategories } from "@/lib/api/getAllCategories";
+import { Button } from "@/components/ui/button";
 
 export default function EditCourse() {
   const params = useParams<{ id: string }>();
   const courseId = params.id;
 
+  const pathname = usePathname();
+
   const router = useRouter();
+
+  // the same screen serves two routes:
+  // /admin/edit-course/[id] returns any course,
+  // the instructor route is organization-scoped
+  const isAdminRoute = pathname?.startsWith("/admin") ?? false;
+
+  const LIST_PATH = isAdminRoute
+    ? "/admin/courses"
+    : "/instructor/organization-courses";
 
   const [isOpen, setIsOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -48,6 +61,7 @@ export default function EditCourse() {
     estimatePrice: "",
     tags: "",
     level: "",
+    status: "draft",
     demoUrl: "",
     thumbnail: "",
   });
@@ -63,7 +77,7 @@ export default function EditCourse() {
       videoUrl: "",
       title: "",
       description: "",
-      videoLength:"",
+      videoLength: "",
       videoSection: "",
       links: [
         {
@@ -72,6 +86,7 @@ export default function EditCourse() {
         },
       ],
       suggestion: "",
+      isFree: false,
     },
   ]);
 
@@ -91,6 +106,15 @@ export default function EditCourse() {
     return "";
   };
 
+  // unknown values fall back to draft
+  const getCourseStatus = (status?: string): CourseStatusType => {
+    if (status === "draft" || status === "published" || status === "archived") {
+      return status;
+    }
+
+    return "draft";
+  };
+
   const handleSubmitCourse = () => {
     const formattedBenefits = benefits.map((item) => ({
       title: item.title,
@@ -105,13 +129,14 @@ export default function EditCourse() {
       description: courseContent.description,
       videoUrl: courseContent.videoUrl,
       videoSection: courseContent.videoSection,
-      videoLength:courseContent.videoLength,
+      videoLength: courseContent.videoLength,
       links: courseContent.links.map((link) => ({
         title: link.title,
         url: link.url,
       })),
 
       suggestion: courseContent.suggestion,
+      isFree: courseContent.isFree,
     }));
 
     if (!courseInfo.level) {
@@ -127,7 +152,7 @@ export default function EditCourse() {
       estimatePrice: Number(courseInfo.estimatePrice),
       tags: courseInfo.tags,
       level: courseInfo.level,
-
+      status: courseInfo.status,
       demoUrl: courseInfo.demoUrl,
       thumbnail: courseInfo.thumbnail,
 
@@ -144,17 +169,32 @@ export default function EditCourse() {
   };
 
   // Get course
-  const { data, isLoading } = useQuery<CourseResponseAdmin>({
-    queryKey: ["admin-course", courseId],
-    queryFn: () => getAdminCourse(courseId),
-    enabled: !!courseId,
-  });
+  const { data, isLoading, isError, error, refetch } =
+    useQuery<CourseResponseAdmin>({
+      queryKey: [
+        "edit-course",
+        isAdminRoute ? "admin" : "instructor",
+        courseId,
+      ],
+      queryFn: () =>
+        isAdminRoute
+          ? getAdminCourse(courseId)
+          : getMyOrganizationCourse(courseId).then((res) => ({
+              success: res.success,
+              course: res.course,
+            })),
+      enabled: !!courseId,
+    });
 
   // Set initial data
   useEffect(() => {
-    if (!data) return;
+    if (!data?.course) return;
 
     const course = data.course;
+
+    const safeBenefits = course.benefits ?? [];
+    const safePrerequisites = course.prerequisites ?? [];
+    const safeCourseData = course.courseData ?? [];
 
     const initialCourseData: CourseData = {
       name: course.name,
@@ -164,31 +204,33 @@ export default function EditCourse() {
       estimatePrice: course.estimatePrice,
       tags: course.tags,
       level: getCourseLevel(course.level),
+      status: getCourseStatus(course.status),
       demoUrl: course.demoUrl,
       thumbnail: course.thumbnail?.url || "",
-      totalVideos: course.courseData.length,
+      totalVideos: safeCourseData.length,
 
-      benefits: course.benefits.map((item) => ({
+      benefits: safeBenefits.map((item) => ({
         title: item.title,
       })),
 
-      prerequisites: course.prerequisites.map((item) => ({
+      prerequisites: safePrerequisites.map((item) => ({
         title: item.title,
       })),
 
-      courseData: course.courseData.map((item) => ({
+      courseData: safeCourseData.map((item) => ({
         title: item.title,
         description: item.description,
         videoUrl: item.videoUrl,
         videoLength: item.videoLength,
         videoSection: item.videoSection,
 
-        links: item.links.map((link) => ({
+        links: (item.links ?? []).map((link) => ({
           title: link.title,
           url: link.url,
         })),
 
         suggestion: item.suggestion,
+        isFree: item.isFree,
       })),
     };
 
@@ -198,20 +240,21 @@ export default function EditCourse() {
     setCourseInfo({
       name: course.name || "",
       description: course.description || "",
-      category: course.category.toString(),
+      category: course.category?.toString() || "",
       price: String(course.price ?? ""),
       estimatePrice: String(course.estimatePrice ?? ""),
       tags: course.tags || "",
       level: getCourseLevel(course.level),
+      status: getCourseStatus(course.status),
       demoUrl: course.demoUrl || "",
       thumbnail: course.thumbnail?.url || "",
     });
-    setSelectedCategory(course.category.toString());
-    setBenefits(course.benefits);
-    setPrerequisites(course.prerequisites);
-    setCourseContentData(course.courseData);
+    setSelectedCategory(course.category?.toString() || "");
+    setBenefits(safeBenefits);
+    setPrerequisites(safePrerequisites);
+    setCourseContentData(safeCourseData);
   }, [data]);
-  console.log(data);
+
   // Update mutation
   const updateCourseMutation = useMutation({
     mutationFn: (courseData: CourseData) => {
@@ -227,7 +270,7 @@ export default function EditCourse() {
 
       toast.success("Course updated successfully");
 
-      router.push("/admin/courses");
+      router.push(LIST_PATH);
     },
 
     onError: (error) => {
@@ -282,10 +325,49 @@ export default function EditCourse() {
     );
   }
 
+  if (isError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <div className="flex max-w-md flex-col items-center gap-4 rounded-2xl border border-border bg-background p-8 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+            <AlertCircle className="h-6 w-6 text-destructive" />
+          </div>
+
+          <div>
+            <h2 className="text-base font-semibold text-foreground">
+              Could not load this course
+            </h2>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              {error?.message ||
+                "It may have been removed, or it does not belong to your organization."}
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => router.push(LIST_PATH)}>
+              Back to courses
+            </Button>
+
+            <Button onClick={() => refetch()}>
+              <RefreshCw className="h-4 w-4" />
+              Try again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative min-h-screen">
+      {/* Mobile Course Options */}
+      <div className="mb-6 rounded-xl border border-border bg-card p-4 lg:hidden">
+        <CourseOptions active={active} setActive={setActive} />
+      </div>
+
       {/* Main Content */}
-      <main className="w-full pr-72">
+      <main className="w-full lg:pr-72">
         {active === 0 && (
           <CourseInformation
             courseInfo={courseInfo}
@@ -295,6 +377,7 @@ export default function EditCourse() {
             categoriesOptions={responseData?.categories}
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
+            role={isAdminRoute ? "admin" : "instructor"}
           />
         )}
 
@@ -331,7 +414,7 @@ export default function EditCourse() {
       </main>
 
       {/* Fixed Course Options */}
-      <aside className="fixed right-0 top-24 z-50 w-64">
+      <aside className="fixed right-0 top-24 z-50 hidden w-64 lg:block">
         <CourseOptions active={active} setActive={setActive} />
       </aside>
 

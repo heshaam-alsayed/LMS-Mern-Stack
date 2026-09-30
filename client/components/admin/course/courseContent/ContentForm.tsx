@@ -1,9 +1,14 @@
 "use client";
 
-import React from "react";
-import { Link2, PlusIcon } from "lucide-react";
-import { CourseContentData, CourseLink } from "@/types/course.type";
-import ContentLink from "./ContentLink";
+import React, { useState } from "react";
+import { Loader2, PlusIcon } from "lucide-react";
+
+import { CourseContentData } from "@/types/course.type";
+import { Checkbox } from "@/components/ui/checkbox";
+
+import ContentLinksEditor from "./ContentLinksEditor";
+import FormField, { controlClassName } from "./FormField";
+import VideoUploader from "./VideoUploader";
 
 type Props = {
   index: number;
@@ -24,6 +29,8 @@ export default function ContentForm({
   handleAddLink,
   handleAddNewContent,
 }: Props) {
+  const [isResolvingLength, setIsResolvingLength] = useState(false);
+
   const handleChange = <K extends keyof CourseContentData>(
     field: K,
     value: CourseContentData[K],
@@ -39,39 +46,30 @@ export default function ContentForm({
   };
 
   return (
-    <div className="space-y-4 border-x border-b px-3 py-4">
-      {/* Content Title */}
-      <div>
-        <label className="mb-2 block text-sm font-medium">Video Title</label>
-
+    <div className="space-y-5 border-x border-b px-3 py-4">
+      <FormField label="Video Title">
         <input
           type="text"
           value={item.title}
           onChange={(e) => handleChange("title", e.target.value)}
           placeholder="Enter content title"
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+          className={controlClassName}
         />
-      </div>
+      </FormField>
 
-      {/* Video URL */}
-      <div>
-        <label className="mb-2 block text-sm font-medium">Video URL</label>
-
-        <input
-          type="text"
-          value={item.videoUrl}
-          onChange={(e) => handleChange("videoUrl", e.target.value)}
-          placeholder="Enter video URL"
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+      <FormField label="Video">
+        <VideoUploader
+          title={item.title}
+          videoUrl={item.videoUrl ?? ""}
+          onUploaded={(videoId) => handleChange("videoUrl", videoId)}
+          onDurationResolved={(minutes) =>
+            handleChange("videoLength", `${minutes}`)
+          }
+          onLengthResolvingChange={setIsResolvingLength}
         />
-      </div>
+      </FormField>
 
-      {/* Video Length */}
-      <div>
-        <label className="mb-2 block text-sm font-medium">
-          Video Length (minutes)
-        </label>
-
+      <FormField label="Video Length (minutes)">
         <input
           type="number"
           min={0}
@@ -83,52 +81,55 @@ export default function ContentForm({
             )
           }
           placeholder="Enter video length"
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+          className={controlClassName}
         />
+
+        {isResolvingLength ? (
+          <p className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            Getting video length...
+          </p>
+        ) : null}
+      </FormField>
+
+      <div className="flex items-center gap-3">
+        <Checkbox
+          className="h-5 w-5 bg-background"
+          id={`is-free-${index}`}
+          checked={item.isFree}
+          onCheckedChange={(checked) => handleChange("isFree", checked === true)}
+        />
+
+        <label
+          htmlFor={`is-free-${index}`}
+          className="cursor-pointer text-sm font-medium">
+          Free Preview
+        </label>
       </div>
 
-      {/* Description */}
-      <div>
-        <label className="mb-2 block text-sm font-medium">Description</label>
-
+      <FormField label="Description">
         <textarea
           value={item.description}
           onChange={(e) => handleChange("description", e.target.value)}
           placeholder="Enter content description"
-          className="min-h-24 max-h-48 w-full resize-y overflow-y-auto rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+          className={`${controlClassName} min-h-24 max-h-48 resize-y overflow-y-auto`}
         />
-      </div>
+      </FormField>
 
-      {/* Links */}
-      <div className="space-y-3">
-        {item.links.map((link: CourseLink, linkIndex: number) => (
-          <ContentLink
-            key={linkIndex}
-            index={index}
-            link={link}
-            linkIndex={linkIndex}
-            courseContentData={courseContentData}
-            setCourseContentData={setCourseContentData}
-            handleRemoveLink={handleRemoveLink}
-          />
-        ))}
+      <ContentLinksEditor
+        index={index}
+        links={item.links}
+        courseContentData={courseContentData}
+        setCourseContentData={setCourseContentData}
+        handleRemoveLink={handleRemoveLink}
+        handleAddLink={handleAddLink}
+      />
 
-        {/* Add Link */}
-        <button
-          type="button"
-          onClick={() => handleAddLink(index)}
-          className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-background px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:border-primary hover:bg-primary/5 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
-          <Link2 className="h-4 w-4" />
-          <span>Add Link</span>
-        </button>
-      </div>
-
-      {/* Add New Content */}
       <button
         type="button"
         onClick={() => handleAddNewContent(item)}
-        className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-background px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:border-primary hover:bg-primary/5 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
-        <PlusIcon size={20} />
+        className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-background px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary">
+        <PlusIcon className="h-5 w-5" />
         Add new content
       </button>
     </div>
