@@ -4,7 +4,7 @@ import { getAllNotifications, updateNotification } from "../controllers/notifica
 const router = express.Router(); 
 
 
-router.get("/",isAuthenticated, authorizeRoles("admin"), getAllNotifications);
-router.patch("/update/:id",isAuthenticated, authorizeRoles("admin"), updateNotification);
+router.get("/",isAuthenticated, authorizeRoles("admin", "instructor"), getAllNotifications);
+router.patch("/update/:id",isAuthenticated, authorizeRoles("admin", "instructor"), updateNotification);
 
 export default router;

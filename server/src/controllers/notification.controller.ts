@@ -8,11 +8,17 @@ export const getAllNotifications = async (
   next: NextFunction,
 ) => {
   try {
-    const filter = req.query;
-    const notifications = await notificationService.getAllNotifications(filter);
+    const result = await notificationService.getAllNotifications(
+      req.query,
+      req.user
+        ? { _id: String(req.user._id), role: req.user.role }
+        : undefined,
+    );
     res.status(200).json({
       success: true,
-      notifications,
+      result: result.notifications.length,
+      notifications: result.notifications,
+      pagination: result.pagination,
     });
   } catch (error) {
     next(error);
@@ -30,6 +36,9 @@ export const updateNotification = async (
     const notifications = await notificationService.updateNotification(
       notificationId,
       data,
+      req.user
+        ? { _id: String(req.user._id), role: req.user.role }
+        : undefined,
     );
     res.status(200).json({
       success: true,

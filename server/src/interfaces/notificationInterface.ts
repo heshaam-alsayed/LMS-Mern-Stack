@@ -1,16 +1,31 @@
 import { Document, Types } from "mongoose";
 
-export interface INotification extends Document {
+export interface INotification {
+  _id?: Types.ObjectId;
+
   title: string;
   message: string;
-  status?: string;
-  user: Types.ObjectId;
-}
 
+  status: "unread" | "read";
+
+  // User who triggered the notification
+  user: Types.ObjectId;
+
+  // Account that should receive this notification
+  recipient?: Types.ObjectId | null;
+
+  // Organization is optional because it may not exist yet
+  organization?: Types.ObjectId;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export interface ICreateNotification {
   title: string;
   message: string;
-  status?: string;
-  user: Types.ObjectId;
+  status?: "unread" | "read";
+  user: Types.ObjectId | string;
+  recipient?: Types.ObjectId | string;
+  organization?: Types.ObjectId | string;
 }

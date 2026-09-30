@@ -13,7 +13,7 @@ const notificationSchema = new mongoose.Schema<INotification>(
     },
     status: {
       type: String,
-      required: true, 
+      required: true,
       enum: ["unread", "read"],
       default: "unread",
     },
@@ -21,6 +21,17 @@ const notificationSchema = new mongoose.Schema<INotification>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    recipient: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      index: true,
+      default: null,
+    },
+    organization: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Organization",
+      index: true,
     },
   },
   {

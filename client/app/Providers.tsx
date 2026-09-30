@@ -9,27 +9,33 @@ const queryClient = new QueryClient();
 import { Toaster } from "@/components/ui/sonner";
 import AuthProvider from "./customHooks/AuthProvider";
 import { SessionProvider } from "next-auth/react";
+import SocketProvider from "./SocketProvider";
+import AudioProvider from "./AudioProvider";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SessionProvider>
-        <ReduxProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange>
-            <AuthProvider>{children}</AuthProvider>
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 3500,
-              }}
-            />
-          </ThemeProvider>
-        </ReduxProvider>
-      </SessionProvider>
-    </QueryClientProvider>
+    <SocketProvider>
+      <AudioProvider>
+        <QueryClientProvider client={queryClient}>
+          <SessionProvider>
+            <ReduxProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange>
+                <AuthProvider>{children}</AuthProvider>
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    duration: 3500,
+                  }}
+                />
+              </ThemeProvider>
+            </ReduxProvider>
+          </SessionProvider>
+        </QueryClientProvider>
+      </AudioProvider>
+    </SocketProvider>
   );
 }
