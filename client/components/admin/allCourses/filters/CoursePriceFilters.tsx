@@ -55,7 +55,7 @@ export default function CoursePriceFilters({
       {/* ==================== MIN PRICE ==================== */}
 
       <Input
-        className="h-10 w-[140px]"
+        className="h-10 w-full sm:w-[140px]"
         type="number"
         placeholder="Min price"
         value={price.min}
@@ -70,7 +70,7 @@ export default function CoursePriceFilters({
       {/* ==================== MAX PRICE ==================== */}
 
       <Input
-        className="h-10 w-[140px]"
+        className="h-10 w-full sm:w-[140px]"
         type="number"
         placeholder="Max price"
         value={price.max}
@@ -87,7 +87,7 @@ export default function CoursePriceFilters({
       <Input
         type="number"
         placeholder="Min estimated"
-        className="h-10 w-[160px]"
+        className="h-10 w-full sm:w-[160px]"
         value={estimatedPrice.min}
         onChange={(e) =>
           setEstimatedPrice((prev) => ({
@@ -102,7 +102,7 @@ export default function CoursePriceFilters({
       <Input
         type="number"
         placeholder="Max estimated"
-        className="h-10 w-[160px]"
+        className="h-10 w-full sm:w-[160px]"
         value={estimatedPrice.max}
         onChange={(e) =>
           setEstimatedPrice((prev) => ({

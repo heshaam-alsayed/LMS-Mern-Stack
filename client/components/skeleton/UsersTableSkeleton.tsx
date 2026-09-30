@@ -9,7 +9,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function UsersTableSkeleton() {
+export default function UsersTableSkeleton({
+  isTeam = false,
+}: {
+  isTeam?: boolean;
+}) {
   return (
     <div className="w-full overflow-hidden rounded-xl border bg-background">
       <div className="w-full overflow-x-auto">
@@ -29,9 +33,11 @@ export default function UsersTableSkeleton() {
                 <Skeleton className="h-4 w-24" />
               </TableHead>
 
-              <TableHead>
-                <Skeleton className="h-4 w-16" />
-              </TableHead>
+              {!isTeam && (
+                <TableHead>
+                  <Skeleton className="h-4 w-16" />
+                </TableHead>
+              )}
 
               <TableHead>
                 <Skeleton className="h-4 w-16" />
@@ -73,9 +79,11 @@ export default function UsersTableSkeleton() {
                 </TableCell>
 
                 {/* ==================== COURSES ==================== */}
-                <TableCell>
-                  <Skeleton className="h-4 w-[70px]" />
-                </TableCell>
+                {!isTeam && (
+                  <TableCell>
+                    <Skeleton className="h-4 w-[70px]" />
+                  </TableCell>
+                )}
 
                 {/* ==================== CREATED ==================== */}
                 <TableCell>

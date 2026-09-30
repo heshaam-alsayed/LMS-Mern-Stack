@@ -17,7 +17,8 @@ export default function Dashboard() {
   const { currentYear, years, handleYearChange } = useStatisticsYear();
   const [topCoursesLimit, setTopCoursesLimit] = useState(10);
 
-  const {
+  const { 
+    data:revenueData,
     isLoading: isLoadingRevenue,
     isError: isErrorRevenue,
     error: revenueError,
@@ -59,81 +60,16 @@ export default function Dashboard() {
     queryFn: () => getAllOrdersInvoices(true),
     staleTime: 5 * 60 * 1000,
   });
-  const revenueData = {
-    yearlyRevenue: 12450,
-    allTimeRevenue: 48750,
-    monthly: [
-      {
-        month: "January",
-        orders: 18,
-        revenue: 1450,
-      },
-      {
-        month: "February",
-        orders: 24,
-        revenue: 1720,
-      },
-      {
-        month: "March",
-        orders: 15,
-        revenue: 1180,
-      },
-      {
-        month: "April",
-        orders: 28,
-        revenue: 2140,
-      },
-      {
-        month: "May",
-        orders: 20,
-        revenue: 1560,
-      },
-      {
-        month: "June",
-        orders: 26,
-        revenue: 1980,
-      },
-      {
-        month: "July",
-        orders: 12,
-        revenue: 920,
-      },
-      {
-        month: "August",
-        orders: 16,
-        revenue: 1500,
-      },
-      {
-        month: "September",
-        orders: 0,
-        revenue: 0,
-      },
-      {
-        month: "October",
-        orders: 0,
-        revenue: 0,
-      },
-      {
-        month: "November",
-        orders: 0,
-        revenue: 0,
-      },
-      {
-        month: "December",
-        orders: 0,
-        revenue: 0,
-      },
-    ],
-  };
-
+  
+ 
   return (
     <div className="w-full">
       <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-stretch">
         <div className="min-w-0 w-full lg:w-[70%]">
           <OrdersRevenueChart
-            monthlyData={revenueData.monthly}
-            yearlyRevenue={revenueData.yearlyRevenue}
-            allTimeRevenue={revenueData.allTimeRevenue}
+            monthlyData={revenueData?.data.monthly}
+            yearlyRevenue={revenueData?.data.yearlyRevenue}
+            allTimeRevenue={revenueData?.data.allTimeRevenue}
             year={currentYear}
             years={years}
             handleYearChange={handleYearChange}

@@ -185,7 +185,7 @@ export default function EditHero() {
   if (isLoading) {
     return (
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+        <div className="grid items-start gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
           <div className="space-y-6">
             <div className="h-8 w-64 animate-pulse rounded-lg bg-muted" />
 
@@ -209,7 +209,7 @@ export default function EditHero() {
   return (
     <section className="relative overflow-hidden">
       <div className="mx-auto max-w-7xl px-4  sm:px-6 lg:px-8 ">
-        <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+        <div className="grid items-start gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
           {/* Content */}
           <div className="text-center lg:pt-8 lg:text-left">
             {/* Badge */}
@@ -225,7 +225,7 @@ export default function EditHero() {
               value={heroData.title}
               onChange={(e) => updateField("title", e.target.value)}
               rows={3}
-              className="w-full resize-none overflow-hidden bg-transparent text-4xl font-extrabold leading-tight tracking-tight text-foreground outline-none placeholder:text-muted-foreground sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
+              className="w-full resize-none overflow-hidden bg-transparent text-2xl font-extrabold leading-tight tracking-tight text-foreground outline-none placeholder:text-muted-foreground sm:text-3xl md:text-4xl xl:text-5xl"
               placeholder="Enter hero title"
             />
 
@@ -234,13 +234,13 @@ export default function EditHero() {
               value={heroData.subtitle}
               onChange={(e) => updateField("subtitle", e.target.value)}
               rows={4}
-              className="mx-auto mt-6 w-full max-w-2xl resize-none bg-transparent text-sm leading-relaxed text-muted-foreground outline-none placeholder:text-muted-foreground/50 sm:text-base md:text-lg lg:mx-0"
+              className="mx-auto mt-4 w-full max-w-2xl resize-none overflow-hidden bg-transparent text-sm leading-relaxed text-muted-foreground outline-none placeholder:text-muted-foreground/50 sm:text-base md:text-lg lg:mx-0"
               placeholder="Enter hero subtitle"
             />
 
             {/* Actions */}
             {hasChanges && (
-              <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+              <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
                 {/* Save */}
                 <button
                   type="button"

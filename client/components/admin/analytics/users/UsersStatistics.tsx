@@ -82,6 +82,8 @@ export default function UsersStatistics({
               {/* Count */}
               <p
                 className="
+                  min-w-0
+                  truncate
                   text-2xl
                   font-bold
                   tracking-tight

@@ -72,7 +72,7 @@ export default function CoursesStatistics({
               </div>
 
               {/* Count - End */}
-              <p className="text-2xl font-bold tracking-tight text-card-foreground">
+              <p className="min-w-0 truncate text-2xl font-bold tracking-tight text-card-foreground">
                 {stat.value}
               </p>
             </div>

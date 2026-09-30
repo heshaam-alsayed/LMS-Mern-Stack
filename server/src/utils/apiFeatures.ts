@@ -16,23 +16,88 @@ class ApiFeatures<T> {
   filter(fields: string[]) {
     // Copy query string so we don't modify the original
     const queryObj = { ...this.queryString };
-    // Remove fields that are not allowed
+    // Remove fields that are not allowed. A range key such as
+    // "price[gte]" is allowed when its base field ("price") is allowed.
     Object.keys(queryObj).forEach((field) => {
-      if (!fields.includes(field)) {
+      const baseField = field.replace(/\[(gte|gt|lte|lt)\]$/, "");
+
+      if (!fields.includes(field) && !fields.includes(baseField)) {
         delete queryObj[field];
       }
     });
 
-    // Convert:
-    // gte -> $gte
-    // gt  -> $gt
-    // lte -> $lte
-    // lt  -> $lt
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    // The app uses the extended query parser, so "price[gte]=10" arrives as
+    // { price: { gte: "10" } } while a literal "price[gte]" key is also
+    // supported. Both are converted into real mongo range operators, e.g.
+    // { price: { $gte: 10 } }.
+    const rangeOperators = ["gte", "gt", "lte", "lt"];
+
+    // Range values are always numeric. A value that cannot be parsed is
+    // dropped instead of being forwarded, so a malformed query string can
+    // never reach mongoose casting and blow up with a 500.
+    const toNumeric = (value: any) => {
+      if (value === "" || value === null || value === undefined) {
+        return null;
+      }
+
+      const numericValue = Number(value);
+
+      return Number.isNaN(numericValue) ? null : numericValue;
+    };
+
+    const filterQuery: Record<string, any> = {};
+
+    Object.keys(queryObj).forEach((field) => {
+      const rawValue = queryObj[field];
+
+      const rangeMatch = field.match(/^(.+)\[(gte|gt|lte|lt)\]$/);
+
+      if (rangeMatch) {
+        const fieldPath = rangeMatch[1];
+        const numericValue = toNumeric(rawValue);
+
+        if (numericValue !== null) {
+          if (!filterQuery[fieldPath]) {
+            filterQuery[fieldPath] = {};
+          }
+
+          filterQuery[fieldPath][`$${rangeMatch[2]}`] = numericValue;
+        }
+
+        return;
+      }
+
+      const isPlainObject =
+        !!rawValue &&
+        typeof rawValue === "object" &&
+        !Array.isArray(rawValue);
+
+      if (isPlainObject) {
+        const operators: Record<string, any> = {};
+
+        Object.keys(rawValue).forEach((key) => {
+          if (rangeOperators.includes(key)) {
+            const numericValue = toNumeric(rawValue[key]);
+
+            if (numericValue !== null) {
+              operators[`$${key}`] = numericValue;
+            }
+          }
+        });
+
+        // Keys that are not range operators are ignored so query string
+        // values cannot inject arbitrary mongo operators such as $ne.
+        if (Object.keys(operators).length > 0) {
+          filterQuery[field] = operators;
+        }
+
+        return;
+      }
+
+      filterQuery[field] = rawValue;
+    });
 
     // Apply filter to mongoose query
-    const filterQuery = JSON.parse(queryStr);
     this.query = this.query.find(filterQuery);
 
     return this;

@@ -12,6 +12,7 @@ type OrdersStatisticsProps = {
   newOrders: number;
   totalRevenue: number;
   yearlyRevenue: number;
+  scope?: "platform" | "organization";
 };
 
 export default function OrdersStatistics({
@@ -19,12 +20,17 @@ export default function OrdersStatistics({
   newOrders,
   totalRevenue,
   yearlyRevenue,
+  scope = "platform",
 }: OrdersStatisticsProps) {
+  const isOrganization = scope === "organization";
+
   const statistics = [
     {
       title: "Total Orders",
       value: totalOrders.toLocaleString(),
-      description: "All orders placed since the platform started",
+      description: isOrganization
+        ? "All orders placed for this organization"
+        : "All orders placed since the platform started",
       icon: ShoppingCart,
     },
     {
@@ -36,7 +42,9 @@ export default function OrdersStatistics({
     {
       title: "Total Revenue",
       value: `$${totalRevenue.toLocaleString()}`,
-      description: "Total revenue generated from all orders",
+      description: isOrganization
+        ? "Revenue generated from this organization's orders"
+        : "Total revenue generated from all orders",
       icon: CircleDollarSign,
     },
     {
@@ -77,7 +85,7 @@ export default function OrdersStatistics({
               </div>
 
               {/* Value */}
-              <p className="text-2xl font-bold tracking-tight text-card-foreground">
+              <p className="min-w-0 truncate text-2xl font-bold tracking-tight text-card-foreground">
                 {stat.value}
               </p>
             </div>

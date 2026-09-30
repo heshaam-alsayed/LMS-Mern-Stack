@@ -6,8 +6,10 @@ import {
   ArrowRight,
   Clock,
   CreditCard,
+  FileText,
   Receipt,
 } from "lucide-react";
+import Link from "next/link";
 
 import TopCoursesSellingSkeleton from "@/components/skeleton/TopCoursesSellingSkeleton";
 
@@ -38,73 +40,8 @@ type Props = {
   error?: string | null;
 };
 
-
-const orders = [
-  {
-    _id: "ord_001",
-    user: {
-      _id: "user_001",
-      name: "Ahmed Mohamed",
-      email: "ahmed@example.com",
-    },
-    course: {
-      _id: "course_001",
-      name: "Complete MERN Stack Web Development Bootcamp",
-      price: 200,
-    },
-    price: 200,
-    createdAt: "2026-09-01T14:30:00.000Z",
-  },
-  {
-    _id: "ord_002",
-    user: {
-      _id: "user_002",
-      name: "Omar Ali",
-      email: "omar@example.com",
-    },
-    course: {
-      _id: "course_002",
-      name: "React & Next.js Full Course",
-      price: 150,
-    },
-    price: 150,
-    createdAt: "2026-09-01T12:15:00.000Z",
-  },
-  {
-    _id: "ord_003",
-    user: {
-      _id: "user_003",
-      name: "Sara Hassan",
-      email: "sara@example.com",
-    },
-    course: {
-      _id: "course_003",
-      name: "Node.js & Express Backend Masterclass",
-      price: 180,
-    },
-    price: 180,
-    createdAt: "2026-08-31T18:45:00.000Z",
-  },
-  {
-    _id: "ord_004",
-    user: {
-      _id: "user_004",
-      name: "Mohamed Adel",
-      email: "mohamed@example.com",
-    },
-    course: {
-      _id: "course_004",
-      name: "TypeScript for Modern Web Development",
-      price: 120,
-    },
-    price: 120,
-    createdAt: "2026-08-31T15:20:00.000Z",
-  },
-  
-]
-
 export default function RecentTransactions({
-//   orders = [],
+  orders = [],
   isLoading,
   isError,
   error,
@@ -147,7 +84,8 @@ export default function RecentTransactions({
             </h3>
 
             <p className="mt-1 max-w-xs text-xs leading-5 text-muted-foreground">
-              {error || "Something went wrong while fetching transactions."}
+              {error ||
+                "Something went wrong while fetching transactions."}
             </p>
           </div>
         ) : orders.length === 0 ? (
@@ -174,7 +112,7 @@ export default function RecentTransactions({
                   key={order._id}
                   className="flex items-center gap-3 px-4 py-3"
                 >
-                  {/* Icon */}
+                  {/* Transaction Icon */}
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                   </div>
@@ -218,14 +156,16 @@ export default function RecentTransactions({
       {/* Footer */}
       {!isLoading && !isError && orders.length > 0 && (
         <div className="mt-auto shrink-0 border-t border-border px-4 py-3">
-          <button
-            type="button"
-            className="flex w-full items-center justify-center gap-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+          <Link
+            href="/admin/invoices"
+            className="group flex w-full items-center justify-center gap-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            View all transactions
+            <FileText className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5" />
 
-            <ArrowRight className="h-3.5 w-3.5" />
-          </button>
+            <span>View all invoices</span>
+
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
         </div>
       )}
     </div>

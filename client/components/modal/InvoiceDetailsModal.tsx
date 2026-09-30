@@ -41,6 +41,7 @@ export default function InvoiceDetailsModal({
     day: "numeric",
   });
 
+  console.log(invoice)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[560px]">
@@ -135,7 +136,7 @@ export default function InvoiceDetailsModal({
                   </p>
 
                   <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                    {invoice.course.category?.name || "Uncategorized"}
+                    {invoice.course.category?.title || "Uncategorized"}
                   </p>
                 </div>
               </div>
@@ -172,15 +173,15 @@ export default function InvoiceDetailsModal({
                 <p className="text-[11px] text-muted-foreground">Category</p>
 
                 <p className="mt-0.5 truncate text-xs font-medium text-foreground">
-                  {invoice.course.category?.name || "Uncategorized"}
+                  {invoice.course.category?.title || "Uncategorized"}
                 </p>
               </div>
             </div>
           </div>
 
           {/* PRICING */}
-          <div className="flex items-end justify-between gap-4">
-            <div className="flex items-center gap-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
               {/* COURSE PRICE */}
               <div>
                 <p className="text-[11px] text-muted-foreground">

@@ -161,6 +161,7 @@ export default function AllUsers() {
         users={data?.users ?? []}
         isLoading={isLoading}
         error={getAllUsersMutation.error}
+        isTeam={isTeam}
         onClickEdit={onClickEdit}
         onClickDelete={onClickDelete}
       />

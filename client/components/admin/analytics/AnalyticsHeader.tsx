@@ -38,8 +38,15 @@ export default function AnalyticsHeader({
 
       {/* Year Filter */}
       <div className="w-full sm:w-[140px]">
+        <label
+          htmlFor="analytics-year"
+          className="mb-1.5 block text-sm font-medium text-foreground">
+          Year
+        </label>
+
         <Select value={year} onValueChange={onYearChange}>
           <SelectTrigger
+            id="analytics-year"
             className="
               h-10 w-full
               border-input

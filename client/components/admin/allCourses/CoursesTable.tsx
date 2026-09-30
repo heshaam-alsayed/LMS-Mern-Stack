@@ -23,9 +23,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { Course } from "@/types/course.type";
 import CoursesTableSkeleton from "@/components/skeleton/CoursesTableSkeleton";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface CoursesTableProps {
   courses: Course[];
@@ -56,6 +58,8 @@ export default function CoursesTable({
 
               <TableHead>Level</TableHead>
 
+              <TableHead>Status</TableHead>
+
               <TableHead>Price</TableHead>
 
               <TableHead>Performance</TableHead>
@@ -73,7 +77,7 @@ export default function CoursesTable({
 
             {error ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-64">
+                <TableCell colSpan={7} className="h-64">
                   <div className="flex flex-col items-center justify-center gap-3 text-center">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
                       <AlertCircle className="h-6 w-6 text-destructive" />
@@ -137,6 +141,24 @@ export default function CoursesTable({
                     </Badge>
                   </TableCell>
 
+                  {/* ==================== STATUS ==================== */}
+
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "capitalize",
+                        course.status === "published" &&
+                          "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                        course.status === "draft" &&
+                          "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                        course.status === "archived" &&
+                          "border-muted-foreground/30 bg-muted text-muted-foreground",
+                      )}>
+                      {course.status ?? "draft"}
+                    </Badge>
+                  </TableCell>
+
                   {/* ==================== PRICE ==================== */}
 
                   <TableCell>
@@ -196,11 +218,13 @@ export default function CoursesTable({
                       </DropdownMenuTrigger>
 
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => console.log("View:", course._id)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </DropdownMenuItem>
+                        <Link
+                          href={`/admin/courses/operation-course/${course._id}`}>
+                          <DropdownMenuItem>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View
+                          </DropdownMenuItem>
+                        </Link>
 
                         <DropdownMenuItem
                           onClick={() =>
@@ -227,7 +251,7 @@ export default function CoursesTable({
               /* ==================== EMPTY ==================== */
 
               <TableRow>
-                <TableCell colSpan={6} className="h-32 text-center">
+                <TableCell colSpan={7} className="h-32 text-center">
                   <div className="flex flex-col items-center gap-1">
                     <p className="font-medium">No courses found</p>
 

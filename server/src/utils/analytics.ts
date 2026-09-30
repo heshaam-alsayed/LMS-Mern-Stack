@@ -30,15 +30,20 @@ const formatMonthly = (data: any[]) => {
   return result;
 };
 
-export const getMonthlyAnalytics = async (model: Model<any>, year?: number) => {
+export const getMonthlyAnalytics = async (
+  model: Model<any>,
+  year?: number,
+  filter?: Record<string, any>,
+) => {
   const targetYear = year || new Date().getFullYear();
 
-  const start = new Date(targetYear, 0, 1);
-  const end = new Date(targetYear, 11, 31, 23, 59, 59, 999);
+  const start = new Date(Date.UTC(targetYear, 0, 1));
+  const end = new Date(Date.UTC(targetYear, 11, 31, 23, 59, 59, 999));
 
   const rawData = await model.aggregate([
     {
       $match: {
+        ...(filter || {}),
         createdAt: {
           $gte: start,
           $lte: end,
@@ -56,13 +61,5 @@ export const getMonthlyAnalytics = async (model: Model<any>, year?: number) => {
     },
   ]);
 
-  const formatted = formatMonthly(rawData);
-
-  const allZero = formatted.every((item) => item.count === 0);
-
-  if (allZero) {
-    return [];
-  }
-
-  return formatted;
+  return formatMonthly(rawData);
 };

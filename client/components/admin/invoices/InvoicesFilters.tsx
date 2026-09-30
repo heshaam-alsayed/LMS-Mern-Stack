@@ -14,53 +14,16 @@ import {
 } from "@/components/ui/select";
 
 type Props = {
-  pagination: {
-    currentPage: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
+  updateQuery: (key: string, value: string) => void;
+  paginationLimit: number;
 };
 
-export default function InvoicesFilters({ pagination }: Props) {
-  const router = useRouter();
-  const pathname = usePathname();
+export default function InvoicesFilters({ updateQuery , paginationLimit }: Props) {
   const searchParams = useSearchParams();
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
 
   const debouncedSearch = useDebounce(search, 1000);
-
-  const updateQuery = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    if (!value || value === "all") {
-      params.delete(key);
-    } else {
-      params.set(key, value);
-    }
-
-    // Reset page when changing search, sort, or limit
-    if (key !== "page") {
-      params.delete("page");
-    }
-
-    router.push(`${pathname}?${params.toString()}`);
-  };
-
-  const handleNext = () => {
-    if (!pagination.hasNextPage) return;
-
-    updateQuery("page", String(pagination.currentPage + 1));
-  };
-
-  const handlePrevious = () => {
-    if (!pagination.hasPreviousPage) return;
-
-    updateQuery("page", String(pagination.currentPage - 1));
-  };
 
   const handleLimitChange = (value: string) => {
     updateQuery("limit", value);
@@ -116,7 +79,7 @@ export default function InvoicesFilters({ pagination }: Props) {
           </label>
 
           <Select
-            value={searchParams.get("limit") || String(pagination.limit)}
+            value={searchParams.get("limit") || String(paginationLimit)}
             onValueChange={handleLimitChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Show" />
@@ -134,17 +97,6 @@ export default function InvoicesFilters({ pagination }: Props) {
           </Select>
         </div>
       </div>
-
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="flex w-full items-center justify-end border-t border-border pt-4">
-          <Pagination
-            pagination={pagination}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-          />
-        </div>
-      )}
     </div>
   );
 }

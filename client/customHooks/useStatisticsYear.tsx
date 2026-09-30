@@ -1,11 +1,13 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { getRecentYears } from "@/app/utils/helper";
+
 export default function useStatisticsYear() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const years = [2026, 2025, 2024, 2023];
+  const years = getRecentYears(3);
 
   const currentYear =
     searchParams.get("year") || new Date().getFullYear().toString();
