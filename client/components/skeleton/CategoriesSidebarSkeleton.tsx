@@ -3,14 +3,12 @@ import React from "react";
 export default function CategoriesSidebarSkeleton() {
   return (
     <div className="space-y-5 p-5">
-      {/* Title */}
       <div className="flex items-center gap-2">
         <div className="size-8 animate-pulse rounded-lg bg-muted" />
 
         <div className="h-5 w-24 animate-pulse rounded-md bg-muted" />
       </div>
 
-      {/* Categories */}
       <div className="space-y-2">
         {Array.from({ length: 8 }).map((_, index) => (
           <div

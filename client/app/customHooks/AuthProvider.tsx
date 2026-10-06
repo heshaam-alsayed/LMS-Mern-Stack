@@ -12,6 +12,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: getMe,
     retry: false,
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
   });
 
   useEffect(() => {

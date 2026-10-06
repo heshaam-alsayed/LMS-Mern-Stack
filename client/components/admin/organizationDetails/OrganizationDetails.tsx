@@ -8,22 +8,11 @@ import { useSearchParams } from "next/navigation";
 
 import { getOrganizationDetails } from "@/lib/api/getOrganizationDetails";
 
-import { PaginationData } from "@/components/shared/Pagination";
-
 import OrganizationDetailsError from "./OrganizationDetailsError";
-import OrganizationDetailsSkeleton from "@/components/skeleton/OrganizationDetailsSkeleton";
 import OrganizationInfo from "./OrganizationInfo";
 import OrganizationCoursesFilter from "./OrganizationCoursesFilter";
 import OrganizationCoursesTable from "./OrganizationCoursesTable";
-
-const initialPagination: PaginationData = {
-  currentPage: 1,
-  limit: 10,
-  total: 0,
-  totalPages: 0,
-  hasNextPage: false,
-  hasPreviousPage: false,
-};
+import OrganizationDetailsSkeleton from "@/components/skeleton/OrganizationDetailsSkeleton";
 
 type Props = {
   id: string;
@@ -37,13 +26,11 @@ export default function OrganizationDetails({ id }: Props) {
   const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey: ["organization-details", id, queryString],
     queryFn: () => getOrganizationDetails(id, queryString),
-    // Keep the previous page of data while a new filter set is loading, so the
-    // page itself (header + organization info) never falls back to the skeleton.
     placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
-  // First load only. Once data exists, filter changes keep the page rendered
-  // and only the courses table shows its own loading state.
+
   if (isLoading) {
     return <OrganizationDetailsSkeleton />;
   }
@@ -106,9 +93,9 @@ export default function OrganizationDetails({ id }: Props) {
           </h2>
         </div>
 
-        <OrganizationCoursesFilter
-          pagination={pagination ?? initialPagination}
-        />
+        {(pagination?.total ?? 0) > 0 ? (
+          <OrganizationCoursesFilter pagination={pagination} />
+        ) : null}
 
         <OrganizationCoursesTable
           courses={courses ?? []}

@@ -58,9 +58,7 @@ export default function CoursesStatistics({
               transition-colors
               hover:bg-accent/50
             ">
-            {/* Top Row */}
             <div className="flex items-center justify-between">
-              {/* Icon - Start */}
               <div
                 className="
                   flex h-10 w-10 shrink-0 items-center justify-center
@@ -71,13 +69,11 @@ export default function CoursesStatistics({
                 <Icon className="h-5 w-5" />
               </div>
 
-              {/* Count - End */}
               <p className="min-w-0 truncate text-2xl font-bold tracking-tight text-card-foreground">
                 {stat.value}
               </p>
             </div>
 
-            {/* Content */}
             <div className="mt-5">
               <p className="text-sm font-medium text-card-foreground">
                 {stat.title}

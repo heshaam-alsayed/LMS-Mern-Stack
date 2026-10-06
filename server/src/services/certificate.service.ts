@@ -7,6 +7,7 @@ import {
   findCertificateByUserAndCourse,
 } from "../repositories/certificate.repository";
 import { getCourseProgressService } from "./courseProgress.service";
+import { invalidateOrgDataCaches } from "./organization.service";
 
 const generateCertificateId = () => {
   const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -100,6 +101,11 @@ export const generateCertificateService = async (
     learningHours,
     issuedAt: new Date(),
   });
+
+  // the org cert-stat/dashboard aggregates just grew for this organization
+  if (course.organization) {
+    await invalidateOrgDataCaches(String(course.organization));
+  }
 
   return certificate;
 };

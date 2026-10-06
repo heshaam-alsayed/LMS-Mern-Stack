@@ -18,7 +18,6 @@ export default function UsersTableSkeleton({
     <div className="w-full overflow-hidden rounded-xl border bg-background">
       <div className="w-full overflow-x-auto">
         <Table className="min-w-[900px]">
-          {/* ==================== HEADER ==================== */}
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-[320px]">
@@ -49,17 +48,13 @@ export default function UsersTableSkeleton({
             </TableRow>
           </TableHeader>
 
-          {/* ==================== BODY ==================== */}
           <TableBody>
             {Array.from({ length: 8 }).map((_, index) => (
               <TableRow key={index} className="bg-muted/40 hover:bg-muted/40">
-                {/* ==================== USER ==================== */}
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    {/* Avatar */}
                     <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
 
-                    {/* Name + Email */}
                     <div className="min-w-0">
                       <Skeleton className="h-4 w-[150px]" />
 
@@ -68,29 +63,24 @@ export default function UsersTableSkeleton({
                   </div>
                 </TableCell>
 
-                {/* ==================== ROLE ==================== */}
                 <TableCell>
                   <Skeleton className="h-6 w-[70px] rounded-full" />
                 </TableCell>
 
-                {/* ==================== VERIFICATION ==================== */}
                 <TableCell>
                   <Skeleton className="h-6 w-[95px] rounded-full" />
                 </TableCell>
 
-                {/* ==================== COURSES ==================== */}
                 {!isTeam && (
                   <TableCell>
                     <Skeleton className="h-4 w-[70px]" />
                   </TableCell>
                 )}
 
-                {/* ==================== CREATED ==================== */}
                 <TableCell>
                   <Skeleton className="h-4 w-[90px]" />
                 </TableCell>
 
-                {/* ==================== ACTIONS ==================== */}
                 <TableCell>
                   <div className="flex justify-end">
                     <Skeleton className="h-8 w-8 rounded-md" />

@@ -1,7 +1,7 @@
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import { IRegistrationBody, IUser } from "../interfaces/userInterface";
 import AppError from "./AppError";
-import redis from "./redis";
+import redis, { sanitizeUser, sessionKey } from "./redis";
 import { StringValue } from "ms";
 
 interface IActivationToken {
@@ -122,8 +122,8 @@ export const sendToken = async (user: IUser) => {
 
   // clean session
   await redis.set(
-    user._id.toString(),
-    JSON.stringify(user),
+    sessionKey(user._id.toString()),
+    JSON.stringify(sanitizeUser(user)),
     "EX",
     refreshExpireDays * 24 * 60 * 60,
   );
@@ -146,7 +146,7 @@ export const handleRefreshAccessToken = async (token: string) => {
     throw new AppError("Invalid or expired refresh token", 401);
   }
 
-  const session = await redis.get(decoded.id);
+  const session = await redis.get(sessionKey(decoded.id));
 
   if (!session) {
     throw new AppError("Session expired", 401);
@@ -168,8 +168,8 @@ export const handleRefreshAccessToken = async (token: string) => {
   );
 
   await redis.set(
-    userId,
-    JSON.stringify(user),
+    sessionKey(userId),
+    JSON.stringify(sanitizeUser(user)),
     "EX",
     refreshExpireDays * 24 * 60 * 60,
   );

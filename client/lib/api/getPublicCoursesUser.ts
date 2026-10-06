@@ -4,7 +4,6 @@ import { apiClient } from "./apiClient";
 export const getPublicCoursesUser = async (
   queryString?: string,
 ): Promise<IPublicCoursesResponse> => {
-  console.log(queryString)
   const endpoint = queryString
     ? `/courses/public-courses?${queryString}`
     : "/courses/public-courses";

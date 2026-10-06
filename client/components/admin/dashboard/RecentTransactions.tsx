@@ -48,7 +48,6 @@ export default function RecentTransactions({
 }: Props) {
   return (
     <div className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-card">
-      {/* Header */}
       <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -69,7 +68,6 @@ export default function RecentTransactions({
         <CreditCard className="h-4 w-4 shrink-0 text-muted-foreground" />
       </div>
 
-      {/* Content */}
       <div className="flex-1">
         {isLoading ? (
           <TopCoursesSellingSkeleton />
@@ -112,12 +110,10 @@ export default function RecentTransactions({
                   key={order._id}
                   className="flex items-center gap-3 px-4 py-3"
                 >
-                  {/* Transaction Icon */}
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                   </div>
 
-                  {/* User + Course */}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-foreground">
                       {order.user?.name ?? "Unknown user"}
@@ -136,7 +132,6 @@ export default function RecentTransactions({
                     </div>
                   </div>
 
-                  {/* Price */}
                   <div className="shrink-0 text-right">
                     <p className="text-sm font-semibold text-foreground">
                       ${order.price.toLocaleString()}
@@ -153,7 +148,6 @@ export default function RecentTransactions({
         )}
       </div>
 
-      {/* Footer */}
       {!isLoading && !isError && orders.length > 0 && (
         <div className="mt-auto shrink-0 border-t border-border px-4 py-3">
           <Link

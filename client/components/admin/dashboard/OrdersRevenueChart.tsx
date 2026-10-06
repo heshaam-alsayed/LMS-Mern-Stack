@@ -71,7 +71,6 @@ export function OrdersRevenueChart({
     <Card className="overflow-hidden">
       <CardHeader className="border-b border-border">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:items-center">
-          {/* Title */}
           <div className="min-w-0">
             <CardTitle className="text-base sm:text-lg">
               Revenue Overview
@@ -82,7 +81,6 @@ export function OrdersRevenueChart({
             </CardDescription>
           </div>
 
-          {/* Revenue Summary */}
           <div className="flex items-center justify-start gap-5 sm:justify-center lg:gap-6">
             {isLoading ? (
               <>
@@ -100,7 +98,6 @@ export function OrdersRevenueChart({
               </>
             ) : (
               <>
-                {/* Year Revenue */}
                 <div className="min-w-0 text-center">
                   <p className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
                     ${yearlyRevenue?.toLocaleString()}
@@ -113,7 +110,6 @@ export function OrdersRevenueChart({
 
                 <div className="h-8 w-px shrink-0 bg-border" />
 
-                {/* All Time Revenue */}
                 <div className="min-w-0 text-center">
                   <p className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
                     ${allTimeRevenue?.toLocaleString()}
@@ -127,7 +123,6 @@ export function OrdersRevenueChart({
             )}
           </div>
 
-          {/* Year Select */}
           <div className="flex w-full justify-start sm:col-span-2 lg:col-span-1 lg:justify-end">
             <Select
               value={year}
@@ -152,11 +147,10 @@ export function OrdersRevenueChart({
       </CardHeader>
 
       <CardContent className="pt-6">
-        {/* Loading */}
         {isLoading ? (
           <OrdersRevenueSkeleton />
         ) : isError ? (
-          /* Error */
+          // Error
           <div className="flex min-h-[320px] flex-col items-center justify-center rounded-lg border border-dashed border-destructive/30 bg-destructive/5 px-6 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
               <AlertCircle className="h-6 w-6" />
@@ -171,7 +165,7 @@ export function OrdersRevenueChart({
             </p>
           </div>
         ) : isEmpty ? (
-          /* Empty */
+          // Empty
           <div className="flex min-h-[320px] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 px-6 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <TrendingUp className="h-6 w-6" />
@@ -187,7 +181,7 @@ export function OrdersRevenueChart({
             </p>
           </div>
         ) : (
-          /* Chart */
+          // Chart
           <ChartContainer config={chartConfig} className="h-[320px] w-full">
             <AreaChart accessibilityLayer data={monthlyData}>
               <CartesianGrid vertical={false} />
@@ -230,7 +224,6 @@ export function OrdersRevenueChart({
 
                   return (
                     <div className="min-w-[220px] overflow-hidden rounded-xl border border-border bg-popover shadow-xl">
-                      {/* Header */}
                       <div className="border-b border-border px-4 py-3">
                         <p className="text-sm font-semibold text-foreground">
                           {data.month}
@@ -241,9 +234,7 @@ export function OrdersRevenueChart({
                         </p>
                       </div>
 
-                      {/* Content */}
                       <div className="space-y-2 p-3">
-                        {/* Orders */}
                         <div className="flex items-center justify-between rounded-lg px-2 py-2">
                           <div className="flex items-center gap-2">
                             <div className="h-2.5 w-2.5 rounded-full bg-muted-foreground" />
@@ -258,7 +249,6 @@ export function OrdersRevenueChart({
                           </span>
                         </div>
 
-                        {/* Revenue */}
                         <div className="flex items-center justify-between rounded-lg bg-primary/5 px-2 py-2">
                           <div className="flex items-center gap-2">
                             <div

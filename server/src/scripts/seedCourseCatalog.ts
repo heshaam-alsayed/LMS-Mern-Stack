@@ -761,6 +761,8 @@ const buildCourse = (
     courseData,
     ratings: 0,
     purchased: 0,
+    reviewsCount: 0,
+    totalLectures: courseData.length,
   };
 };
 

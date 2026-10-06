@@ -13,7 +13,6 @@ export default function CoursesEmptyState({
     <div className="flex min-h-[520px] -mt-30 items-center justify-center">
       <div className="w-full max-w-xl overflow-hidden  p-8 text-center  sm:p-10">
         <div className="relative">
-          {/* Icon */}
           <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-primary/10">
             <BookOpen className="size-8 text-primary" />
           </div>
@@ -30,7 +29,6 @@ export default function CoursesEmptyState({
             </p>
           </div>
 
-          {/* Actions */}
           <div className="mt-7 flex flex-col items-center justify-center gap-2 sm:flex-row">
             <button
               type="button"

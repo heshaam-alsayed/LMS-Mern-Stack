@@ -47,7 +47,6 @@ export default function GenerateCertificateModal({
           shadow-2xl
           sm:rounded-2xl
         ">
-        {/* Header */}
         <div className="relative overflow-hidden border-b bg-gradient-to-br from-primary/[0.08] via-background to-background px-6 py-7 sm:px-8">
           <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
 
@@ -73,7 +72,6 @@ export default function GenerateCertificateModal({
           </div>
         </div>
 
-        {/* Content */}
         <div className="px-6 py-6 sm:px-8">
           <div className="rounded-xl border border-border/70 bg-muted/30 p-4">
             <div className="flex items-start gap-3">
@@ -103,7 +101,6 @@ export default function GenerateCertificateModal({
           </div>
         </div>
 
-        {/* Footer */}
         <DialogFooter className="border-t bg-muted/20 px-6 py-4 sm:px-8">
           <div className="flex pb-4 w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button

@@ -4,7 +4,6 @@ import { Skeleton } from "../ui/skeleton";
 export default function CategoriesSkeleton() {
   return (
     <div className="w-full space-y-6">
-      {/* Header Skeleton */}
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-2">
           <Skeleton className="h-8 w-48" />

@@ -8,12 +8,14 @@ import { MyOrganizationCoursesPerformanceParams } from "@/types/organization.typ
 
 export default function useMyOrganizationCoursesPerformance(
   params: MyOrganizationCoursesPerformanceParams = {},
+  enabled = true,
 ) {
   const { page, limit } = params;
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["my-organization-courses-performance", { page, limit }],
     queryFn: () => getMyOrganizationCoursesPerformance({ page, limit }),
+    enabled,
     staleTime: 5 * 60 * 1000,
   });
 

@@ -91,7 +91,6 @@ export default function MemberModal({
         }
       }}>
       <div className="relative w-full max-w-[500px] rounded-xl border border-border bg-background p-6 shadow-xl">
-        {/* Close */}
 
         <button
           type="button"
@@ -101,7 +100,6 @@ export default function MemberModal({
           <X className="h-5 w-5" />
         </button>
 
-        {/* Header */}
 
         <div className="mb-6 pr-8">
           <h2 className="text-xl font-semibold text-foreground">
@@ -115,10 +113,8 @@ export default function MemberModal({
           </p>
         </div>
 
-        {/* Form */}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name */}
 
           <div className="space-y-2">
             <label
@@ -139,7 +135,6 @@ export default function MemberModal({
             />
           </div>
 
-          {/* Email */}
 
           <div className="space-y-2">
             <label
@@ -160,7 +155,6 @@ export default function MemberModal({
             />
           </div>
 
-          {/* Password */}
 
           {!isEditing && (
             <div className="space-y-2">
@@ -198,7 +192,6 @@ export default function MemberModal({
             </div>
           )}
 
-          {/* Role */}
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Role</label>
@@ -221,7 +214,6 @@ export default function MemberModal({
             </Select>
           </div>
 
-          {/* Buttons */}
 
           <div className="flex justify-end gap-3 pt-2">
             <Button

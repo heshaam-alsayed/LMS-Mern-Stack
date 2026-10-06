@@ -1,6 +1,8 @@
 import http from "http";
 import { Server } from "socket.io";
+
 import { authenticationSocket } from "./middlewares/socketAuth";
+import { registerTicketHandlers } from "./socket/ticketHandlers";
 
 let io: Server;
 
@@ -10,36 +12,33 @@ export const initSocketServer = (server: http.Server) => {
       origin: "http://localhost:3000",
       credentials: true,
     },
+    maxHttpBufferSize: 32 * 1024 * 1024,
   });
 
   io.use(authenticationSocket);
 
-  io.on("connection", (socket) => {
-    console.log("client connected");
+  registerTicketHandlers(io);
 
+  io.on("connection", (socket) => {
     const user = socket.data.user;
 
-    if (user.role === "admin") {
+    // Personal notifications
+    if (user?._id) {
+      socket.join(`user:${user._id}`);
+    }
+
+    // Admin notifications
+    if (user?.role === "admin") {
       socket.join("admins");
-
-      console.log("Admin joined admins room");
     }
 
-    if (user.role === "instructor") {
+    // Instructor notifications
+    if (user?.role === "instructor") {
       socket.join(`instructor:${user._id}`);
-
-      console.log(
-        `Instructor joined room: instructor:${user._id}`,
-      );
     }
-
-    
-    socket.emit("welcome", {
-      message: "Welcome to the Socket.IO server",
-    });
 
     socket.on("disconnect", () => {
-      console.log("client disconnected");
+      // no-op
     });
   });
 };

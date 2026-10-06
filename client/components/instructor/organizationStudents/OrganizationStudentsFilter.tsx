@@ -50,6 +50,8 @@ export default function OrganizationStudentsFilter() {
   };
 
   useEffect(() => {
+    if (debouncedSearch === (searchParams.get("search") || "")) return;
+
     const params = new URLSearchParams(searchParams.toString());
 
     if (debouncedSearch) {
@@ -61,7 +63,7 @@ export default function OrganizationStudentsFilter() {
     params.delete("page");
 
     push(params);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, searchParams]);
 
   const resetAll = () => {
     setSearch("");

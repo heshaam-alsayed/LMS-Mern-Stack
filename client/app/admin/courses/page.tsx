@@ -1,10 +1,5 @@
-import AllCourses from "@/components/admin/allCourses/AllCourses";
-import React from "react";
+import CoursesPage from "@/components/admin/courses/CoursesPage";
 
 export default function page() {
-  return (
-    <div>
-      <AllCourses />
-    </div>
-  );
+  return <CoursesPage />;
 }

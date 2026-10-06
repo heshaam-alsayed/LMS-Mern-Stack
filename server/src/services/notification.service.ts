@@ -10,7 +10,7 @@ export const getAllNotifications = async (
   queryString: any,
   currentUser?: { _id: string; role: string },
 ) => {
-  // instructors only see notifications addressed to them
+  // instructors only see notifications 
   const recipientId =
     currentUser?.role === "instructor" ? currentUser._id : undefined;
 
@@ -69,7 +69,7 @@ export const updateNotification = async (
   return notification;
 };
 
-// Sends a real-time "notification" event to that instructor socket room.
+// Sends notification event to instructor socket room.
 
 export const notifyCourseInstructor = async (options: {
   organizationId?: Types.ObjectId | string | null;
@@ -101,11 +101,11 @@ export const notifyCourseInstructor = async (options: {
     organization: organization._id,
   });
 
-  // a socket failure must not fail the action that triggered it
+  // a socket if fail must not fail the action 
   try {
     getIO().to(`instructor:${instructorId}`).emit("notification", notification);
   } catch {
-    // sockets are not available in scripts and tests
+    
   }
 
   return notification;

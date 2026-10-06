@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Award, CalendarDays, Clock, Mail } from "lucide-react";
+import { Award, Building2, CalendarDays, Clock, Mail } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -38,12 +38,17 @@ export default function OrganizationCertificateCard({
 
   const studentName = certificate.studentName || user?.name || "Unknown student";
 
+  const organizationName =
+    typeof certificate.organization === "object"
+      ? certificate.organization?.name
+      : null;
+
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-shadow hover:shadow-md">
       <div className="relative h-32 w-full overflow-hidden bg-primary/5">
         {thumbnail && !thumbnailFailed ? (
           <img
-            src={thumbnail}
+            src={thumbnail.url}
             alt={certificate.courseTitle}
             onError={() => setThumbnailFailed(true)}
             className="h-full w-full object-cover"
@@ -67,9 +72,16 @@ export default function OrganizationCertificateCard({
             Course
           </p>
 
-          <h3 className="mt-1 line-clamp-2 font-semibold leading-6 text-foreground">
+          <p className="mt-1 font-semibold text-foreground">
             {certificate.courseTitle}
-          </h3>
+          </p>
+
+          {organizationName ? (
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Building2 className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{organizationName}</span>
+            </p>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-3">

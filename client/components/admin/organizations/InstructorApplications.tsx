@@ -97,6 +97,7 @@ export default function InstructorApplications() {
     queryKey: ["instructor-applications", page, limit, status],
     queryFn: () => getInstructorApplications(queryString),
     placeholderData: (previousData) => previousData,
+    staleTime: 60 * 1000,
   });
 
   const applications = data?.applications || [];

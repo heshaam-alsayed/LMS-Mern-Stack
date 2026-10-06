@@ -48,7 +48,7 @@ export function CoursesChartMonthly({ chartData, year }: Props) {
 
       <CardContent>
         {isEmpty ? (
-          /* Empty State */
+          // Empty State
           <div className="flex min-h-[320px] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 px-6 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <BarChart3 className="h-6 w-6" />

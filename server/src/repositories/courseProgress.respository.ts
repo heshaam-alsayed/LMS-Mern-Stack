@@ -3,6 +3,8 @@ import CourseProgressModel from "../models/courseProgress.model";
 export const createCourseProgress = async (
   userId: string,
   courseId: string,
+  totalLectures: number,
+  organizationId: string,
 ) => {
   return CourseProgressModel.findOneAndUpdate(
     {
@@ -13,8 +15,10 @@ export const createCourseProgress = async (
       $setOnInsert: {
         user: userId,
         course: courseId,
+        organization: organizationId,
         currentLecture: null,
         completedLectures: [],
+        totalLectures,
         lastAccessedAt: null,
       },
     },

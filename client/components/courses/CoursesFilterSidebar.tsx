@@ -79,7 +79,6 @@ export default function CourseFiltersSidebar({
         </SheetHeader>
 
         <div className="space-y-4 px-4 pb-6 pt-5">
-          {/* Category */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
               Category
@@ -104,7 +103,6 @@ export default function CourseFiltersSidebar({
             </Select>
           </div>
 
-          {/* Price */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">Price</label>
 
@@ -125,7 +123,6 @@ export default function CourseFiltersSidebar({
             </Select>
           </div>
 
-          {/* Estimate Price */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
               Estimated Price
@@ -147,7 +144,6 @@ export default function CourseFiltersSidebar({
             </Select>
           </div>
 
-          {/* Level */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">Level</label>
 
@@ -167,7 +163,6 @@ export default function CourseFiltersSidebar({
             </Select>
           </div>
 
-          {/* Ratings */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
               Rating
@@ -191,7 +186,6 @@ export default function CourseFiltersSidebar({
             </Select>
           </div>
 
-          {/* Sort */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
               Sort By
@@ -228,11 +222,18 @@ export default function CourseFiltersSidebar({
                 <SelectItem value="purchased">Most Purchased</SelectItem>
 
                 <SelectItem value="-purchased">Least Purchased</SelectItem>
+
+                <SelectItem value="reviewsCount">Reviews: Fewest</SelectItem>
+
+                <SelectItem value="-reviewsCount">Reviews: Most</SelectItem>
+
+                <SelectItem value="totalLectures">Lectures: Fewest</SelectItem>
+
+                <SelectItem value="-totalLectures">Lectures: Most</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Limit */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
               Courses Per Page
@@ -254,7 +255,6 @@ export default function CourseFiltersSidebar({
             </Select>
           </div>
 
-          {/* Reset */}
           <div className="pt-1">
             <button
               type="button"

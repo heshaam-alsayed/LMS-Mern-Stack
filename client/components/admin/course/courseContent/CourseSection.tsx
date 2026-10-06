@@ -20,7 +20,6 @@ export default function CourseSection({
 }: Props) {
   return (
     <div className="flex w-full items-center gap-4 border px-3 py-2">
-      {/* Section Name */}
       <div className="flex flex-1 items-center gap-2">
         <input
           ref={(element) => {

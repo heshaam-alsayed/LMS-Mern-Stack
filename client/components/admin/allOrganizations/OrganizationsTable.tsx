@@ -4,6 +4,7 @@ import Image from "next/image";
 import {
   AlertCircle,
   BarChart3,
+  BookOpen,
   Building2,
   Eye,
   MoreHorizontal,
@@ -88,25 +89,27 @@ export default function OrganizationsTable({
   return (
     <div className="w-full overflow-hidden rounded-xl border bg-background">
       <div className="w-full overflow-x-auto">
-        <Table className="min-w-[900px]">
+        <Table className="min-w-[820px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[300px]">Organization</TableHead>
+              <TableHead className="w-[240px]">Organization</TableHead>
 
-              <TableHead className="w-[260px]">Instructor</TableHead>
+              <TableHead className="w-[220px]">Instructor</TableHead>
+
+              <TableHead className="w-[70px]">Courses</TableHead>
 
               <TableHead>Status</TableHead>
 
               <TableHead>Joined</TableHead>
 
-              <TableHead className="w-[60px] text-right">Actions</TableHead>
+              <TableHead className="w-[50px] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {error ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-64">
+                <TableCell colSpan={6} className="h-64">
                   <div className="flex flex-col items-center justify-center gap-3 text-center">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
                       <AlertCircle className="h-6 w-6 text-destructive" />
@@ -133,7 +136,6 @@ export default function OrganizationsTable({
                   <TableRow
                     key={organization._id}
                     className="bg-muted/40 transition-colors hover:bg-muted/80">
-                    {/* Organization */}
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -152,7 +154,6 @@ export default function OrganizationsTable({
                       </div>
                     </TableCell>
 
-                    {/* Instructor */}
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border bg-muted">
@@ -185,7 +186,16 @@ export default function OrganizationsTable({
                       </div>
                     </TableCell>
 
-                    {/* Status */}
+                    <TableCell>
+                      <div className="flex w-fit items-center gap-2 rounded-full bg-muted px-2.5 py-1">
+                        <BookOpen className="h-4 w-4 text-muted-foreground" />
+
+                        <span className="text-sm font-medium text-foreground">
+                          {organization.coursesCount ?? 0}
+                        </span>
+                      </div>
+                    </TableCell>
+
                     <TableCell>
                       <Badge
                         variant="secondary"
@@ -194,14 +204,12 @@ export default function OrganizationsTable({
                       </Badge>
                     </TableCell>
 
-                    {/* Joined */}
                     <TableCell>
                       <span className="whitespace-nowrap text-sm text-muted-foreground">
                         {formatDate(organization.createdAt)}
                       </span>
                     </TableCell>
 
-                    {/* Actions */}
                     <TableCell className="text-center">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -286,7 +294,7 @@ export default function OrganizationsTable({
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center">
+                <TableCell colSpan={6} className="h-32 text-center">
                   <div className="flex flex-col items-center gap-1">
                     <Building2 className="mb-1 h-8 w-8 text-muted-foreground/50" />
 

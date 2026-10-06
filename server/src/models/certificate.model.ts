@@ -27,7 +27,7 @@ const certificateSchema = new Schema(
       required: true,
       index: true,
     },
-    // Snapshot data
+  
     studentName: {
       type: String,
       required: true,

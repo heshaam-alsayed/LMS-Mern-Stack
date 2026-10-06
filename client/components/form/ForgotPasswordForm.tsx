@@ -27,7 +27,6 @@ export default function ForgotPasswordForm() {
 
   return (
     <div className="w-full">
-      {/* Header */}
       <div className="mb-8 text-center">
         <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-violet-600 text-primary-foreground shadow-lg shadow-primary/25">
           <KeyRound className="size-7" />

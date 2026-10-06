@@ -45,7 +45,6 @@ export default function UserStatsOperation({
 
   return (
     <section className="space-y-4">
-      {/* Section Header */}
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/15 bg-primary/10 text-primary">
           <TrendingUp className="h-5 w-5" />
@@ -62,7 +61,7 @@ export default function UserStatsOperation({
         </div>
       </div>
 
-      {/* Statistics Cards */}
+   
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -72,7 +71,6 @@ export default function UserStatsOperation({
               key={stat.title}
               className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-5 transition-all duration-200 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
             >
-              <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/5 blur-2xl transition-all duration-300 group-hover:bg-primary/10" />
 
               <div className="relative flex items-start justify-between">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/15 bg-primary/10 text-primary">
@@ -98,7 +96,6 @@ export default function UserStatsOperation({
                 </p>
               </div>
 
-              <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
             </div>
           );
         })}

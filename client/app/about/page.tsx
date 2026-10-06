@@ -86,7 +86,6 @@ export default function AboutPage() {
   return (
     <main className="min-h-screen bg-background"> 
       <Header/>
-      {/* Hero */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-6 py-20 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
@@ -176,7 +175,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Introduction */}
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div>
@@ -251,7 +249,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Features */}
       <section className="border-y bg-muted/30">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
@@ -294,7 +291,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* How It Works */}
       <section className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <div className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-primary">
@@ -336,7 +332,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="mx-auto max-w-7xl px-6 pb-20 lg:px-8">
         <div className="overflow-hidden rounded-3xl bg-primary px-6 py-14 text-center text-primary-foreground shadow-xl sm:px-12">
           <div className="mx-auto max-w-2xl">

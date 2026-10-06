@@ -3,9 +3,7 @@
 export default function InvoicesSkeleton() {
   return (
     <div className="w-full">
-      {/* Table Skeleton */}
       <div className="w-full overflow-hidden rounded-xl border border-border bg-card">
-        {/* Header */}
         <div className="border-b border-border px-5 py-4">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 animate-pulse rounded-lg bg-muted" />
@@ -18,7 +16,6 @@ export default function InvoicesSkeleton() {
           </div>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px]">
             <thead>
@@ -48,7 +45,6 @@ export default function InvoicesSkeleton() {
             <tbody className="divide-y divide-border">
               {Array.from({ length: 8 }).map((_, index) => (
                 <tr key={index}>
-                  {/* User */}
                   <td className="px-5 py-4">
                     <div className="space-y-2">
                       <div className="h-4 w-32 animate-pulse rounded bg-muted" />
@@ -57,7 +53,6 @@ export default function InvoicesSkeleton() {
                     </div>
                   </td>
 
-                  {/* Course */}
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-16 shrink-0 animate-pulse rounded-md bg-muted" />
@@ -66,7 +61,6 @@ export default function InvoicesSkeleton() {
                     </div>
                   </td>
 
-                  {/* Amount */}
                   <td className="px-5 py-4">
                     <div className="space-y-2">
                       <div className="h-4 w-16 animate-pulse rounded bg-muted" />
@@ -75,12 +69,10 @@ export default function InvoicesSkeleton() {
                     </div>
                   </td>
 
-                  {/* Created */}
                   <td className="px-5 py-4">
                     <div className="h-4 w-20 animate-pulse rounded bg-muted" />
                   </td>
 
-                  {/* Action */}
                   <td className="px-5 py-4">
                     <div className="flex justify-end">
                       <div className="h-8 w-8 animate-pulse rounded-md bg-muted" />

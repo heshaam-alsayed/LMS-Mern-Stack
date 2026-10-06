@@ -12,10 +12,23 @@ import TopSellingCourses from "./TopSellingCourses";
 import { useState } from "react";
 import { getAllOrdersInvoices } from "@/lib/api/getOrders";
 import RecentTransactions from "./RecentTransactions";
+import { useSectionInView } from "@/hooks/useSectionInView";
+
+const LAZY_ROOT_MARGIN = "10px 0px";
 
 export default function Dashboard() {
   const { currentYear, years, handleYearChange } = useStatisticsYear();
   const [topCoursesLimit, setTopCoursesLimit] = useState(10);
+
+  const {
+    ref: topCoursesRef,
+    hasEnteredView: hasEnteredTopCourses,
+  } = useSectionInView<HTMLDivElement>(LAZY_ROOT_MARGIN);
+
+  const {
+    ref: transactionsRef,
+    hasEnteredView: hasEnteredTransactions,
+  } = useSectionInView<HTMLDivElement>(LAZY_ROOT_MARGIN);
 
   const { 
     data:revenueData,
@@ -47,6 +60,7 @@ export default function Dashboard() {
   } = useQuery({
     queryKey: ["top-courses-selling", topCoursesLimit],
     queryFn: () => getTopSellingCourses(topCoursesLimit.toString()),
+    enabled: hasEnteredTopCourses,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -58,6 +72,7 @@ export default function Dashboard() {
   } = useQuery({
     queryKey: ["transaction-orders"],
     queryFn: () => getAllOrdersInvoices(true),
+    enabled: hasEnteredTransactions,
     staleTime: 5 * 60 * 1000,
   });
   
@@ -92,10 +107,10 @@ export default function Dashboard() {
       </div>
 
       <div className="mt-8 flex w-full flex-col gap-4 lg:flex-row ">
-        <div className="flex min-w-0 w-full lg:w-[60%]">
+        <div ref={topCoursesRef} className="flex min-w-0 w-full lg:w-[60%]">
           <TopSellingCourses
             courses={topCoursesData?.courses ?? []}
-            isLoading={isLoadingTopCourses}
+            isLoading={!hasEnteredTopCourses || isLoadingTopCourses}
             isError={isErrorTopCourses}
             error={topCoursesError?.message ?? null}
             limit={topCoursesLimit}
@@ -103,10 +118,10 @@ export default function Dashboard() {
           />
         </div>
 
-        <div className="flex w-full lg:w-[40%]">
+        <div ref={transactionsRef} className="flex w-full lg:w-[40%]">
           <RecentTransactions
             orders={transactionData?.orders ?? []}
-            isLoading={isLoadingTransaction}
+            isLoading={!hasEnteredTransactions || isLoadingTransaction}
             isError={isErrorTransaction}
             error={transactionError?.message ?? null}
           />

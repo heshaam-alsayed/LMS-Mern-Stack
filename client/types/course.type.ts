@@ -143,9 +143,15 @@ export interface Course {
   ratings: number;
 
   purchased: number;
-  courseData?: CourseContentData[];
+  courseData?: CourseContentData[]; 
+  totalLectures:number
   createdAt: string;
-
+  instructor:{
+    _id:string;
+    name:string
+  }
+  reviewsCount?: number;
+  totalHours?: number;
   updatedAt: string;
 }
 
@@ -246,6 +252,8 @@ export interface ICoursePublicDetails {
   };
   ratings: number;
   purchased: number;
+  reviewsCount?: number;
+  totalLectures?: number;
   benefits: CourseBenefit[];
   prerequisites: CoursePrerequisite[];
   reviews: IReviewCourse[];

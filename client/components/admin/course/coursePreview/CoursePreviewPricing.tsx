@@ -19,7 +19,6 @@ export default function CoursePreviewPricing({
 }: Props) {
   return (
     <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      {/* Pricing Information */}
       <div className="flex flex-wrap items-center gap-2.5">
         {price === 0 ? (
           <span
@@ -63,19 +62,16 @@ export default function CoursePreviewPricing({
           </span>
         ) : (
           <>
-            {/* Current Price */}
             <span className="text-2xl font-bold tracking-tight text-foreground">
               ${price}
             </span>
 
-            {/* Original Price */}
             {hasDiscount && (
               <span className="text-base font-medium text-muted-foreground line-through decoration-2">
                 ${estimatePrice}
               </span>
             )}
 
-            {/* Discount */}
             {hasDiscount && (
               <span
                 className="
@@ -102,7 +98,6 @@ export default function CoursePreviewPricing({
         )}
       </div>
 
-      {/* Buy Button */}
       <button
         type="button"
         className="

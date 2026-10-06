@@ -56,6 +56,8 @@ export default function OrganizationOrdersFilter() {
   };
 
   useEffect(() => {
+    if (debouncedSearch === (searchParams.get("search") || "")) return;
+
     const params = new URLSearchParams(searchParams.toString());
 
     if (debouncedSearch) {
@@ -67,7 +69,7 @@ export default function OrganizationOrdersFilter() {
     params.delete("page");
 
     push(params);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, searchParams]);
 
   const updatePriceRange = (min: number, max: number) => {
     const params = new URLSearchParams(searchParams.toString());

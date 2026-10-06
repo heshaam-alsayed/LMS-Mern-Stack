@@ -28,15 +28,16 @@ const timeAgo = (value: string) => {
   return formatDistanceToNow(date, { addSuffix: true });
 };
 
+type Props = {
+  review: OrganizationCourseReview;
+  courseId: string | undefined;
+  queryKey: string[];
+}
 export default function InstructorReviewCard({
   review,
   courseId,
   queryKey,
-}: {
-  review: OrganizationCourseReview;
-  courseId: string;
-  queryKey: string[];
-}) {
+}: Props) {
   const queryClient = useQueryClient();
 
   const [isReplying, setIsReplying] = useState(false);
@@ -47,7 +48,7 @@ export default function InstructorReviewCard({
     mutationKey: ["instructor-reply-review", review._id],
     mutationFn: async () => {
       const trimmed = comment.trim();
-
+      if(!courseId) return
       await addReplyReviewCourse({
         comment: trimmed,
         courseId,

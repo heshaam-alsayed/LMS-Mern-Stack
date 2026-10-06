@@ -29,11 +29,11 @@ export default function Header({ isCoursesPage, setSearchOpen }: Props) {
     { label: "About", href: "/about" },
     { label: "Policy", href: "/policy" },
     { label: "FAQ", href: "/faq" },
+    { label: "Support", href: "/support/create-ticket" },
   ];
 
   useEffect(() => {
     if (pathname === "/verification") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsOpen(false);
     }
   }, [pathname]);
@@ -59,7 +59,6 @@ export default function Header({ isCoursesPage, setSearchOpen }: Props) {
             px-4
             md:px-6
           ">
-          {/* Logo */}
 
           <Link href="/" className="flex items-center gap-3">
             <div
@@ -86,7 +85,6 @@ export default function Header({ isCoursesPage, setSearchOpen }: Props) {
             </div>
           </Link>
 
-          {/* Desktop */}
 
           <div className="hidden items-center gap-4 md:flex">
             {isCoursesPage && (
@@ -140,7 +138,6 @@ export default function Header({ isCoursesPage, setSearchOpen }: Props) {
             <UserMenu />
           </div>
 
-          {/* Mobile */}
 
           <div className="flex items-center gap-2 md:hidden">
             <ThemeToggle />

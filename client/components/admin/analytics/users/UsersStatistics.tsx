@@ -64,9 +64,7 @@ export default function UsersStatistics({
               hover:bg-accent/50
             "
           >
-            {/* Top Row */}
             <div className="flex items-center justify-between">
-              {/* Icon */}
               <div
                 className="
                   flex h-10 w-10 shrink-0
@@ -79,7 +77,6 @@ export default function UsersStatistics({
                 <Icon className="h-5 w-5" />
               </div>
 
-              {/* Count */}
               <p
                 className="
                   min-w-0
@@ -94,7 +91,6 @@ export default function UsersStatistics({
               </p>
             </div>
 
-            {/* Content */}
             <div className="mt-5">
               <p className="text-sm font-medium text-card-foreground">
                 {stat.title}

@@ -20,6 +20,7 @@ const navItems = [
   { label: "About", href: "/about" },
   { label: "Policy", href: "/policy" },
   { label: "FAQ", href: "/faq" },
+  { label: "Support", href: "/support/create-ticket" },
 ];
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
@@ -27,7 +28,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Overlay */}
 
           <motion.div
             initial={{ opacity: 0 }}
@@ -38,7 +38,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
           />
 
-          {/* Sidebar */}
 
           <motion.aside
             initial={{ x: "100%" }}
@@ -65,7 +64,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               shadow-2xl
             "
           >
-            {/* Header */}
 
             <div className="flex items-center justify-between border-b border-border p-5">
               <h2 className="text-lg font-bold">Menu</h2>
@@ -75,7 +73,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </Button>
             </div>
 
-            {/* User */}
 
             <div className="border-b border-border p-5">
               <div className="flex items-center gap-3">
@@ -95,7 +92,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </div>
             </div>
 
-            {/* Nav */}
 
             <nav className="flex flex-1 flex-col gap-2 p-4">
               {navItems.map((item) => (
@@ -107,7 +103,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               ))}
             </nav>
 
-            {/* Footer */}
 
             <div className="border-t border-border p-4">
               <ThemeToggle isOpen />

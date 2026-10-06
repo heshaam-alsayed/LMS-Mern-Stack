@@ -21,6 +21,7 @@ type Props = {
   email: string;
   setEmail: (email: string) => void;
   handleCheckStatus: () => void;
+  trigger?: React.ReactNode;
 };
 
 export default function CheckOrganizationModal({
@@ -29,6 +30,7 @@ export default function CheckOrganizationModal({
   email,
   setEmail,
   handleCheckStatus,
+  trigger,
 }: Props) {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -38,14 +40,16 @@ export default function CheckOrganizationModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          className="h-11 w-full gap-2 mb-6"
-        >
-          <Search className="size-4" />
-          Check Organization Status
-        </Button>
+        {trigger ?? (
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 w-full gap-2 mb-6"
+          >
+            <Search className="size-4" />
+            Check Organization Status
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">

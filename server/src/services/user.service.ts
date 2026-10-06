@@ -7,29 +7,46 @@ import {
 import orderRepository from "../repositories/order.repository";
 import userRepository from "../repositories/user.repository";
 import AppError from "../utils/AppError";
-import redis from "../utils/redis";
+import {
+  delCached,
+  getCached,
+  sanitizeUser,
+  sessionKey,
+  setCached,
+  userPublicKey,
+} from "../utils/redis";
 import cloudinary from "cloudinary";
 import { getUserCoursesProgressService } from "./courseProgress.service";
 import { Types } from "mongoose";
+
+/** keep the session and the public profile cache in sync after a user write */
+const refreshUserSessionCache = async (userId: string, user: any) => {
+  const safe = sanitizeUser(user);
+  await setCached(sessionKey(userId), safe, 7 * 24 * 60 * 60);
+  await delCached(userPublicKey(userId));
+};
 
 export const getUserById = async (userId: string) => {
   if (!userId) {
     throw new AppError("User id is required", 400);
   }
 
-  const cachedUser = await redis.get(userId);
+  // public profile is its own short-lived cache, never the session
+  const cachedUser = await getCached<Record<string, unknown>>(
+    userPublicKey(userId),
+  );
 
   if (cachedUser) {
-    return JSON.parse(cachedUser);
+    return cachedUser;
   }
 
-  const user = await userRepository.getUserById(userId);
+  const user = await userRepository.getSafeUser(userId);
 
   if (!user) {
     throw new AppError("User not found", 404);
   }
-  //  cache result
-  await redis.set(userId, JSON.stringify(user)); // 1 hour
+
+  await setCached(userPublicKey(userId), user, 300);
 
   return user;
 };
@@ -39,7 +56,7 @@ export const createUser = async (data: ICreateNewMember) => {
   if (!name || !email || !password) {
     throw new AppError("name , email , password are required", 404);
   }
-
+  // check user is Exist
   const isExistingUser = await userRepository.getUserByEmail(email);
   if (isExistingUser) {
     throw new AppError("Email already exists", 400);
@@ -54,19 +71,18 @@ export const createUser = async (data: ICreateNewMember) => {
   };
   await userRepository.createUser(user);
 };
+
 export const getMe = async (userId: string) => {
   if (!userId) {
     throw new AppError("User id is required", 400);
   }
 
-  const cachedUser = await redis.get(userId);
-  console.log("Cached user for ID", userId, ":", cachedUser);
-  if (cachedUser) {
-    const parsedUser = JSON.parse(cachedUser);
+  const cachedUser = await getCached<Record<string, unknown>>(
+    sessionKey(userId),
+  );
 
-    if (parsedUser.provider) {
-      return parsedUser;
-    }
+  if (cachedUser) {
+    return sanitizeUser(cachedUser);
   }
 
   const user = await userRepository.getUserById(userId);
@@ -74,14 +90,10 @@ export const getMe = async (userId: string) => {
   if (!user) {
     throw new AppError("User not found", 404);
   }
-  user.password = undefined as any;
-  await redis.set(
-    userId,
-    JSON.stringify(user),
-    "EX",
-    7 * 24 * 60 * 60, // 7 days cache
-  );
-  return user;
+
+  const safe = sanitizeUser(user);
+  await setCached(sessionKey(userId), safe, 7 * 24 * 60 * 60);
+  return safe;
 };
 
 export const updateUserInfo = async (userId: string, body: IUpdateUserInfo) => {
@@ -103,9 +115,9 @@ export const updateUserInfo = async (userId: string, body: IUpdateUserInfo) => {
     if (!trimmedPhone) {
       user.phone = undefined;
     } else {
-      if (!/^\+?[\d\s()-]{6,20}$/.test(trimmedPhone)) {
+      if (!/^(010|011|012|015)\d{8}$/.test(trimmedPhone)) {
         throw new AppError(
-          "Phone number must be 6 to 20 characters and may only contain digits, spaces, +, -, ( )",
+          "Phone number must be 11 digits and start with 010, 011, 012, or 015",
           400,
         );
       }
@@ -114,8 +126,9 @@ export const updateUserInfo = async (userId: string, body: IUpdateUserInfo) => {
     }
   }
 
-  const updatedUser = await user.save();
-  await redis.set(userId, JSON.stringify(updatedUser));
+  const updatedUser = await user.save(); 
+  // update user in cache
+  await refreshUserSessionCache(userId, updatedUser);
 
   return updatedUser;
 };
@@ -142,7 +155,6 @@ export const updatePassword = async (userId: string, body: IUpdatePassword) => {
   }
   // check old password
   const isMatch = await user.comparePassword(oldPassword);
-  console.log("Password match result for user:", userId, "isMatch:", isMatch);
   if (!isMatch) {
     throw new AppError("Old password is incorrect", 400);
   }
@@ -151,7 +163,7 @@ export const updatePassword = async (userId: string, body: IUpdatePassword) => {
   user.password = newPassword;
 
   await user.save();
-  await redis.set(userId, JSON.stringify(user));
+  await refreshUserSessionCache(userId, user);
   return user;
 };
 
@@ -190,10 +202,11 @@ export const updateAvatar = async (userId: string, avatar: string) => {
   const updatedUser = await user.save();
 
   // update cache
-  await redis.set(userId, JSON.stringify(updatedUser));
+  await refreshUserSessionCache(userId, updatedUser);
 
   return updatedUser;
 };
+
 export const changeRole = async (
   userId: string,
   role: "user" | "instructor" | "admin",
@@ -216,7 +229,7 @@ export const changeRole = async (
 
   const updatedUser = await user.save();
 
-  await redis.set(userId, JSON.stringify(updatedUser));
+  await refreshUserSessionCache(userId, updatedUser);
 
   return updatedUser;
 };
@@ -231,6 +244,7 @@ export const enrolledUserCourses = async (userId: string) => {
   }
   return user;
 };
+
 export const toggleUserDeleted = async (userId: string) => {
   if (!userId) {
     throw new AppError("User id is required", 400);
@@ -247,9 +261,10 @@ export const toggleUserDeleted = async (userId: string) => {
     !user.isDeleted,
   );
   if (updatedUser?.isDeleted) {
-    await redis.del(userId);
+    await delCached(sessionKey(userId));
+    await delCached(userPublicKey(userId));
   } else {
-    await redis.set(userId, JSON.stringify(updatedUser));
+    await refreshUserSessionCache(userId, updatedUser);
   }
   return updatedUser;
 };
@@ -318,6 +333,6 @@ const userService = {
   toggleUserDeleted,
   createUser,
   enrolledUserCourses,
-  getOperationUser
+  getOperationUser,
 };
 export default userService;

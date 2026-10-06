@@ -84,7 +84,6 @@ export default function LayoutPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Layouts</h1>
@@ -102,14 +101,12 @@ export default function LayoutPage() {
         </button>
       </div>
 
-      {/* Layouts */}
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {layoutsData.layouts.map((layout) => (
           <LayoutCard key={layout._id} layout={layout} />
         ))}
       </div>
 
-      {/* Create Modal */}
       <CreateLayoutModal
         isOpen={open}
         onClose={() => setOpen(false)}

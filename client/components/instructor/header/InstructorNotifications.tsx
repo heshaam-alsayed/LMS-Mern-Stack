@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell, Check } from "lucide-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
@@ -23,6 +23,7 @@ import { INotification } from "@/types/notification.type";
 
 export function InstructorNotifications() {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
 
   const { data: notificationsData } = useAppSelector(
     (state) => state.notifications,
@@ -33,6 +34,7 @@ export function InstructorNotifications() {
   const { data, isLoading } = useQuery({
     queryKey: ["get-notifications"],
     queryFn: () => getAllNotifications(),
+    staleTime: 60 * 1000,
   });
 
   useEffect(() => {
@@ -45,6 +47,10 @@ export function InstructorNotifications() {
     mutationKey: ["update-status"],
     mutationFn: (notificationId: string) =>
       updateStatusNotification(notificationId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-notifications"] });
+    },
 
     onError: (error) => {
       toast.error(error.message);
@@ -100,7 +106,6 @@ export function InstructorNotifications() {
       <DropdownMenuContent
         align="end"
         className="w-[min(360px,calc(100vw-1.5rem))] p-0">
-        {/* Header */}
         <div className="flex items-center justify-between border-b px-4 py-2.5">
           <div>
             <h3 className="text-sm font-semibold">Notifications</h3>
@@ -119,7 +124,6 @@ export function InstructorNotifications() {
           )}
         </div>
 
-        {/* Notifications */}
         <div className="max-h-[400px] overflow-y-auto">
           {isLoading ? (
             <div className="p-6 text-center text-sm text-muted-foreground">
@@ -178,7 +182,6 @@ export function InstructorNotifications() {
           )}
         </div>
 
-        {/* Footer */}
         <div className="border-t p-2">
           <Link
             href="/instructor/notifications"

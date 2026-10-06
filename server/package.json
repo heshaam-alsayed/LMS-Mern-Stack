@@ -12,9 +12,12 @@
     "db:clear": "ts-node --transpile-only src/scripts/clearDatabase.ts",
     "db:repair": "ts-node --transpile-only src/scripts/repairRelations.ts",
     "db:status": "ts-node --transpile-only src/scripts/backfillCourseStatus.ts",
+    "db:counts": "ts-node --transpile-only src/scripts/backfillCourseReviewsCount.ts",
+    "db:progress": "ts-node --transpile-only src/scripts/backfillCourseProgress.ts",
     "seed:catalog": "ts-node --transpile-only src/scripts/seedCourseCatalog.ts",
     "seed:enrollments": "ts-node --transpile-only src/scripts/seedEnrollments.ts",
-    "seed:certificates": "ts-node --transpile-only src/scripts/seedCertificates.ts"
+    "seed:certificates": "ts-node --transpile-only src/scripts/seedCertificates.ts",
+    "db:fix:progress": "ts-node --transpile-only src/scripts/fixCertificateProgress.ts"
   },
   "author": "",
   "license": "ISC",
@@ -35,6 +38,7 @@
     "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.2",
+    "multer": "^2.4.0",
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.7",
     "socket.io": "^4.8.3",
@@ -46,8 +50,9 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.3.0",
     "@types/node": "^25.9.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.7.3"
+    "typescript": "^6.0.3"
   }
 }

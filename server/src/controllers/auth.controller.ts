@@ -6,7 +6,7 @@ import {
   refreshCookieOptions,
   sendToken,
 } from "../utils/jwt";
-import redis from "../utils/redis";
+import redis, { sessionKey } from "../utils/redis";
 
 export const registrationUser = async (
   req: Request,
@@ -109,7 +109,7 @@ export const logout = async (
     res.cookie("access_token", "", { maxAge: 1 });
     res.cookie("refresh_token", "", { maxAge: 1 });
     const userId = req.user?._id.toString() || "";
-    await redis.del(userId);
+    await redis.del(sessionKey(userId));
     res.status(200).json({
       success: true,
       message: "logout successfully",
@@ -118,47 +118,6 @@ export const logout = async (
     next(error);
   }
 };
-
-// export const refreshAccessToken = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   try {
-//     const oldRefreshToken = req.cookies.refresh_token;
-//     console.log(oldRefreshToken);
-//     const { accessToken, newRefreshToken } =
-//       await handleRefreshAccessToken(oldRefreshToken);
-//     console.log(accessToken, newRefreshToken);
-//     const accessExpireMin = Number(process.env.ACCESS_TOKEN_EXPIRE);
-
-//     const refreshExpireDays = Number(process.env.REFRESH_TOKEN_EXPIRE);
-
-//     res.cookie("access_token", accessToken, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       sameSite: "lax",
-//       maxAge: accessExpireMin * 60 * 1000,
-//       path: "/",
-//     });
-
-//     res.cookie("refresh_token", newRefreshToken, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       sameSite: "lax",
-//       maxAge: refreshExpireDays * 24 * 60 * 60 * 1000,
-//       path: "/",
-//     });
-
-//     res.status(200).json({
-//       success: true,
-//       accessToken,
-//       refreshToken: newRefreshToken,
-//     });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
 
 export const refreshAccessToken = async (
   req: Request,

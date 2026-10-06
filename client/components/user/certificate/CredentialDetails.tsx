@@ -17,7 +17,6 @@ export function CredentialDetails({
 }: CredentialDetailsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 border-t border-border pt-5 sm:grid-cols-2 xl:grid-cols-4">
-      {/* Recipient */}
       <div className="flex min-w-0 items-center gap-3">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <UserRound className="size-4" />
@@ -34,7 +33,6 @@ export function CredentialDetails({
         </div>
       </div>
 
-      {/* Learning Hours */}
       <div className="flex min-w-0 items-center gap-3">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Clock3 className="size-4" />
@@ -51,7 +49,6 @@ export function CredentialDetails({
         </div>
       </div>
 
-      {/* Date Issued */}
       <div className="flex min-w-0 items-center gap-3">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Award className="size-4" />
@@ -68,7 +65,6 @@ export function CredentialDetails({
         </div>
       </div>
 
-      {/* Credential ID */}
       <div className="flex min-w-0 items-center gap-3">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <IdCard className="size-4" />

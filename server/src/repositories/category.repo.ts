@@ -1,4 +1,5 @@
-import CategoryModel, { ICategory } from "../models/category.model";
+import { ICategory } from "../interfaces/layoutInterface";
+import CategoryModel from "../models/category.model";
 
 export const createCategory = async (data: ICategory) => {
   return await CategoryModel.create(data);
@@ -22,8 +23,6 @@ export const findCategoryBySlug = async (slug: string) => {
 };
 
 export const findAllCategories = async () => {
-  // only the course ids are sent back, the callers just need the count.
-  // populating the full course documents made this response tens of megabytes.
   return await CategoryModel.find()
 };
 

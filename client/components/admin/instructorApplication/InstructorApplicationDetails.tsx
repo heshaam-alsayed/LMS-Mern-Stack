@@ -31,6 +31,7 @@ export default function InstructorApplicationDetails({ id }: Props) {
     queryKey: ["instructor-application", id],
     queryFn: () => fetchInstructorApplication(id),
     enabled: Boolean(id),
+    staleTime: 60 * 1000,
   });
 
   const approveMutation = useMutation({

@@ -1,4 +1,4 @@
-// ViewOrderDetailsModal.tsx
+// ViewOrderDetailsModal tsx
 
 "use client";
 
@@ -47,7 +47,6 @@ export default function ViewOrderDetailsModal({
         }
       }}>
       <div className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-border/60 bg-background shadow-2xl">
-        {/* Header */}
         <header className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-3 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -74,7 +73,6 @@ export default function ViewOrderDetailsModal({
           </button>
         </header>
 
-        {/* Content */}
         <main className="min-h-0 flex-1 overflow-y-auto">
           <div className="px-4 py-5 sm:px-6 sm:py-6">
             <OrderStudentSection user={order.user} />
@@ -87,7 +85,6 @@ export default function ViewOrderDetailsModal({
           </div>
         </main>
 
-        {/* Footer */}
         <footer className="flex shrink-0 items-center justify-end gap-2 border-t border-border/60 px-4 py-3 sm:px-6">
           <Button type="button" variant="ghost" size="sm" onClick={onClose}>
             Close

@@ -50,9 +50,6 @@ export default function EditHero() {
   const currentBanner =
     activeBanner === "light" ? heroData.lightBanner : heroData.darkBanner;
 
-  /**
-   * Update hero field
-   */
   const updateField = <K extends keyof HeroData>(
     field: K,
     value: HeroData[K],
@@ -63,9 +60,6 @@ export default function EditHero() {
     }));
   };
 
-  /**
-   * Handle banner image selection
-   */
   const handleBannerChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -107,9 +101,6 @@ export default function EditHero() {
     }
   };
 
-  /**
-   * Show light banner
-   */
   const handlePreviousBanner = () => {
     setActiveBanner("light");
   };
@@ -156,6 +147,7 @@ export default function EditHero() {
     queryKey: ["layout", "banner"],
 
     queryFn: () => getLayout("banner"),
+    staleTime: 1000 * 60 * 60,
   });
 
   useEffect(() => {
@@ -210,9 +202,7 @@ export default function EditHero() {
     <section className="relative overflow-hidden">
       <div className="mx-auto max-w-7xl px-4  sm:px-6 lg:px-8 ">
         <div className="grid items-start gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-          {/* Content */}
           <div className="text-center lg:pt-8 lg:text-left">
-            {/* Badge */}
             <div className="mb-6 flex justify-center lg:justify-start">
               <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground sm:text-sm">
                 <FaGraduationCap className="size-4 text-primary" />
@@ -220,7 +210,6 @@ export default function EditHero() {
               </div>
             </div>
 
-            {/* Title */}
             <textarea
               value={heroData.title}
               onChange={(e) => updateField("title", e.target.value)}
@@ -229,7 +218,6 @@ export default function EditHero() {
               placeholder="Enter hero title"
             />
 
-            {/* Subtitle */}
             <textarea
               value={heroData.subtitle}
               onChange={(e) => updateField("subtitle", e.target.value)}
@@ -238,10 +226,8 @@ export default function EditHero() {
               placeholder="Enter hero subtitle"
             />
 
-            {/* Actions */}
             {hasChanges && (
               <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
-                {/* Save */}
                 <button
                   type="button"
                   onClick={handleSave}
@@ -259,7 +245,6 @@ export default function EditHero() {
                   )}
                 </button>
 
-                {/* Reset */}
                 <button
                   type="button"
                   onClick={handleReset}
@@ -272,7 +257,6 @@ export default function EditHero() {
             )}
           </div>
 
-          {/* Banner Preview */}
           <div className="relative flex items-start justify-center lg:pt-0">
             <div
               className="
@@ -284,7 +268,6 @@ export default function EditHero() {
                 [mask-image:linear-gradient(to_bottom,black_0%,black_62%,transparent_100%)]
                 [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_62%,transparent_100%)]
               ">
-              {/* Banner */}
               <Image
                 src={currentBanner}
                 alt={`${activeBanner} mode banner`}
@@ -294,7 +277,6 @@ export default function EditHero() {
                 className="block h-auto w-full object-contain"
               />
 
-              {/* Previous Arrow */}
               <button
                 type="button"
                 onClick={handlePreviousBanner}
@@ -304,7 +286,6 @@ export default function EditHero() {
                 <ChevronLeft className="size-5" />
               </button>
 
-              {/* Next Arrow */}
               <button
                 type="button"
                 onClick={handleNextBanner}
@@ -314,12 +295,10 @@ export default function EditHero() {
                 <ChevronRight className="size-5" />
               </button>
 
-              {/* Current Mode */}
               <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full border border-border bg-background/90 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur">
                 {activeBanner === "light" ? "Light Mode" : "Dark Mode"}
               </div>
 
-              {/* Upload Button */}
               <div className="absolute bottom-10 left-1/2 z-10 -translate-x-1/2">
                 <button
                   type="button"
@@ -338,7 +317,6 @@ export default function EditHero() {
                     : "Upload Dark Banner"}
                 </button>
 
-                {/* Light Input */}
                 <input
                   ref={lightInputRef}
                   type="file"
@@ -347,7 +325,6 @@ export default function EditHero() {
                   className="hidden"
                 />
 
-                {/* Dark Input */}
                 <input
                   ref={darkInputRef}
                   type="file"

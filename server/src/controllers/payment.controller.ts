@@ -49,7 +49,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
 
         const result = await createOrder(userId, courseId, paymentIntent);
         console.log(result);
-        // Duplicate webhook or already purchased
+        // Duplicate operation or already purchased
         if (!result) {
           break;
         }
@@ -140,7 +140,6 @@ export const newPayment = async (
       });
     }
 
-    // stops the charge before Stripe is involved
     if (course.status !== "published") {
       return res.status(400).json({
         success: false,

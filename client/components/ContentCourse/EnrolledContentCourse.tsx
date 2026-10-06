@@ -36,9 +36,9 @@ export default function EnrolledContentCourse({ id }: Props) {
   const courseData = data?.course?.courseData ?? [];
   const progress = data?.progress;
 
-  //  1. activeVideo from URL
-  //  2. currentLecture from progress
-  //  3. first lecture
+  // 1 activeVideo from URL
+  // 2 currentLecture from progress
+  // 3 first lecture
 
   // Determine which lecture should be active when the course opens
   useEffect(() => {

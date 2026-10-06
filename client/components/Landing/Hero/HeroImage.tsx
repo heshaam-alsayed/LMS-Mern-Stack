@@ -27,7 +27,6 @@ export default function HeroImage({
           [mask-image:linear-gradient(to_bottom,black_0%,black_62%,transparent_100%)]
           [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_62%,transparent_100%)]
         ">
-        {/* Light Image */}
         <Image
           src={lightBanner || "/Banner-image-light.jpg"}
           alt="Learning platform"
@@ -43,7 +42,6 @@ export default function HeroImage({
           "
         />
 
-        {/* Dark Image */}
         <Image
           src={darkBanner || "/Banner-image-dark.jpg"}
           alt="Learning platform"
@@ -59,7 +57,6 @@ export default function HeroImage({
           "
         />
 
-        {/* Bottom Fade */}
         <div
           className="
             pointer-events-none
@@ -74,7 +71,6 @@ export default function HeroImage({
           "
         />
 
-        {/* Left Fade */}
         <div
           className="
             pointer-events-none
@@ -88,7 +84,6 @@ export default function HeroImage({
           "
         />
 
-        {/* Right Fade */}
         <div
           className="
             pointer-events-none
@@ -102,7 +97,6 @@ export default function HeroImage({
           "
         />
 
-        {/* Top Fade */}
         <div
           className="
             pointer-events-none

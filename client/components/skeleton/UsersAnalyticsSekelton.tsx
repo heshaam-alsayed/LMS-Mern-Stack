@@ -5,7 +5,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function UsersAnalyticsSkeleton() {
   return (
     <div className="space-y-8">
-      {/* Analytics Header */}
       <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
           <Skeleton className="h-7 w-40" />
@@ -15,7 +14,6 @@ export default function UsersAnalyticsSkeleton() {
         <Skeleton className="h-10 w-[120px] rounded-md" />
       </div>
 
-      {/* Statistics Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <div
@@ -38,18 +36,14 @@ export default function UsersAnalyticsSkeleton() {
         ))}
       </div>
 
-      {/* Chart */}
       <div className="rounded-xl border bg-card">
-        {/* Chart Header */}
         <div className="space-y-2 p-6 pb-4">
           <Skeleton className="h-6 w-36" />
           <Skeleton className="h-4 w-64" />
         </div>
 
-        {/* Chart Content */}
         <div className="px-6 pb-6">
           <div className="relative h-[300px] w-full">
-            {/* Horizontal grid lines */}
             <div className="absolute inset-x-0 top-0 space-y-[59px]">
               {Array.from({ length: 5 }).map((_, index) => (
                 <Skeleton
@@ -59,7 +53,6 @@ export default function UsersAnalyticsSkeleton() {
               ))}
             </div>
 
-            {/* Bars */}
             <div className="absolute inset-0 flex items-end justify-around gap-4 px-8 pb-8 pt-6">
               {Array.from({ length: 12 }).map((_, index) => {
                 const heights = [
@@ -90,7 +83,6 @@ export default function UsersAnalyticsSkeleton() {
               })}
             </div>
 
-            {/* X Axis */}
             <div className="absolute inset-x-8 bottom-0 flex justify-around gap-4">
               {Array.from({ length: 12 }).map((_, index) => (
                 <Skeleton
@@ -102,7 +94,6 @@ export default function UsersAnalyticsSkeleton() {
           </div>
         </div>
 
-        {/* Chart Footer */}
         <div className="flex flex-col gap-2 border-t px-6 py-4">
           <Skeleton className="h-4 w-52" />
           <Skeleton className="h-3 w-64" />

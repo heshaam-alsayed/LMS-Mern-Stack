@@ -46,7 +46,6 @@ export default function PurchaseHistory({
   if (!orders?.length) {
     return (
       <section className="space-y-4">
-        {/* Section Header */}
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/15 bg-primary/10 text-primary">
             <ReceiptText className="h-5 w-5" />
@@ -63,7 +62,6 @@ export default function PurchaseHistory({
           </div>
         </div>
 
-        {/* Empty State */}
         <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-card px-6 py-12 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-muted/40 text-muted-foreground">
             <ShoppingBag className="h-6 w-6" />
@@ -83,7 +81,6 @@ export default function PurchaseHistory({
 
   return (
     <section className="space-y-4">
-      {/* Section Header */}
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/15 bg-primary/10 text-primary">
           <ReceiptText className="h-5 w-5" />
@@ -100,9 +97,7 @@ export default function PurchaseHistory({
         </div>
       </div>
 
-      {/* Orders */}
       <div className="overflow-hidden rounded-2xl border border-border/60 bg-card">
-        {/* Desktop Header */}
         <div className="hidden border-b border-border/60 bg-muted/30 px-5 py-3 lg:grid lg:grid-cols-[1.8fr_1fr_1fr_1.2fr_1.2fr] lg:items-center lg:gap-4">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Course
@@ -134,9 +129,7 @@ export default function PurchaseHistory({
                 key={order._id}
                 className="group p-4 transition-colors duration-200 hover:bg-muted/20 sm:p-5"
               >
-                {/* Desktop */}
                 <div className="hidden lg:grid lg:grid-cols-[1.8fr_1fr_1fr_1.2fr_1.2fr] lg:items-center lg:gap-4">
-                  {/* Course */}
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
                       {order.course.thumbnail?.url ? (
@@ -164,7 +157,6 @@ export default function PurchaseHistory({
                     </div>
                   </div>
 
-                  {/* Amount */}
                   <div>
                     <p className="text-sm font-semibold text-foreground">
                       ${order.price.toLocaleString()}
@@ -175,7 +167,6 @@ export default function PurchaseHistory({
                     </p>
                   </div>
 
-                  {/* Status */}
                   <div>
                     <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                       <CheckCircle2 className="h-3.5 w-3.5" />
@@ -183,7 +174,6 @@ export default function PurchaseHistory({
                     </span>
                   </div>
 
-                  {/* Payment */}
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -200,7 +190,6 @@ export default function PurchaseHistory({
                     )}
                   </div>
 
-                  {/* Date */}
                   <div>
                     <div className="flex items-center gap-2">
                       <CalendarDays className="h-4 w-4 text-muted-foreground" />
@@ -212,10 +201,8 @@ export default function PurchaseHistory({
                   </div>
                 </div>
 
-                {/* Mobile / Tablet */}
                 <div className="lg:hidden">
                   <div className="flex gap-4">
-                    {/* Thumbnail */}
                     <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-xl border border-border bg-muted sm:h-24 sm:w-36">
                       {order.course.thumbnail?.url ? (
                         <img
@@ -230,7 +217,6 @@ export default function PurchaseHistory({
                       )}
                     </div>
 
-                    {/* Main Info */}
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <h3 className="line-clamp-2 text-sm font-semibold text-foreground sm:text-base">
@@ -254,7 +240,6 @@ export default function PurchaseHistory({
                     </div>
                   </div>
 
-                  {/* Payment Details */}
                   <div className="mt-4 grid gap-3 border-t border-border/60 pt-4 sm:grid-cols-2">
                     <div className="rounded-xl bg-muted/30 p-3">
                       <div className="flex items-center gap-2 text-muted-foreground">
@@ -285,7 +270,6 @@ export default function PurchaseHistory({
                     </div>
                   </div>
 
-                  {/* Order ID */}
                   <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/20 px-3 py-2.5">
                     <div className="flex min-w-0 items-center gap-2">
                       <Hash className="h-4 w-4 shrink-0 text-muted-foreground" />

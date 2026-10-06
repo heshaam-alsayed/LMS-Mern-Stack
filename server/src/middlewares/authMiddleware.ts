@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import AppError from "../utils/AppError";
-import redis from "../utils/redis";
+import redis, { sessionKey } from "../utils/redis";
 
 interface IDecoded extends JwtPayload {
   id: string;
@@ -28,7 +28,7 @@ export const isAuthenticated = async (
       return next(new AppError("Invalid token please login again", 401));
     }
 
-    const session = await redis.get(decoded.id);
+    const session = await redis.get(sessionKey(decoded.id));
 
     if (!session) {
       return next(new AppError("Session expired please login again", 401));

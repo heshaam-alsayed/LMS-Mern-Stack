@@ -78,7 +78,6 @@ export default function CourseContentList({
 
   return (
     <section className="space-y-4">
-      {/* Header */}
       {!isPurchased && (
         <div className="space-y-4">
           <div>
@@ -115,7 +114,6 @@ export default function CourseContentList({
         </div>
       )}
 
-      {/* Content Course Controls */}
       {isContentCourse && (
         <div className="flex justify-end">
           <button
@@ -127,7 +125,6 @@ export default function CourseContentList({
         </div>
       )}
 
-      {/* Sections */}
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         {sections.map((section, sectionIndex) => {
           const isOpen = visibleSections.includes(section);
@@ -137,7 +134,6 @@ export default function CourseContentList({
             <div
               key={sectionIndex}
               className="border-b border-border last:border-b-0">
-              {/* Section Header */}
               <button
                 type="button"
                 onClick={() => toggleSection(section)}
@@ -170,7 +166,6 @@ export default function CourseContentList({
                 </div>
               </button>
 
-              {/* Lectures */}
               {isOpen && (
                 <div className="border-t border-border bg-muted/20">
                   {sectionContent.map((lecture, lectureIndex) => {
@@ -192,7 +187,6 @@ export default function CourseContentList({
                             ? "border-l-primary bg-primary/[0.07]"
                             : "border-l-transparent hover:bg-muted/40"
                         }`}>
-                        {/* Lecture Icon */}
                         <div
                           className={`flex size-9 shrink-0 items-center justify-center rounded-full transition-colors ${
                             isCompleted
@@ -213,7 +207,6 @@ export default function CourseContentList({
                           )}
                         </div>
 
-                        {/* Lecture Information */}
                         <div className="min-w-0 flex-1">
                           <div className="flex min-w-0 items-center gap-2">
                             <p
@@ -224,7 +217,6 @@ export default function CourseContentList({
                             </p>
                           </div>
 
-                          {/* Completed Badge */}
                           {isCompleted && (
                             <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-green-800 px-2 py-1 text-[10px] font-semibold  text-green-100 ">
                               <span className="flex size-3.5 items-center justify-center rounded-full bg-green-500">
@@ -238,7 +230,6 @@ export default function CourseContentList({
                           )}
                         </div>
 
-                        {/* Preview */}
                         {lecture.isFree && !isContentCourse && (
                           <button
                             type="button"
@@ -252,7 +243,6 @@ export default function CourseContentList({
                           </button>
                         )}
 
-                        {/* Duration */}
                         <span className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
                           {formatDuration(Number(lecture.videoLength))}
                         </span>
@@ -266,7 +256,6 @@ export default function CourseContentList({
         })}
       </div>
 
-      {/* Preview Modal */}
       <PreviewModal
         onOpenChange={setOpenPreview}
         open={openPreview}

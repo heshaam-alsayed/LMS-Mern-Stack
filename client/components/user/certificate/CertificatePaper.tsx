@@ -33,7 +33,6 @@ export function CertificatePaper({
 
         <div className="pointer-events-none absolute left-1/2 top-0 h-full w-px bg-gradient-to-b from-transparent via-[#d2ad63]/15 to-transparent" />
 
-        {/* Certificate Header */}
         <div className="relative flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="grid size-16 place-items-center rounded-full bg-[#18252b] text-[#d9b46b] shadow-[0_10px_24px_rgba(24,37,43,0.2)]">
@@ -56,7 +55,6 @@ export function CertificatePaper({
           </p>
         </div>
 
-        {/* Certificate Main Content */}
         <div className="relative mx-auto max-w-2xl text-center">
           <div className="mb-6 flex items-center justify-center gap-4 text-[#d2ad63]">
             <span className="h-px w-16 bg-[#d2ad63]" />
@@ -89,7 +87,6 @@ export function CertificatePaper({
           </p>
         </div>
 
-        {/* Certificate Footer */}
         <div className="relative grid grid-cols-3 items-end gap-3 text-center text-[10px] text-[#596268] sm:gap-5">
           <div>
             <div className="mx-auto h-16 w-28 overflow-hidden sm:h-24 sm:w-64">

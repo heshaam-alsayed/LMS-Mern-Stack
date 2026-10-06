@@ -24,7 +24,7 @@ export const getUserOrders = async (id: string) => {
   })
     .populate({
       path: "course",
-      select: "name description price estimatePrice thumbnail level ratings purchased",
+      select: "name description price estimatePrice thumbnail level ratings purchased reviewsCount totalLectures",
     })
     .sort({ createdAt: -1 })
     .lean();

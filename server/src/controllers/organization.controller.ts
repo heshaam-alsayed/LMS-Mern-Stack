@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import ApiFeatures from "../utils/apiFeatures";
 import AppError from "../utils/AppError";
 import OrganizationModel from "../models/organization.model";
+import CourseModel from "../models/course.model";
+import { Types } from "mongoose";
 import {
   deleteOrganizationService,
   getMyOrganizationCoursesAnalyticsService,
@@ -22,6 +24,7 @@ import {
   getMyOrganizationCoursesPerformanceService,
   getCourseOrdersLast12MonthsService,
   getMyOrganizationCourseService,
+
 } from "../services/organization.service";
 import {
   getMyOrganizationRecentEnrollmentsService,
@@ -49,13 +52,35 @@ export const getAllOrganizations = async (
 
     const organizations = await features.query;
 
+    const courseCounts = await CourseModel.aggregate([
+      {
+        $match: {
+          organization: {
+            $in: organizations.map((organization) => organization._id),
+          },
+        },
+      },
+      { $group: { _id: "$organization", count: { $sum: 1 } } },
+    ]);
+
+    const courseCountMap = new Map(
+      courseCounts.map((item) => [item._id.toString(), item.count]),
+    );
+
+    const organizationsWithCourseCount = organizations
+      .map((organization) => organization.toObject())
+      .map((organization) => ({
+        ...organization,
+        coursesCount: courseCountMap.get(organization._id.toString()) ?? 0,
+      }));
+
     const pagination = features.getPagination(total);
 
     res.status(200).json({
       success: true,
       result: organizations.length,
       pagination,
-      organizations,
+      organizations: organizationsWithCourseCount,
     });
   } catch (error) {
     next(error);
@@ -144,23 +169,40 @@ export const getMyOrganizationCourseOrdersAnalytics = async (
   next: NextFunction,
 ) => {
   try {
-    const instructorId = req.user!._id.toString();
-
     const courseId = req.query.courseId as string;
 
     if (!courseId) {
       throw new AppError("Course ID is required", 400);
     }
 
-    // the organization comes from the session, never from the request, so an
-    // instructor can only ever read their own courses
-    const organization = await getMyOrganizationService(instructorId);
+    if (!Types.ObjectId.isValid(courseId)) {
+      throw new AppError("Invalid course ID", 400);
+    }
+
+    let organizationId: string;
+
+    if (req.user!.role === "admin") {
+  
+      const course = await CourseModel.findById(courseId)
+        .select("organization")
+        .lean();
+
+      if (!course) {
+        throw new AppError("Course not found", 404);
+      }
+
+      organizationId = String(course.organization);
+    } else {
+      
+      const instructorId = req.user!._id.toString();
+
+      const organization = await getMyOrganizationService(instructorId);
+
+      organizationId = String(organization._id);
+    }
 
     const { course, totalOrders, totalRevenue, monthly } =
-      await getCourseOrdersLast12MonthsService(
-        courseId,
-        String(organization._id),
-      );
+      await getCourseOrdersLast12MonthsService(courseId, organizationId);
 
     res.status(200).json({
       success: true,
@@ -184,7 +226,6 @@ export const getMyOrganizationCourse = async (
 
     const courseId = req.params.courseId.toString();
 
-    // the organization is derived from the session, never from the request
     const { organization, course, category } =
       await getMyOrganizationCourseService(instructorId, courseId);
 

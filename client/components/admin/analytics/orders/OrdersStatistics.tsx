@@ -71,9 +71,7 @@ export default function OrdersStatistics({
               transition-colors
               hover:bg-accent/50
             ">
-            {/* Top Row */}
             <div className="flex items-center justify-between">
-              {/* Icon */}
               <div
                 className="
                   flex h-10 w-10 shrink-0 items-center justify-center
@@ -84,7 +82,6 @@ export default function OrdersStatistics({
                 <Icon className="h-5 w-5" />
               </div>
 
-              {/* Value */}
               <p className="min-w-0 truncate text-2xl font-bold tracking-tight text-card-foreground">
                 {stat.value}
               </p>

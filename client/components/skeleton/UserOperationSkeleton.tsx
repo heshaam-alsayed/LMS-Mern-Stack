@@ -3,11 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function UserOperationSkeleton() {
   return (
     <div className="space-y-8">
-      {/* =========================
-          User Information
-      ========================== */}
       <section className="space-y-4">
-        {/* Section Header */}
         <div className="flex items-center gap-3">
           <Skeleton className="h-10 w-10 rounded-xl" />
 
@@ -17,11 +13,9 @@ export default function UserOperationSkeleton() {
           </div>
         </div>
 
-        {/* User Card */}
         <section className="overflow-hidden rounded-2xl border border-border/60 bg-card">
           <div className="p-5 sm:p-6">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              {/* User */}
               <div className="flex min-w-0 items-center gap-4">
                 <Skeleton className="h-20 w-20 shrink-0 rounded-2xl sm:h-24 sm:w-24" />
 
@@ -40,7 +34,6 @@ export default function UserOperationSkeleton() {
                 </div>
               </div>
 
-              {/* Quick Stats */}
               <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
                 <div className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
                   <Skeleton className="h-4 w-16" />
@@ -54,7 +47,6 @@ export default function UserOperationSkeleton() {
               </div>
             </div>
 
-            {/* Dates */}
             <div className="mt-6 grid gap-3 border-t border-border/60 pt-5 sm:grid-cols-2">
               <div className="flex items-center gap-3 rounded-xl bg-muted/30 px-4 py-3">
                 <Skeleton className="h-9 w-9 shrink-0 rounded-lg" />
@@ -78,11 +70,7 @@ export default function UserOperationSkeleton() {
         </section>
       </section>
 
-      {/* =========================
-          User Statistics
-      ========================== */}
       <section className="space-y-4">
-        {/* Section Header */}
         <div className="flex items-center gap-3">
           <Skeleton className="h-10 w-10 rounded-xl" />
 
@@ -92,7 +80,6 @@ export default function UserOperationSkeleton() {
           </div>
         </div>
 
-        {/* Statistics Cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
@@ -114,11 +101,7 @@ export default function UserOperationSkeleton() {
         </div>
       </section>
 
-      {/* =========================
-          Purchased Courses
-      ========================== */}
       <section className="space-y-4">
-        {/* Section Header */}
         <div className="flex items-center gap-3">
           <Skeleton className="h-10 w-10 rounded-xl" />
 
@@ -128,7 +111,6 @@ export default function UserOperationSkeleton() {
           </div>
         </div>
 
-        {/* Course Cards */}
         <div className="space-y-4">
           {Array.from({ length: 2 }).map((_, index) => (
             <article
@@ -136,12 +118,9 @@ export default function UserOperationSkeleton() {
               className="overflow-hidden rounded-2xl border border-border/60 bg-card"
             >
               <div className="p-4 sm:p-5">
-                {/* Course Top */}
                 <div className="flex flex-col gap-5 lg:flex-row">
-                  {/* Thumbnail */}
                   <Skeleton className="aspect-video w-full shrink-0 rounded-xl sm:w-64 lg:w-72" />
 
-                  {/* Course Information */}
                   <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex gap-2">
                       <Skeleton className="h-7 w-24 rounded-lg" />
@@ -172,7 +151,6 @@ export default function UserOperationSkeleton() {
                   </div>
                 </div>
 
-                {/* Progress */}
                 <div className="mt-5 border-t border-border/60 pt-5">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="space-y-1.5">
@@ -186,7 +164,6 @@ export default function UserOperationSkeleton() {
                     </div>
                   </div>
 
-                  {/* Current Lecture + Last Access */}
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
                       <div className="flex items-start gap-3">
@@ -217,11 +194,7 @@ export default function UserOperationSkeleton() {
         </div>
       </section>
 
-      {/* =========================
-          Purchase History
-      ========================== */}
       <section className="space-y-4">
-        {/* Section Header */}
         <div className="flex items-center gap-3">
           <Skeleton className="h-10 w-10 rounded-xl" />
 
@@ -231,9 +204,7 @@ export default function UserOperationSkeleton() {
           </div>
         </div>
 
-        {/* Purchase History */}
         <div className="overflow-hidden rounded-2xl border border-border/60 bg-card">
-          {/* Desktop Header */}
           <div className="hidden border-b border-border/60 bg-muted/30 px-5 py-3 lg:grid lg:grid-cols-[1.8fr_1fr_1fr_1.2fr_1.2fr] lg:items-center lg:gap-4">
             <Skeleton className="h-3 w-16" />
             <Skeleton className="h-3 w-14" />
@@ -245,9 +216,7 @@ export default function UserOperationSkeleton() {
           <div className="divide-y divide-border/60">
             {Array.from({ length: 2 }).map((_, index) => (
               <div key={index} className="p-4 sm:p-5">
-                {/* Desktop */}
                 <div className="hidden lg:grid lg:grid-cols-[1.8fr_1fr_1fr_1.2fr_1.2fr] lg:items-center lg:gap-4">
-                  {/* Course */}
                   <div className="flex min-w-0 items-center gap-3">
                     <Skeleton className="h-14 w-20 shrink-0 rounded-lg" />
 
@@ -257,26 +226,21 @@ export default function UserOperationSkeleton() {
                     </div>
                   </div>
 
-                  {/* Amount */}
                   <div className="space-y-1.5">
                     <Skeleton className="h-4 w-16" />
                     <Skeleton className="h-3 w-8" />
                   </div>
 
-                  {/* Status */}
                   <Skeleton className="h-7 w-20 rounded-lg" />
 
-                  {/* Payment */}
                   <div className="space-y-1.5">
                     <Skeleton className="h-4 w-24" />
                     <Skeleton className="h-3 w-28" />
                   </div>
 
-                  {/* Date */}
                   <Skeleton className="h-4 w-24" />
                 </div>
 
-                {/* Mobile / Tablet */}
                 <div className="lg:hidden">
                   <div className="flex gap-4">
                     <Skeleton className="h-20 w-28 shrink-0 rounded-xl sm:h-24 sm:w-36" />
@@ -297,7 +261,6 @@ export default function UserOperationSkeleton() {
                     </div>
                   </div>
 
-                  {/* Payment Details */}
                   <div className="mt-4 grid gap-3 border-t border-border/60 pt-4 sm:grid-cols-2">
                     <div className="rounded-xl bg-muted/30 p-3">
                       <Skeleton className="h-4 w-28" />
@@ -310,7 +273,6 @@ export default function UserOperationSkeleton() {
                     </div>
                   </div>
 
-                  {/* Order ID */}
                   <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/20 px-3 py-2.5">
                     <Skeleton className="h-4 w-48 max-w-[70%]" />
                     <Skeleton className="h-3.5 w-3.5 rounded-full" />

@@ -14,7 +14,6 @@ export interface INotification {
   // Account that should receive this notification
   recipient?: Types.ObjectId | null;
 
-  // Organization is optional because it may not exist yet
   organization?: Types.ObjectId;
 
   createdAt: Date;

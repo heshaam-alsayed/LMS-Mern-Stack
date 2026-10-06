@@ -12,7 +12,7 @@ import {
 
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   DropdownMenu,
@@ -40,6 +40,7 @@ type Props = {
 
 export default function AdminLayout({ children }: Props) {
   const { theme, setTheme } = useTheme();
+  const queryClient = useQueryClient();
 
   const [mounted, setMounted] = useState(false);
 
@@ -64,6 +65,7 @@ export default function AdminLayout({ children }: Props) {
   const { data, isLoading } = useQuery({
     queryKey: ["get-notifications"],
     queryFn: () => getAllNotifications(),
+    staleTime: 60 * 1000,
   });
 
   const updateStatusMutation = useMutation({
@@ -71,16 +73,17 @@ export default function AdminLayout({ children }: Props) {
     mutationFn: (notificationId: string) => {
       return updateStatusNotification(notificationId);
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-notifications"] });
+    },
     onError: (error) => {
       toast.error(error.message);
     },
   });
 
   const handleUpdateStatus = (id: string) => {
-    // Update Redux
     dispatch(updateStatus(id));
 
-    // Update Backend
     updateStatusMutation.mutate(id);
   };
 

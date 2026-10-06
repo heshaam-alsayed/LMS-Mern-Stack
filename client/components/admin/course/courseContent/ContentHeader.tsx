@@ -21,7 +21,6 @@ export default function ContentHeader({
 }: Props) {
   return (
     <div className="flex items-center justify-between gap-4 border-x border-b px-3 py-2">
-      {/* Content Title */}
       <div className="min-w-0 flex-1">
         {!isCollapsed && (
           <p className="truncate text-sm font-medium">
@@ -30,9 +29,7 @@ export default function ContentHeader({
         )}
       </div>
 
-      {/* Content Actions */}
       <div className="flex shrink-0 items-center gap-1">
-        {/* Open / Close Content */}
         <button
           type="button"
           onClick={() => handleToggleCollapsed(index)}
@@ -44,7 +41,6 @@ export default function ContentHeader({
           )}
         </button>
 
-        {/* Delete Content */}
         <button
           type="button"
           onClick={() => handleDeleteContent(index)}

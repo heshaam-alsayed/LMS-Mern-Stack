@@ -125,7 +125,6 @@ export default function OrganizationSelectionModal({
           overflow-hidden
           p-0
         ">
-        {/* Header */}
         <DialogHeader
           className="
             shrink-0
@@ -142,7 +141,6 @@ export default function OrganizationSelectionModal({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Search */}
         <div className="shrink-0 px-4 ">
           <div className="relative">
             <Search
@@ -171,7 +169,6 @@ export default function OrganizationSelectionModal({
           </div>
         </div>
 
-        {/* Scrollable Results */}
         <div className="min-h-0 flex-1 overflow-y-auto px-4 ">
           {isPending ? (
             <div className="flex h-full items-center justify-center">
@@ -227,7 +224,6 @@ export default function OrganizationSelectionModal({
                       }
                     `}>
                     <div className="flex items-center gap-3">
-                      {/* Organization */}
                       <div className="flex min-w-0 flex-1 items-center gap-2">
                         <div
                           className="
@@ -251,7 +247,6 @@ export default function OrganizationSelectionModal({
                         </div>
                       </div>
 
-                      {/* Instructor */}
                       <div className="hidden min-w-0 flex-1 sm:block">
                         <p className="truncate text-[11px] text-muted-foreground">
                           Instructor
@@ -262,7 +257,6 @@ export default function OrganizationSelectionModal({
                         </p>
                       </div>
 
-                      {/* Email */}
                       <div className="hidden min-w-0 flex-1 md:block">
                         <p className="truncate text-[11px] text-muted-foreground">
                           Email
@@ -273,7 +267,6 @@ export default function OrganizationSelectionModal({
                         </p>
                       </div>
 
-                      {/* Selected */}
                       {isSelected && (
                         <span
                           className="
@@ -296,7 +289,6 @@ export default function OrganizationSelectionModal({
           )}
         </div>
 
-        {/* Fixed Footer */}
         {pagination && pagination.totalPages > 0 && (
           <div
             className="

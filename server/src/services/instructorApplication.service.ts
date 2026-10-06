@@ -21,6 +21,7 @@ import userRepository, {
 } from "../repositories/user.repository";
 import { getIO } from "../socketServer";
 import AppError from "../utils/AppError";
+import redis, { sessionKey } from "../utils/redis";
 import UserModel from "../models/user.model";
 import OrganizationModel from "../models/organization.model";
 import { slugify } from "../utils/helper";
@@ -102,11 +103,10 @@ export const createInstructorApplicationService = async (
     user: newUser._id,
   });
 
-  // a socket failure must not fail the application that was just created
   try {
     getIO().to("admins").emit("notification", notification);
   } catch {
-    // sockets are not available in scripts and tests
+    
   }
 
   return application;
@@ -119,7 +119,7 @@ export const getOrganizationApplicationByEmail = async (email: string) => {
     throw new AppError("Email is required", 400);
   }
 
-  // 1. Find user by email
+  // 1 Find user by email
   const user = await userRepository.findUserByEmail(normalizedEmail);
 
   if (!user) {
@@ -168,7 +168,7 @@ export const getAllOrganizationApplicationsService = async ({
   });
 
   const totalPages = Math.ceil(totalApplications / finalLimit);
-  const hasNextPage = parsedPage * finalLimit < totalPages;
+  const hasNextPage = parsedPage < totalPages;
   const hasPreviousPage = parsedPage > 1;
 
   return {
@@ -201,10 +201,6 @@ export const getOrganizationApplicationById = async (id: string) => {
   return application;
 };
 
-// an organization name and its slug are both unique, so approving a request can
-// collide with an organization that already exists. The name stays readable and
-// the collision is resolved with a numeric suffix, e.g.
-// "Cairo Digital Academy" becomes "Cairo Digital Academy (2)".
 const resolveUniqueOrganizationName = async (
   name: string,
   session: ClientSession,
@@ -297,8 +293,7 @@ export const approveInstructorApplicationService = async (
       );
     }
 
-    // Create organization, the name and slug are uniquified so an approval
-    // never dies on a raw duplicate key error
+ 
     const organizationName = await resolveUniqueOrganizationName(
       application.organizationName,
       session,
@@ -333,6 +328,10 @@ export const approveInstructorApplicationService = async (
 
     // Everything succeeded
     await session.commitTransaction();
+
+    // the promoted user's old session still says role:"user"/status:"pending"
+    // drop it so authorizeRoles("instructor") works without a re-login
+    await redis.del(sessionKey(String(user._id)));
 
     // Get final application after transaction is committed
     const updatedApplication =

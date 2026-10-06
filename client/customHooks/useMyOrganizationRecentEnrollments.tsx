@@ -4,10 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 
 import { getMyOrganizationRecentEnrollments } from "@/lib/api/getMyOrganizationRecentEnrollments";
 
-export default function useMyOrganizationRecentEnrollments(top = 5) {
+export default function useMyOrganizationRecentEnrollments(
+  top = 5,
+  enabled = true,
+) {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["my-organization-recent-enrollments", top],
     queryFn: () => getMyOrganizationRecentEnrollments(top),
+    enabled,
     staleTime: 60 * 1000,
   });
 

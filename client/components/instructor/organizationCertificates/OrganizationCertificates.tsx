@@ -5,8 +5,6 @@ import { Award, Building2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-import { GetOrganizationCertificatesResponse } from "@/types/certificate.type";
-
 import OrganizationCertificatesFilter from "./OrganizationCertificatesFilter";
 import OrganizationCertificatesStats from "./OrganizationCertificatesStats";
 import OrganizationCertificateCard from "./OrganizationCertificateCard";
@@ -14,8 +12,7 @@ import OrganizationCertificateCard from "./OrganizationCertificateCard";
 import OrganizationCertificatesPageSkeleton from "@/components/skeleton/OrganizationCertificatesPageSkeleton";
 import Pagination, { PaginationData } from "@/components/shared/Pagination";
 
-import { useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { getOrganizationCertificates } from "@/lib/api/getOrganizationCertificates";
@@ -36,47 +33,34 @@ export default function OrganizationCertificates() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [data, setData] =
-    useState<GetOrganizationCertificatesResponse | null>(null);
-  const [hasFetched, setHasFetched] = useState(false);
+  const queryString = searchParams.toString();
 
-  const getCertificatesMutation = useMutation({
-    mutationFn: (queryString: string) =>
-      getOrganizationCertificates(queryString),
-
-    onSuccess: (response) => {
-      setData(response);
-      setHasFetched(true);
-    },
-
-    onError: () => {
-      setHasFetched(true);
-    },
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["organization-certificates", queryString],
+    queryFn: () => getOrganizationCertificates(queryString),
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
-  useEffect(() => {
-    getCertificatesMutation.mutate(searchParams.toString());
-  }, [searchParams]);
-
-  const refetch = () => {
-    getCertificatesMutation.mutate(searchParams.toString());
-  };
-
   const goToPage = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(queryString);
 
     params.set("page", String(page));
 
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const error = getCertificatesMutation.error;
-
-  if (!hasFetched) {
+  if (isLoading) {
     return <OrganizationCertificatesPageSkeleton />;
   }
 
-  if (error || !data) {
+  if (isError || !data) {
     const isMissing = error?.message === NO_ORGANIZATION_ERROR;
 
     return (
@@ -101,7 +85,12 @@ export default function OrganizationCertificates() {
             </p>
           </div>
 
-          <Button variant="outline" onClick={refetch}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              refetch();
+            }}
+          >
             Try again
           </Button>
         </div>
@@ -155,7 +144,7 @@ export default function OrganizationCertificates() {
 
       <OrganizationCertificatesStats stats={stats} />
 
-      <OrganizationCertificatesFilter />
+      {pagination.total > 0 ? <OrganizationCertificatesFilter /> : null}
 
       {certificates && certificates.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

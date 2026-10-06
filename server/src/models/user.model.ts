@@ -87,7 +87,7 @@ const userSchema = new mongoose.Schema<IUser>(
   },
 );
 
-// hash password before saving and stamp the change time
+// hash password before saving 
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
@@ -105,7 +105,7 @@ userSchema.methods.comparePassword = async function (
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// ✅ ACCESS TOKEN
+// access token
 userSchema.methods.SignAccessToken = function () {
   return jwt.sign(
     { id: this._id.toString(), role: this.role },
@@ -116,7 +116,7 @@ userSchema.methods.SignAccessToken = function () {
   );
 };
 
-// ✅ REFRESH TOKEN
+// refresh token
 userSchema.methods.SignRefreshToken = function () {
   return jwt.sign(
     { id: this._id.toString(), role: this.role },

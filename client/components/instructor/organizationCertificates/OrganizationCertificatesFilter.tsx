@@ -50,6 +50,8 @@ export default function OrganizationCertificatesFilter() {
   };
 
   useEffect(() => {
+    if (debouncedSearch === (searchParams.get("search") || "")) return;
+
     const params = new URLSearchParams(searchParams.toString());
 
     if (debouncedSearch) {
@@ -61,7 +63,7 @@ export default function OrganizationCertificatesFilter() {
     params.delete("page");
 
     push(params);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, searchParams]);
 
   const resetAll = () => {
     setSearch("");

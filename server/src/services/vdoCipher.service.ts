@@ -152,15 +152,56 @@ const toAppError = (error: any, fallback: string) => {
 };
 
 export const getVideoUploadCredentials = async (title: string) => {
+  const secret = process.env.VIDEO_CIPHER_API_SECRET;
+
+  if (!secret) {
+    throw new AppError("VIDEO_CIPHER_API_SECRET is missing on the server", 500);
+  }
+
   try {
     const response = await axios.put(VDOCIPHER_BASE_URL, null, {
-      params: { title },
-      headers: buildHeaders(),
+      params: {
+        title,
+      },
+      headers: {
+        Accept: "application/json",
+        Authorization: `Apisecret ${secret}`,
+      },
     });
 
     return response.data;
   } catch (error) {
-    throw toAppError(error, "Could not start the video upload on VdoCipher");
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || data?.error || "VdoCipher request failed";
+
+      if (status === 401 || status === 403) {
+        throw new AppError(
+          "VdoCipher rejected the API secret. Check VIDEO_CIPHER_API_SECRET",
+          502,
+        );
+      }
+
+      if (status === 429) {
+        throw new AppError(
+          "VdoCipher upload rate limit reached. Try again later",
+          429,
+        );
+      }
+
+      if (/limit|quota|upgrade|subscription/i.test(message)) {
+        throw new AppError(`VdoCipher account limit reached. ${message}`, 403);
+      }
+
+      throw new AppError(`VdoCipher: ${message}`, 502);
+    }
+
+    throw new AppError("Could not start the video upload on VdoCipher", 500);
   }
 };
 

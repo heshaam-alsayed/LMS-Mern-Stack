@@ -1,9 +1,13 @@
+import { Suspense } from "react";
+
 import OrganizationApplicationContent from "@/components/organization/application/OrganizationApplicationContent";
+import ApplicationStatusSkeleton from "@/components/skeleton/ApplicationStatusSkeleton";
 
 export default function page() {
+  // OrganizationApplicationContent reads status from the query string
   return (
-    <div>
+    <Suspense fallback={<ApplicationStatusSkeleton />}>
       <OrganizationApplicationContent />
-    </div>
+    </Suspense>
   );
 }

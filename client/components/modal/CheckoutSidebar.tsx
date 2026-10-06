@@ -54,10 +54,10 @@ export default function CheckoutSidebar({
         setStripe(null);
         setClientSecret(null);
 
-        // 1. Get publishable key
+        // 1 Get publishable key
         const keyData = await getPublishableKey();
 
-        // 2. Initialize Stripe.js
+        // 2 Initialize Stripe js
         const stripeInstance = await getStripe(keyData.publishableKey);
 
         if (!stripeInstance) {
@@ -66,10 +66,10 @@ export default function CheckoutSidebar({
 
         setStripe(stripeInstance);
 
-        // 3. Create PaymentIntent
+        // 3 Create PaymentIntent
         const paymentData = await createPaymentIntent(courseId);
 
-        // 4. Save client secret
+        // 4 Save client secret
         setClientSecret(paymentData.clientSecret);
       } catch (error) {
         console.error(error);
@@ -92,15 +92,12 @@ export default function CheckoutSidebar({
       <SheetContent
         side="left"
         className="w-full overflow-y-auto border-r bg-background p-0 sm:max-w-[500px]">
-        {/* Header */}
         <SheetHeader className="border-b bg-background px-6 py-5">
           <div className="flex items-start gap-3">
-            {/* Icon */}
             <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <CreditCard className="size-5" />
             </div>
 
-            {/* Title + Description */}
             <div className="min-w-0 flex-1">
               <SheetTitle className="text-lg font-semibold tracking-tight">
                 Complete Your Purchase
@@ -112,7 +109,6 @@ export default function CheckoutSidebar({
             </div>
           </div>
 
-          {/* Secure checkout badge */}
           <div className="mt-4 flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2.5">
             <LockKeyhole className="size-4 text-muted-foreground" />
 
@@ -127,9 +123,7 @@ export default function CheckoutSidebar({
           </div>
         </SheetHeader>
 
-        {/* Content */}
         <div className="px-5 py-6 sm:px-6">
-          {/* Loading */}
           {loading && (
             <div className="flex min-h-[400px] flex-col items-center justify-center gap-4">
               <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
@@ -148,7 +142,6 @@ export default function CheckoutSidebar({
             </div>
           )}
 
-          {/* Error */}
           {error && (
             <div className="flex min-h-[300px] items-center justify-center">
               <div className="w-full rounded-xl border border-destructive/20 bg-destructive/5 p-5">
@@ -171,10 +164,8 @@ export default function CheckoutSidebar({
             </div>
           )}
 
-          {/* Stripe Checkout */}
           {!loading && !error && stripe && clientSecret && (
             <div className="space-y-5">
-              {/* Payment card */}
               <div className="rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
                 <div className="mb-5 flex items-center gap-2">
                   <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -199,7 +190,6 @@ export default function CheckoutSidebar({
                 </Elements>
               </div>
 
-              {/* Security info */}
               <div className="flex items-start gap-3 rounded-xl bg-muted/40 px-4 py-3.5">
                 <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
 

@@ -13,7 +13,6 @@ export default function FaqItem({ question, answer }: FaqItemProps) {
 
   return (
     <div className="border-b-2 border-border">
-      {/* Question */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -57,7 +56,6 @@ export default function FaqItem({ question, answer }: FaqItemProps) {
         />
       </button>
 
-      {/* Answer */}
       <div
         className={`
           grid

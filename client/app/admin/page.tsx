@@ -1,10 +1,13 @@
-"use client";
+import { Suspense } from "react";
 
 import Dashboard from "@/components/admin/dashboard/Dashboard";
-
+import DashboardSkeleton from "@/components/skeleton/DashboardSkeleton";
 
 export default function page() {
-  return <div>
-    <Dashboard/>
-  </div>;
+  // the dashboard year switcher reads year through useStatisticsYear
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <Dashboard />
+    </Suspense>
+  );
 }

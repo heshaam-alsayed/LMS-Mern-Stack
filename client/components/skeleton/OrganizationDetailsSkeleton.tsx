@@ -3,7 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function OrganizationDetailsSkeleton() {
   return (
     <div className="space-y-4">
-      {/* ==================== HEADER ==================== */}
       <div className="flex items-center gap-3">
         <Skeleton className="h-10 w-10 rounded-lg" />
 
@@ -14,7 +13,6 @@ export default function OrganizationDetailsSkeleton() {
         </div>
       </div>
 
-      {/* ==================== INFO ==================== */}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 rounded-xl border bg-background p-5 lg:col-span-2">
           <Skeleton className="h-5 w-40" />
@@ -51,7 +49,6 @@ export default function OrganizationDetailsSkeleton() {
         </div>
       </div>
 
-      {/* ==================== COURSES ==================== */}
       <div className="space-y-3">
         <Skeleton className="h-5 w-32" />
 

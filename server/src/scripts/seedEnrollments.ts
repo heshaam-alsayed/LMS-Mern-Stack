@@ -19,7 +19,7 @@ import CourseProgressModel from "../models/courseProgress.model";
 import CertificateModel from "../models/certificate.model";
 import NotificationModel from "../models/notification.model";
 import { calcAverageReviews } from "../utils/helper";
-import redis from "../utils/redis";
+import redis, { sessionKey, userPublicKey } from "../utils/redis";
 
 const MARKER = "seed:catalog";
 const ORDER_MARKER = "seed:enrollments";
@@ -224,7 +224,16 @@ const run = async () => {
 
       await CourseModel.updateOne(
         { _id: course._id },
-        { $set: { reviews: keepReviews, courseData, purchased: 0, ratings: 0 } },
+        {
+          $set: {
+            reviews: keepReviews,
+            courseData,
+            purchased: 0,
+            ratings: 0,
+            reviewsCount: keepReviews.length,
+            totalLectures: courseData.length,
+          },
+        },
       );
     }
 
@@ -326,6 +335,7 @@ const run = async () => {
         organization: course.organization,
         currentLecture: last ? last._id : null,
         completedLectures: done.map((lecture: any) => lecture._id),
+        totalLectures: lectures.length,
         lastAccessedAt: new Date(Date.now() - Math.floor(random() * 1209600000)),
       };
     });
@@ -375,7 +385,7 @@ const run = async () => {
 
       await CourseModel.updateOne(
         { _id: course._id },
-        { $push: { reviews: review } },
+        { $push: { reviews: review }, $inc: { reviewsCount: 1 } },
       );
 
       reviewCount += 1;
@@ -462,6 +472,7 @@ const run = async () => {
             purchased: purchasedPerCourse.get(String(course._id)) || 0,
             ratings: calcAverageReviews(reviews),
             reviews,
+            reviewsCount: reviews.length,
           },
         },
       },
@@ -477,7 +488,10 @@ const run = async () => {
   // the app caches users and courses in redis, so the cache must be cleared
   console.log("\n--- clearing redis cache ---");
   const cacheKeys = [
-    ...students.map((student: any) => String(student._id)),
+    ...students.flatMap((student: any) => [
+      sessionKey(String(student._id)),
+      userPublicKey(String(student._id)),
+    ]),
     ...everyCourse.map((course: any) => String(course._id)),
   ];
 

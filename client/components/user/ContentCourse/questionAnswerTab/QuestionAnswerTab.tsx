@@ -13,9 +13,9 @@ import AskQuestionForm from "./AskQuestionFrom";
 
 type Props = {
   courseId: string;
-  contentId: string;
+  contentId: string | undefined;
   refetchContent: () => void;
-  questions: QuestionContent[];
+  questions: QuestionContent[] | undefined;
 };
 
 export default function QuestionAnswerTab({
@@ -30,7 +30,8 @@ export default function QuestionAnswerTab({
   const addNewQuestionMutation = useMutation({
     mutationKey: ["new-question"],
 
-    mutationFn: async (question: string) => {
+    mutationFn: async (question: string) => { 
+      if(!contentId) return
       const body = {
         question,
         courseId,
@@ -69,7 +70,6 @@ export default function QuestionAnswerTab({
 
   return (
     <section className="py-6">
-      {/* Header */}
       <div className="mb-6">
         <h2 className="text-lg font-semibold tracking-tight text-foreground">
           Questions & Answers
@@ -80,7 +80,6 @@ export default function QuestionAnswerTab({
         </p>
       </div>
 
-      {/* Add Question */}
       <AskQuestionForm
         question={question}
         isPending={addNewQuestionMutation.isPending}
@@ -88,20 +87,17 @@ export default function QuestionAnswerTab({
         onSubmit={handleSubmit}
       />
 
-      {/* Questions */}
       <div className="mt-8">
-        {/* Questions Header */}
         <div className="mb-4 flex items-center gap-2">
           <MessageCircle className="size-5 text-primary" />
 
           <h3 className="text-base font-semibold text-foreground">
-            {questions.length}{" "}
-            {questions.length === 1 ? "Question" : "Questions"}
+            {questions?.length}{" "}
+            {questions?.length === 1 ? "Question" : "Questions"}
           </h3>
         </div>
 
-        {/* Questions List */}
-        {questions.length === 0 ? (
+        {questions?.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border px-6 py-10 text-center">
             <MessageCircle className="mx-auto mb-3 size-7 text-muted-foreground" />
 
@@ -115,7 +111,7 @@ export default function QuestionAnswerTab({
           </div>
         ) : (
           <div className="border-t pt-8">
-            {questions.map((item) => (
+            {questions?.map((item) => (
               <QuestionItem
                 key={item._id}
                 question={item}

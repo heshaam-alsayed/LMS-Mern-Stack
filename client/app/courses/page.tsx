@@ -3,8 +3,7 @@
 import { Filter, RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import Link from "next/link";
+import { Suspense, useState } from "react";
 
 import CourseFiltersSidebar from "@/components/courses/CoursesFilterSidebar";
 import Header from "@/components/shared/Header";
@@ -22,6 +21,15 @@ import CoursesContentSkeleton from "@/components/skeleton/CoursesContentSkeleton
 import Footer from "@/components/Landing/Footer";
 
 export default function CoursesPage() {
+
+  return (
+    <Suspense fallback={<CoursesContentSkeleton />}>
+      <CoursesPageContent />
+    </Suspense>
+  );
+}
+
+function CoursesPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -82,11 +90,9 @@ export default function CoursesPage() {
   } = useQuery({
     queryKey: ["public-courses-user", queryString],
     queryFn: () => getPublicCoursesUser(queryString),
-    staleTime: 24 * 60 * 60 * 1000,
+    staleTime: 60 * 1000,
   });
 
-  // fetched once and cached for a day, so filtering, sorting and paginating
-  // the courses never triggers another categories request
   const {
     data: categoryData,
     isPending: isPendingCategories,
@@ -101,17 +107,14 @@ export default function CoursesPage() {
 
   return (
     <div className="container mx-auto min-h-screen bg-background text-foreground">
-      {/* Header */}
       <Header isCoursesPage={true} setSearchOpen={setSearchOpen} />
 
-      {/* Top Controls */}
       {isPendingCategories && !categoryData ? (
         <CoursesTopSkeleton />
       ) : (
         <section>
           <div className="container mx-auto px-4 pt-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-end gap-2">
-              {/* Categories */}
               <div className="hidden min-w-0 flex-1 lg:block">
                 <CoursesCategories
                   categories={categories}
@@ -120,7 +123,6 @@ export default function CoursesPage() {
                 />
               </div>
 
-              {/* Reset */}
               <button
                 type="button"
                 onClick={handleReset}
@@ -148,7 +150,6 @@ export default function CoursesPage() {
                 Reset
               </button>
 
-              {/* All Filters */}
               <button
                 type="button"
                 onClick={() => setFilterOpen(true)}
@@ -179,14 +180,12 @@ export default function CoursesPage() {
         </section>
       )}
 
-      {/* Search */}
       <CourseSearchModal
         open={searchOpen}
         onOpenChange={setSearchOpen}
         updateQuery={updateQuery}
       />
 
-      {/* Filters */}
       <CourseFiltersSidebar
         open={filterOpen}
         onOpenChange={setFilterOpen}
@@ -202,13 +201,11 @@ export default function CoursesPage() {
         onReset={handleReset}
       />
 
-      {/* Content */}
       {isLoadingCourses ? (
         <CoursesContentSkeleton />
       ) : (
         <main className="min-h-screen px-2 sm:px-4">
           <section className="py-4">
-            {/* Error */}
             {isError && (
               <CoursesErrorState
                 error={error.message}
@@ -217,7 +214,6 @@ export default function CoursesPage() {
               />
             )}
 
-            {/* Empty */}
             {!isError && data?.courses?.length === 0 && (
               <CoursesEmptyState
                 onReset={handleReset}
@@ -225,7 +221,6 @@ export default function CoursesPage() {
               />
             )}
 
-            {/* Courses */}
             {!isError && data?.courses && data.courses.length > 0 && (
               <>
                 <div
@@ -239,13 +234,10 @@ export default function CoursesPage() {
                       2xl:grid-cols-4
                     ">
                   {data.courses.map((course) => (
-                    <Link key={course._id} href={`/course/${course._id}`}>
-                      <CourseCard course={course} />
-                    </Link>
+                    <CourseCard key={course._id} course={course} />
                   ))}
                 </div>
 
-                {/* Pagination */}
                 <div className="mt-15 flex justify-center">
                   <CoursesPagination
                     currentPage={data?.pagination?.currentPage || Number(page)}
@@ -260,7 +252,6 @@ export default function CoursesPage() {
             )}
           </section>
 
-          {/* Footer */}
           <Footer />
         </main>
       )}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertCircle, Mail, MoreHorizontal, TrendingUp, Users } from "lucide-react";
+import { AlertCircle, TrendingUp, Users } from "lucide-react";
 
 import {
   Table,
@@ -11,13 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,7 +77,7 @@ export default function OrganizationStudentsTable({
               Purchased Courses
             </TableHead>
 
-            <TableHead className="h-12 w-[80px] text-center font-semibold">
+            <TableHead className="h-12 w-[150px] text-center font-semibold">
               Actions
             </TableHead>
           </TableRow>
@@ -162,46 +155,19 @@ export default function OrganizationStudentsTable({
                   </Badge>
                 </TableCell>
 
-                <TableCell className="w-[80px] text-center">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-                        <MoreHorizontal className="h-4 w-4" />
+                <TableCell className="w-[150px] text-center">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="rounded-lg">
+                    <Link
+                      href={`/instructor/organization-students/${student._id}`}>
+                      <TrendingUp className="mr-1.5 h-4 w-4 text-muted-foreground" />
 
-                        <span className="sr-only">
-                          Open actions for {student.name}
-                        </span>
-                      </Button>
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuContent
-                      align="end"
-                      sideOffset={6}
-                      className="w-52">
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={`/instructor/organization-students/${student._id}`}
-                          className="cursor-pointer">
-                          <TrendingUp className="mr-2.5 h-4 w-4 text-muted-foreground" />
-
-                          <span>View progress</span>
-                        </Link>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem asChild>
-                        <a
-                          href={`mailto:${student.email}`}
-                          className="cursor-pointer">
-                          <Mail className="mr-2.5 h-4 w-4 text-muted-foreground" />
-
-                          <span>Send email</span>
-                        </a>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      <span>View progress</span>
+                    </Link>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))

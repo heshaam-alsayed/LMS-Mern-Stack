@@ -61,11 +61,10 @@ export default function CoursePlayer({ title, videoUrl, onVideoEnded }: Props) {
       videoId: videoUrl,
     });
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoUrl]);
 
   
-   //Setup VdoCipher player
+   // Setup VdoCipher player
    
   const setupPlayer = useCallback(() => {
     if (!isVdoApiReady) {

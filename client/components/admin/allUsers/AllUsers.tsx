@@ -1,23 +1,24 @@
 "use client";
 
-import { getAllCourses } from "@/lib/api/getAllCourses";
 import { getAllUsers } from "@/lib/api/getAllUsers";
-import { CoursesResponseAdmin } from "@/types/course.type";
 import {
   CreateNewMember,
   EditingMember,
   SelectedMember,
   UpdateMemberData,
-  UsersResponseAdmin,
 } from "@/types/user.type";
 
-import { useMutation } from "@tanstack/react-query";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { usePathname, useSearchParams } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import UsersFilter from "./UsersFilter";
 import UsersTable from "./UsersTable";
-import { PaginationData } from "@/components/shared/Pagination";
 import { createUser } from "@/lib/api/createUser";
 import { toast } from "sonner";
 import { changeRole } from "@/lib/api/changeRole";
@@ -28,8 +29,7 @@ import { toggleDeletedUser } from "@/lib/api/toggleUserDeleted";
 export default function AllUsers() {
   const searchParams = useSearchParams();
   const pathName = usePathname();
-  console.log(pathName);
-  const [data, setData] = useState<UsersResponseAdmin | null>(null);
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
 
@@ -39,39 +39,24 @@ export default function AllUsers() {
   );
   const [isEditing, setIsEditing] = useState(false);
 
-  const initialPagination: PaginationData = {
-    currentPage: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 0,
-    hasNextPage: false,
-    hasPreviousPage: false,
-  };
-  const [hasFetched, setHasFetched] = useState(false);
   const isTeam = pathName.includes("/team");
-  const getAllUsersMutation = useMutation({
-    mutationFn: (queryString: string) => {
-      return getAllUsers(queryString, isTeam);
-    },
+  const queryString = searchParams.toString();
 
-    onSuccess: (data) => {
-      setData(data);
-      setHasFetched(true);
-    },
-
-    onError: () => {
-      setHasFetched(true);
-    },
+  const { data, isFetching, error } = useQuery({
+    queryKey: ["all-users", isTeam, queryString],
+    queryFn: () => getAllUsers(queryString, isTeam),
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
-  useEffect(() => {
-    getAllUsersMutation.mutate(searchParams.toString());
-  }, [searchParams]);
+  const refetchUsers = () => {
+    queryClient.invalidateQueries({ queryKey: ["all-users", isTeam] });
+  };
 
   const createMemberMutation = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
-      getAllUsersMutation.mutate(searchParams.toString());
+      refetchUsers();
       toast.success("member created successfully");
       setOpen(false);
     },
@@ -87,7 +72,7 @@ export default function AllUsers() {
   const editUserMutation = useMutation({
     mutationFn: changeRole,
     onSuccess: () => {
-      getAllUsersMutation.mutate(searchParams.toString());
+      refetchUsers();
       toast.success("member updated successfully");
       setOpen(false);
     },
@@ -100,7 +85,7 @@ export default function AllUsers() {
   const deleteMutation = useMutation({
     mutationFn: toggleDeletedUser,
     onSuccess: () => {
-      getAllUsersMutation.mutate(searchParams.toString());
+      refetchUsers();
       setOpenDelete(false);
       toast.success("user deleted status changed");
     },
@@ -146,21 +131,19 @@ export default function AllUsers() {
     setSelectedMember(null);
     setOpenDelete(false);
   };
-  const isLoading =
-    !hasFetched ||
-    createMemberMutation.isPending ||
-    editUserMutation.isPending;
+  const isUsersLoading = isFetching && !data?.users?.length;
+  const isMutationPending =
+    createMemberMutation.isPending || editUserMutation.isPending;
   return (
     <div className="space-y-4">
-      <UsersFilter
-        pagination={data?.pagination ?? initialPagination}
-        onClickAdd={onClickAdd}
-      />
+      {(data?.pagination?.total ?? 0) > 0 ? (
+        <UsersFilter pagination={data.pagination} onClickAdd={onClickAdd} />
+      ) : null}
 
       <UsersTable
         users={data?.users ?? []}
-        isLoading={isLoading}
-        error={getAllUsersMutation.error}
+        isLoading={isUsersLoading}
+        error={error}
         isTeam={isTeam}
         onClickEdit={onClickEdit}
         onClickDelete={onClickDelete}
@@ -171,7 +154,7 @@ export default function AllUsers() {
           onClose={onCloseModal}
           handleCreateMember={handleCreateMember}
           handleUpdateMember={handleUpdateMember}
-          isLoading={isLoading}
+          isLoading={isMutationPending}
           isEditing={isEditing}
           editingData={editingData}
           isOpen={open}

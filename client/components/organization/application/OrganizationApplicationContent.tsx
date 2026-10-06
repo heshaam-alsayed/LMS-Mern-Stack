@@ -47,12 +47,10 @@ export default function OrganizationApplicationContent() {
       <div className="flex min-h-screen w-full items-center justify-center bg-background px-4 py-10">
         <Card className="w-full max-w-md border-border/60 shadow-sm">
           <CardContent className="flex flex-col items-center px-6 py-10 text-center sm:px-10">
-            {/* Icon */}
             <div className="flex size-16 items-center justify-center rounded-2xl bg-muted">
               <Mail className="size-7 text-muted-foreground" />
             </div>
 
-            {/* Content */}
             <div className="mt-6 space-y-2">
               <h2 className="text-xl font-semibold tracking-tight">
                 Email Address Required
@@ -65,7 +63,6 @@ export default function OrganizationApplicationContent() {
               </p>
             </div>
 
-            {/* Action */}
             <Button asChild className="mt-6 w-full gap-2">
               <Link href="/login">
                 <Mail className="size-4" />
@@ -92,12 +89,10 @@ export default function OrganizationApplicationContent() {
       <div className="flex min-h-[75vh] w-full items-center justify-center px-4 py-10">
         <Card className="w-full max-w-md border-border/60 bg-card shadow-sm">
           <CardContent className="flex flex-col items-center px-6 py-10 text-center sm:px-10">
-            {/* Error Icon */}
             <div className="flex size-16 items-center justify-center rounded-2xl bg-muted">
               <RefreshCw className="size-7 text-muted-foreground" />
             </div>
 
-            {/* Heading */}
             <div className="mt-6 space-y-2">
               <h2 className="text-xl font-semibold tracking-tight">
                 Something went wrong
@@ -109,7 +104,6 @@ export default function OrganizationApplicationContent() {
               </p>
             </div>
 
-            {/* Error Message */}
             <div className="mt-5 w-full rounded-lg bg-muted/50 px-4 py-3 text-left">
               <p className="text-xs font-medium text-muted-foreground">
                 Error message
@@ -122,7 +116,6 @@ export default function OrganizationApplicationContent() {
               </p>
             </div>
 
-            {/* Retry */}
             <Button
               onClick={() => refetch()}
               disabled={isFetching}
@@ -182,7 +175,6 @@ export default function OrganizationApplicationContent() {
 
   return (
     <div className="mx-auto mt-8 w-full max-w-2xl space-y-6">
-      {/* Header */}
       <div className="text-center">
         <h1 className="mt-4 text-2xl font-bold tracking-tight">
           Organization Application
@@ -193,10 +185,8 @@ export default function OrganizationApplicationContent() {
         </p>
       </div>
 
-      {/* Main Card */}
       <Card className="overflow-hidden border-border/60 shadow-sm">
         <CardContent className="p-6 sm:p-8">
-          {/* Organization */}
           <div className="flex items-center gap-4">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-muted">
               <Building2 className="size-5 text-muted-foreground" />
@@ -215,7 +205,6 @@ export default function OrganizationApplicationContent() {
 
           <div className="my-6 h-px bg-border" />
 
-          {/* Status */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -241,14 +230,12 @@ export default function OrganizationApplicationContent() {
             </div>
           </div>
 
-          {/* Status Message */}
           <div className="mt-6 rounded-xl bg-muted/40 p-4">
             <p className="text-sm leading-relaxed text-muted-foreground">
               {status.description}
             </p>
           </div>
 
-          {/* Rejection */}
           {application.status === "rejected" && (
             <div className="mt-4 rounded-xl border border-destructive/20 bg-destructive/5 p-4">
               <p className="text-sm font-medium text-destructive">
@@ -262,7 +249,6 @@ export default function OrganizationApplicationContent() {
             </div>
           )}
 
-          {/* Approved */}
           {application.status === "approved" && (
             <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
               <p className="text-sm font-medium">Application approved</p>
@@ -275,7 +261,6 @@ export default function OrganizationApplicationContent() {
         </CardContent>
       </Card>
 
-      {/* Footer */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Mail className="size-3.5" />

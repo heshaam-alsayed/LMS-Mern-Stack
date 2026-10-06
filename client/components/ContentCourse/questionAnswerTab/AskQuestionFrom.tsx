@@ -21,7 +21,6 @@ export default function AskQuestionForm({
   return (
     <form onSubmit={onSubmit} className=" p-4">
       <div className="flex gap-3">
-        {/* Avatar */}
         <div className="size-11 shrink-0 overflow-hidden rounded-full">
           <Image
             src="/user-profile-icon-flat-style-600nw-2748799073.webp"
@@ -32,7 +31,6 @@ export default function AskQuestionForm({
           />
         </div>
 
-        {/* Input */}
         <div className="min-w-0 flex-1">
           <textarea
             value={question}

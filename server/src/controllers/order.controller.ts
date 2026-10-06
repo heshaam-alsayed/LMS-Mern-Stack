@@ -9,26 +9,6 @@ import ApiFeatures from "../utils/apiFeatures";
 import CourseModel from "../models/course.model";
 import { stripe } from "../config/stripe";
 
-// export const createOrder = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   try {
-//     const data = req.body;
-//     const coursersUserList = req.user?.courses || [];
-//     const user: IUser = req.user as IUser;
-//     const order = await orderService.createOrder(data, coursersUserList, user);
-
-//     res.status(200).json({
-//       success: true,
-//       order,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
 export const getOrders = async (
   req: Request,
   res: Response,
@@ -50,7 +30,7 @@ export const getOrders = async (
         },
       });
 
-    // Search by user name OR course name
+    // Search by user name or course name
     if (search) {
       const [users, courses] = await Promise.all([
         UserModel.find({
@@ -171,10 +151,10 @@ export const getOrdersStatistics = async (
 
     const [totalOrders, newOrders, totalRevenueResult, yearlyRevenueResult] =
       await Promise.all([
-        // 1. Total Orders - All time
+        // 1 Total Orders All time
         OrderModel.countDocuments(),
 
-        // 2. New Orders - Selected year
+        // 2 New Orders Selected year
         OrderModel.countDocuments({
           createdAt: {
             $gte: startOfYear,
@@ -182,7 +162,7 @@ export const getOrdersStatistics = async (
           },
         }),
 
-        // 3. Total Revenue - All time
+        // 3 Total Revenue - All time
         OrderModel.aggregate([
           {
             $group: {
@@ -194,7 +174,7 @@ export const getOrdersStatistics = async (
           },
         ]),
 
-        // 4. Yearly Revenue - Selected year
+        // 4 Yearly Revenue Selected year
         OrderModel.aggregate([
           {
             $match: {

@@ -75,7 +75,6 @@ export default function LayoutCard({
 
   return (
     <div className="group flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -94,14 +93,11 @@ export default function LayoutCard({
         </div>
       </div>
 
-      {/* Description */}
       <p className="mt-5 min-h-10 text-sm leading-relaxed text-muted-foreground">
         {info.description}
       </p>
 
-      {/* Dates */}
       <div className="mt-5 space-y-3 rounded-xl border border-border bg-muted/30 p-3">
-        {/* Created */}
         <div className="flex items-center gap-3">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-background text-muted-foreground">
             <CalendarDays className="size-4" />
@@ -118,7 +114,6 @@ export default function LayoutCard({
           </div>
         </div>
 
-        {/* Updated */}
         <div className="flex items-center gap-3">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-background text-muted-foreground">
             <Clock3 className="size-4" />
@@ -136,7 +131,6 @@ export default function LayoutCard({
         </div>
       </div>
 
-      {/* Action */}
       <button
         type="button"
         onClick={handleManage}

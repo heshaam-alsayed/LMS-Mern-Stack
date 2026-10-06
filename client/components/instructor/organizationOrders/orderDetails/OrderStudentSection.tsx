@@ -1,4 +1,4 @@
-// orderDetails/OrderStudentSection.tsx
+// orderDetails OrderStudentSection tsx
 
 "use client";
 
@@ -25,7 +25,6 @@ export function OrderStudentSection({ user }: Props) {
 
   return (
     <section>
-      {/* Header */}
       <div className="mb-5">
         <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
           Customer
@@ -36,7 +35,6 @@ export function OrderStudentSection({ user }: Props) {
         </h3>
       </div>
 
-      {/* Student */}
       <div className="flex items-center gap-3.5">
         <Avatar className="h-12 w-12 shrink-0 border border-border/60">
           {user.avatar?.url ? (
@@ -71,9 +69,7 @@ export function OrderStudentSection({ user }: Props) {
         </div>
       </div>
 
-      {/* Student Details */}
       <div className="mt-6 grid grid-cols-1 border-y border-border/60 sm:grid-cols-2">
-        {/* Email */}
         <div className="flex items-center gap-3 py-4 sm:border-r sm:border-border/60 sm:pr-5">
           <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
 
@@ -88,7 +84,6 @@ export function OrderStudentSection({ user }: Props) {
           </div>
         </div>
 
-        {/* Phone */}
         <div className="flex items-center gap-3 border-t border-border/60 py-4 sm:border-t-0 sm:pl-5">
           <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
 

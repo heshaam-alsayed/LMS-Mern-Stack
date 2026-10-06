@@ -1,4 +1,4 @@
-// orderDetails/OrderCourseSection.tsx
+// orderDetails OrderCourseSection tsx
 
 "use client";
 
@@ -23,9 +23,7 @@ type Props = {
 export function OrderCourseSection({ course, orderAmount }: Props) {
   return (
     <section>
-      {/* Course */}
       <div className="flex flex-col gap-4 sm:flex-row">
-        {/* Thumbnail */}
         <div className="relative h-44 w-full shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-36">
           {course.thumbnail?.url ? (
             <Image
@@ -136,7 +134,6 @@ export function OrderCourseSection({ course, orderAmount }: Props) {
             </div>
           </div>
 
-          {/* Purchased */}
           <div className="flex items-center gap-2 border-l border-border/60 py-4 pl-4 sm:border-r sm:pr-5">
             <ShoppingCart className="h-4 w-4 shrink-0 text-muted-foreground" />
 
@@ -153,7 +150,6 @@ export function OrderCourseSection({ course, orderAmount }: Props) {
             </div>
           </div>
 
-          {/* Rating */}
           <div className="flex items-center gap-2 border-t border-border/60 py-4 pr-4 sm:border-l-0 sm:border-t-0 sm:border-r sm:pr-5">
             <Star className="h-4 w-4 shrink-0 text-amber-500" />
 
@@ -170,7 +166,6 @@ export function OrderCourseSection({ course, orderAmount }: Props) {
             </div>
           </div>
 
-          {/* Order Amount */}
           <div className="flex items-center gap-2 border-l border-t border-border/60 py-4 pl-4 sm:border-t-0">
             <CircleDollarSign className="h-4 w-4 shrink-0 text-primary" />
 

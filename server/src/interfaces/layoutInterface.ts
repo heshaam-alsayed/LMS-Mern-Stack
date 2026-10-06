@@ -6,14 +6,14 @@ export interface IBannerImage {
   public_Id: string;
   url: string;
 }
-
 export interface IFaqItem {
   question: string;
   answer: string;
 }
 
 export interface ICategory {
-  title: string;
+  title: string; 
+  slug:string
 }
 
 // MongoDB Document
@@ -32,7 +32,7 @@ export interface ILayoutDocument extends Document {
   };
 }
 
-// Create / Update request data
+
 export interface ILayoutData {
   type: LayoutType;
 

@@ -6,7 +6,7 @@ export const getAllUsers = async (
 ) => {
   const params = new URLSearchParams(queryString);
 
-  // Teams page -> always get admins
+  // Teams page always get admins
   if (isTeam) {
     params.set("role", "admin");
   }

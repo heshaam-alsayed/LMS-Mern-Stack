@@ -10,7 +10,6 @@ export default function OrganizationRegistrationSuccess({
 }: OrganizationRegistrationSuccessProps) {
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
-      {/* Background decoration */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.06] blur-3xl" />
         <div className="absolute bottom-0 right-0 size-[350px] translate-x-1/3 translate-y-1/3 rounded-full bg-primary/[0.04] blur-3xl" />
@@ -18,14 +17,12 @@ export default function OrganizationRegistrationSuccess({
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-2xl items-center justify-center px-5 py-10 sm:px-8">
         <div className="w-full">
-          {/* Success icon */}
           <div className="mx-auto flex size-20 items-center justify-center rounded-full border border-primary/20 bg-primary/10 shadow-[0_0_0_8px_rgba(0,0,0,0.02)]">
             <div className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20">
               <CheckCircle2 className="size-7" strokeWidth={2.2} />
             </div>
           </div>
 
-          {/* Heading */}
           <div className="mt-6 text-center">
             <div className="mb-2 inline-flex items-center rounded-full border border-border bg-muted/40 px-3 py-1">
               <span className="text-xs font-medium text-muted-foreground">
@@ -43,9 +40,7 @@ export default function OrganizationRegistrationSuccess({
             </p>
           </div>
 
-          {/* Application status card */}
           <div className="mt-8 overflow-hidden rounded-2xl border bg-card shadow-sm">
-            {/* Organization */}
             {organizationName && (
               <div className="border-b p-5 sm:p-6">
                 <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -69,7 +64,6 @@ export default function OrganizationRegistrationSuccess({
               </div>
             )}
 
-            {/* Status */}
             <div className="flex items-center gap-4 bg-muted/20 p-5 sm:p-6">
               <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
                 <Clock3 className="size-5" />
@@ -89,7 +83,6 @@ export default function OrganizationRegistrationSuccess({
             </div>
           </div>
 
-          {/* Action */}
           <div className="mt-7 flex flex-col items-center gap-3">
             <Link
               href="/login"

@@ -45,7 +45,6 @@ export default function InvoiceDetailsModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[560px]">
-        {/* HEADER */}
         <DialogHeader className="border-b border-border pb-3">
           <div className="flex items-center justify-between pr-6">
             <div>
@@ -66,9 +65,7 @@ export default function InvoiceDetailsModal({
         </DialogHeader>
 
         <div className="space-y-4 pt-1">
-          {/* CUSTOMER + COURSE */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* CUSTOMER */}
             <div className="min-w-0">
               <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Customer
@@ -107,7 +104,6 @@ export default function InvoiceDetailsModal({
               </div>
             </div>
 
-            {/* COURSE */}
             <div className="min-w-0">
               <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Course
@@ -143,10 +139,8 @@ export default function InvoiceDetailsModal({
             </div>
           </div>
 
-          {/* ORDER INFORMATION */}
           <div className="border-y border-border py-3">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {/* ORDER ID */}
               <div className="min-w-0">
                 <p className="text-[11px] text-muted-foreground">Order ID</p>
 
@@ -155,7 +149,6 @@ export default function InvoiceDetailsModal({
                 </p>
               </div>
 
-              {/* CREATED */}
               <div>
                 <p className="text-[11px] text-muted-foreground">Created</p>
 
@@ -168,7 +161,6 @@ export default function InvoiceDetailsModal({
                 </div>
               </div>
 
-              {/* CATEGORY */}
               <div>
                 <p className="text-[11px] text-muted-foreground">Category</p>
 
@@ -179,10 +171,8 @@ export default function InvoiceDetailsModal({
             </div>
           </div>
 
-          {/* PRICING */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-              {/* COURSE PRICE */}
               <div>
                 <p className="text-[11px] text-muted-foreground">
                   Course Price
@@ -193,7 +183,6 @@ export default function InvoiceDetailsModal({
                 </p>
               </div>
 
-              {/* ESTIMATED PRICE */}
               <div>
                 <p className="text-[11px] text-muted-foreground">Estimated</p>
 
@@ -203,7 +192,6 @@ export default function InvoiceDetailsModal({
               </div>
             </div>
 
-            {/* AMOUNT PAID */}
             <div className="text-right">
               <p className="text-[11px] font-medium text-muted-foreground">
                 Amount Paid

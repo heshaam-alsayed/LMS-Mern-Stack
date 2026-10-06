@@ -28,16 +28,13 @@ export default function CourseOptions({ active, setActive }: Props) {
   return (
     <div className="w-full">
       <div className="relative">
-        {/* Progress Track */}
         <div className="absolute bottom-4 left-4 top-4 w-px bg-border">
-          {/* Active Progress */}
           <div
             className="w-full bg-primary transition-all duration-300"
             style={{ height: `${progress}%` }}
           />
         </div>
 
-        {/* Steps */}
         <div className="relative flex flex-col justify-between gap-6">
           {options.map((option, index) => {
             const isActive = index === active;
@@ -54,7 +51,6 @@ export default function CourseOptions({ active, setActive }: Props) {
                   "focus-visible:outline-none",
                   index > active && "cursor-not-allowed",
                 )}>
-                {/* Circle */}
                 <span
                   className={cn(
                     "z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
@@ -75,7 +71,6 @@ export default function CourseOptions({ active, setActive }: Props) {
                   )}
                 </span>
 
-                {/* Label */}
                 <span
                   className={cn(
                     "text-sm font-medium",

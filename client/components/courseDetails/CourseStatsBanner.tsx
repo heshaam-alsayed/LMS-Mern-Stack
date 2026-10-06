@@ -11,7 +11,7 @@ type Props = {
 
 export default function CourseStatsBanner({ course }: Props) {
   const rating = Number(course.ratings ?? 0);
-  const reviewsCount = course.reviews?.length ?? 0;
+  const reviewsCount = course.reviewsCount ?? course.reviews?.length ?? 0;
   const studentsCount = course.purchased ?? 0;
 
   return (
@@ -27,9 +27,6 @@ export default function CourseStatsBanner({ course }: Props) {
         shadow-md
       ">
       <div className="flex min-h-[92px] flex-col md:flex-row">
-        {/* =====================================================
-            PREMIUM
-        ====================================================== */}
 
         <div
           className="
@@ -54,14 +51,8 @@ export default function CourseStatsBanner({ course }: Props) {
           <span className="text-sm font-bold leading-none">Premium</span>
         </div>
 
-        {/* =====================================================
-            MAIN CONTENT
-        ====================================================== */}
 
         <div className="flex min-w-0 flex-1 flex-col md:flex-row">
-          {/* ===================================================
-              PREMIUM MESSAGE
-          ==================================================== */}
 
           <div
             className="
@@ -99,9 +90,6 @@ export default function CourseStatsBanner({ course }: Props) {
             </p>
           </div>
 
-          {/* ===================================================
-              RATING
-          ==================================================== */}
 
           <div
             className="
@@ -148,9 +136,6 @@ export default function CourseStatsBanner({ course }: Props) {
             </div>
           </div>
 
-          {/* ===================================================
-              STUDENTS
-          ==================================================== */}
 
           <div
             className="

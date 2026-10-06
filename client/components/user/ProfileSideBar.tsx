@@ -1,13 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { MenuItem } from "@/app/profile/page";
 import { signOut } from "next-auth/react";
 import { toast } from "sonner";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { logoutUser } from "@/redux/features/auth/authSlice";
 import { LayoutDashboard, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { MenuItem } from "@/app/user/profile/page";
 
 type Props = {
   menuItems: MenuItem[];
@@ -59,7 +59,6 @@ export default function ProfileSideBar({
 
   return (
     <>
-      {/* Mobile backdrop */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-black/40 lg:hidden"
@@ -77,7 +76,6 @@ export default function ProfileSideBar({
           "lg:translate-x-0 lg:top-16",
         )}>
         <div className="p-3">
-          {/* Mobile drawer header */}
           <div className="mb-3 flex items-center justify-between lg:hidden">
             <span className="text-sm font-semibold text-foreground">
               Profile Menu
@@ -93,7 +91,6 @@ export default function ProfileSideBar({
           </div>
 
           <div className="rounded-2xl  p-3">
-            {/* ================= USER INFO ================= */}
             <div className="relative rounded-xl bg-muted/40 px-4 py-4">
               {user?.role && (
                 <span
@@ -121,9 +118,7 @@ export default function ProfileSideBar({
               </div>
             </div>
 
-            {/* ================= NAV ================= */}
             <nav className="mt-4 space-y-1">
-              {/* Admin (optional) */}
               {user?.role === "admin" && (
                 <>
                   <button
@@ -146,7 +141,6 @@ export default function ProfileSideBar({
                 </>
               )}
 
-              {/* Menu items */}
               {menuItems.map((item) => {
                 const Icon = item.icon;
 
@@ -174,12 +168,10 @@ export default function ProfileSideBar({
                       !isActive && !item.danger && "hover:bg-muted/70",
                       item.danger && "hover:bg-destructive/10",
                     )}>
-                    {/* Active line */}
                     {isActive && !item.danger && (
                       <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
                     )}
 
-                    {/* Icon */}
                     <div
                       className={cn(
                         "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors",
@@ -194,7 +186,6 @@ export default function ProfileSideBar({
                       <Icon className="h-4 w-4" />
                     </div>
 
-                    {/* Label */}
                     <span
                       className={cn(
                         "min-w-0 flex-1 truncate text-sm",

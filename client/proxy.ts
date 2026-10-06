@@ -138,17 +138,13 @@ const redirectToLogin = (request: NextAuthRequest) => {
 const proxy = auth(async (request: NextAuthRequest) => {
   const { pathname } = request.nextUrl;
 
-  // =========================
   // Protected routes
-  // =========================
 
   const routeRole = getRouteRole(pathname);
 
   const requiresAuthentication = routeRole !== null;
 
-  // =========================
-  // 1. Access Token
-  // =========================
+  // 1 Access Token
 
   const accessToken = request.cookies.get("access_token")?.value;
 
@@ -177,9 +173,7 @@ const proxy = auth(async (request: NextAuthRequest) => {
     }
   }
 
-  // =========================
-  // 2. Refresh Token
-  // =========================
+  // 2 Refresh Token
 
   try {
     const result = await refreshAccessTokenServer(
@@ -220,9 +214,7 @@ const proxy = auth(async (request: NextAuthRequest) => {
     // Continue to social authentication
   }
 
-  // =========================
-  // 3. Social Authentication
-  // =========================
+  // 3 Social Authentication
 
   const sessionUser = request.auth?.user as SessionUser | undefined;
 
@@ -274,9 +266,7 @@ const proxy = auth(async (request: NextAuthRequest) => {
     }
   }
 
-  // =========================
-  // 4. Not Authenticated
-  // =========================
+  // 4 Not Authenticated
 
   if (requiresAuthentication) {
     return redirectToLogin(request);

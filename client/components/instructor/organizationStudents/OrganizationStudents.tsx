@@ -1,16 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { AlertCircle, Building2, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import { getOrganizationStudents } from "@/lib/api/getOrganizationStudents";
-
-import { GetOrganizationStudentsResponse } from "@/types/organization.type";
 
 import OrganizationStudentsFilter from "./OrganizationStudentsFilter";
 import OrganizationStudentsTable from "./OrganizationStudentsTable";
@@ -34,46 +31,35 @@ export default function OrganizationStudents() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [data, setData] =
-    useState<GetOrganizationStudentsResponse | null>(null);
-  const [hasFetched, setHasFetched] = useState(false);
+  const queryString = searchParams.toString();
 
-  const getStudentsMutation = useMutation({
-    mutationFn: (queryString: string) => getOrganizationStudents(queryString),
-
-    onSuccess: (response) => {
-      setData(response);
-      setHasFetched(true);
-    },
-
-    onError: () => {
-      setHasFetched(true);
-    },
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["organization-students", queryString],
+    queryFn: () => getOrganizationStudents(queryString),
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
-  useEffect(() => {
-    getStudentsMutation.mutate(searchParams.toString());
-  }, [searchParams]);
-
-  const refetch = () => {
-    getStudentsMutation.mutate(searchParams.toString());
-  };
-
   const goToPage = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(queryString);
 
     params.set("page", String(page));
 
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const error = getStudentsMutation.error;
-
-  if (!hasFetched) {
+  if (isLoading) {
     return <OrganizationStudentsPageSkeleton />;
   }
 
-  if (error || !data) {
+  if (isError || !data) {
     const isMissing = error?.message === NO_ORGANIZATION_ERROR;
 
     return (
@@ -97,7 +83,12 @@ export default function OrganizationStudents() {
             </p>
           </div>
 
-          <Button variant="outline" onClick={refetch}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              refetch();
+            }}
+          >
             Try again
           </Button>
         </div>
@@ -162,12 +153,12 @@ export default function OrganizationStudents() {
         </div>
       </div>
 
-      <OrganizationStudentsFilter />
+      {pagination.total > 0 ? <OrganizationStudentsFilter /> : null}
 
       <div className="w-full overflow-hidden rounded-xl border bg-background shadow-sm">
         <OrganizationStudentsTable
           students={students ?? []}
-          isLoading={getStudentsMutation.isPending}
+          isLoading={isFetching && !students?.length}
           error={null}
         />
 

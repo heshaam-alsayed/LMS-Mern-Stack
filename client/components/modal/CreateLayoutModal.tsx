@@ -45,7 +45,6 @@ export default function CreateLayoutModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
       <div className="relative w-full max-w-md rounded-xl border border-border bg-background p-6 shadow-xl">
-        {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-foreground">
@@ -66,7 +65,6 @@ export default function CreateLayoutModal({
           </button>
         </div>
 
-        {/* Form */}
         <div className="space-y-5">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
@@ -89,7 +87,6 @@ export default function CreateLayoutModal({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="mt-8 flex justify-end gap-3">
           <button
             type="button"

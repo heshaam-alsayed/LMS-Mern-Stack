@@ -39,7 +39,6 @@ export default function ContentLink({
 
   return (
     <div className="group space-y-4 rounded-lg border bg-muted/20 p-4 transition-colors hover:bg-muted/30">
-      {/* Link Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-xs font-semibold text-primary">
@@ -60,7 +59,6 @@ export default function ContentLink({
         )}
       </div>
 
-      {/* Link Title */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Link Title</label>
 
@@ -73,7 +71,6 @@ export default function ContentLink({
         />
       </div>
 
-      {/* Link URL */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Link URL</label>
 

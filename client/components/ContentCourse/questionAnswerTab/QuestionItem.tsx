@@ -31,9 +31,7 @@ export default function QuestionItem({
 }: Props) {
   return (
     <article className="p-5 transition-colors hover:bg-muted/20">
-      {/* User */}
       <div className="flex gap-3">
-        {/* Avatar */}
         <div className="size-10 shrink-0 overflow-hidden rounded-full ring-1 ring-border">
           <Image
             src={
@@ -47,19 +45,15 @@ export default function QuestionItem({
           />
         </div>
 
-        {/* Question Content */}
         <div className="min-w-0 flex-1">
-          {/* Name */}
           <h4 className="text-sm capitalize font-semibold text-foreground">
             {question.user?.name}
           </h4>
 
-          {/* Comment */}
           <p className="text-xs capitalize leading-6 text-foreground/80">
             {question.question}
           </p>
 
-          {/* Time under comment */}
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
             <Clock3 className="size-3" />
 
@@ -70,7 +64,6 @@ export default function QuestionItem({
             </span>
           </div>
 
-          {/* Actions */}
           <div className="flex gap-2">
             <button
               type="button"
@@ -88,10 +81,8 @@ export default function QuestionItem({
             </span>
           </div>
 
-          {/* Replies + Add Reply */}
           {isActive && (
             <>
-              {/* Replies */}
               {question.questionReplies?.length > 0 && (
                 <div className="mt-5 ml-5 space-y-4 border-l border-border pl-4">
                   {question.questionReplies.map((reply) => (
@@ -100,7 +91,6 @@ export default function QuestionItem({
                 </div>
               )}
 
-              {/* Add Reply */}
               <div className="mt-4 flex items-center gap-3">
                 <input
                   type="text"

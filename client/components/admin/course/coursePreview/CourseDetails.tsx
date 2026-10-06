@@ -7,7 +7,6 @@ type Props = {
 export default function CourseDetails({ courseData }: Props) {
   return (
     <div className="mt-7">
-      {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold tracking-tight text-foreground">
           Course Details
@@ -18,9 +17,7 @@ export default function CourseDetails({ courseData }: Props) {
         </p>
       </div>
 
-      {/* Details */}
       <div className="space-y-6">
-        {/* Course Name */}
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Course
@@ -31,7 +28,6 @@ export default function CourseDetails({ courseData }: Props) {
           </h3>
         </div>
 
-        {/* Description */}
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Description
@@ -42,7 +38,6 @@ export default function CourseDetails({ courseData }: Props) {
           </p>
         </div>
 
-        {/* Level */}
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Difficulty Level

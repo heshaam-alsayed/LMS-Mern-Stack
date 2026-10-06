@@ -95,7 +95,6 @@ export default function OrganizationRegistrationForm({
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          {/* Account Information */}
           <div>
             <div className="mb-5">
               <h2 className="text-base font-semibold">Account information</h2>
@@ -106,7 +105,6 @@ export default function OrganizationRegistrationForm({
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
-              {/* Full Name */}
               <div className="sm:col-span-2">
                 <label
                   htmlFor="name"
@@ -133,7 +131,6 @@ export default function OrganizationRegistrationForm({
                 )}
               </div>
 
-              {/* Email */}
               <div className="sm:col-span-2">
                 <label
                   htmlFor="email"
@@ -161,7 +158,6 @@ export default function OrganizationRegistrationForm({
                 )}
               </div>
 
-              {/* Password */}
               <div>
                 <label
                   htmlFor="password"
@@ -204,7 +200,6 @@ export default function OrganizationRegistrationForm({
                 )}
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <label
                   htmlFor="confirmPassword"
@@ -251,7 +246,6 @@ export default function OrganizationRegistrationForm({
             </div>
           </div>
 
-          {/* Organization Information */}
           <div>
             <div className="mb-5">
               <h2 className="text-base font-semibold">
@@ -264,7 +258,6 @@ export default function OrganizationRegistrationForm({
             </div>
 
             <div className="space-y-5">
-              {/* Organization Name */}
               <div>
                 <label
                   htmlFor="organizationName"
@@ -291,7 +284,6 @@ export default function OrganizationRegistrationForm({
                 )}
               </div>
 
-              {/* Organization Description */}
               <div>
                 <label
                   htmlFor="organizationDescription"
@@ -327,7 +319,6 @@ export default function OrganizationRegistrationForm({
             </div>
           </div>
 
-          {/* API Error */}
           {isError && (
             <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4">
               <p className="text-sm font-medium text-destructive">
@@ -336,7 +327,6 @@ export default function OrganizationRegistrationForm({
             </div>
           )}
 
-          {/* Submit */}
           <div className="space-y-4">
             <Button type="submit" className="h-11 w-full" disabled={isPending}>
               {isPending ? (

@@ -62,8 +62,8 @@ export default function VideoUploader({
     };
   }, []);
 
-  // The parent fills videoUrl asynchronously when editing an existing course,
-  // so keep the "uploaded" state in sync with the incoming value.
+  // The parent fills videoUrl asynchronously when editing an existing course
+  // so keep the uploaded state in sync with the incoming
   useEffect(() => {
     setUploadedVideoId(videoUrl);
   }, [videoUrl]);

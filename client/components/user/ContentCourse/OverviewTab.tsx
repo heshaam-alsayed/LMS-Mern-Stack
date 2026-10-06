@@ -18,7 +18,6 @@ export default function OverviewTab({ currentLesson }: Props) {
     currentLesson;
   return (
     <div className="space-y-8 py-6">
-      {/* Lesson Header */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="flex size-8 items-center justify-center rounded-md bg-primary/10">
@@ -38,7 +37,6 @@ export default function OverviewTab({ currentLesson }: Props) {
         </div>
       </div>
 
-      {/* Description */}
       <section className="space-y-3">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <BookOpen className="size-4 text-primary" />
@@ -48,14 +46,12 @@ export default function OverviewTab({ currentLesson }: Props) {
         <p className="text-sm leading-7 text-muted-foreground">{description}</p>
       </section>
 
-      {/* Lesson Information */}
       <section className="space-y-3">
         <h3 className="text-sm font-semibold text-foreground">
           Lesson Information
         </h3>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {/* Section */}
           <div className="flex items-center gap-3 rounded-lg bg-muted/60 px-4 py-3">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-background">
               <BookOpen className="size-4 text-primary" />
@@ -70,7 +66,6 @@ export default function OverviewTab({ currentLesson }: Props) {
             </div>
           </div>
 
-          {/* Duration */}
           {videoLength !== undefined && (
             <div className="flex items-center gap-3 rounded-lg bg-muted/60 px-4 py-3">
               <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-background">
@@ -89,7 +84,6 @@ export default function OverviewTab({ currentLesson }: Props) {
         </div>
       </section>
 
-      {/* Suggestion */}
       {suggestion && (
         <section>
           <div className="rounded-lg border bg-muted/40 p-5">

@@ -60,7 +60,6 @@ export default function CreateFaqModal({
         </DialogHeader>
 
         <div className="space-y-5 py-2">
-          {/* Question */}
           <div className="flex flex-col gap-2">
             <label
               htmlFor="faq-question"
@@ -76,7 +75,6 @@ export default function CreateFaqModal({
             />
           </div>
 
-          {/* Answer */}
           <div className="flex flex-col gap-2">
             <label
               htmlFor="faq-answer"
@@ -93,7 +91,6 @@ export default function CreateFaqModal({
             />
           </div>
 
-          {/* Actions */}
           <div className="flex justify-end gap-3 pt-2">
             <Button
               type="button"

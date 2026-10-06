@@ -9,7 +9,6 @@ import {
 import { authorizeRoles, isAuthenticated } from "../middlewares/authMiddleware";
 const router = express.Router();
 
-// router.post("/create-order", isAuthenticated, createOrder);
 router.get(
   "/monthly-analytics",
   isAuthenticated,

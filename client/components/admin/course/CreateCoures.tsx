@@ -151,12 +151,10 @@ export default function CreateCourse() {
   });
   return (
     <div className="relative min-h-screen">
-      {/* Mobile Course Options */}
       <div className="mb-6 rounded-xl border border-border bg-card p-4 lg:hidden">
         <CourseOptions active={active} setActive={setActive} />
       </div>
 
-      {/* Main Content */}
       <main className="w-full lg:pr-72">
         {active === 0 && (
           <CourseInformation

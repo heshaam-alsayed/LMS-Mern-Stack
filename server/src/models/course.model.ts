@@ -237,6 +237,24 @@ const courseSchema = new Schema<ICourse>(
       type: Number,
       default: 0,
     },
+
+    reviewsCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    totalLectures: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    totalHours: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   {
     timestamps: true,

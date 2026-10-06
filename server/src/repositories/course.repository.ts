@@ -22,8 +22,7 @@ export const updateCourse = async (courseId: string, courseData: any) => {
   );
 };
 export const getCourseById = async (courseId: string) => {
-  // organization is included so updateCourse can clear the organization
-  // scoped copy of the course cache
+
   return await CourseModel.findById(courseId).select("thumbnail organization");
 };
 
@@ -32,7 +31,6 @@ export const getFullCourseById = async (courseId: string) => {
 };
 
 export const getPublicCourse = async (courseId: string) => {
-  // drafts and archived stay hidden from users
   const course = await CourseModel.findOne({ _id: courseId, status: "published" })
     .select("-courseData.questions -courseData.links")
     .populate("category", "slug title")
@@ -69,23 +67,46 @@ export const getPublicCourse = async (courseId: string) => {
 
 // public courses not purchased
 export const getAllCourses = async (queryString: any) => {
-  const query = CourseModel.find({ status: "published" }).select(
-    "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links",
-  );
+  const query = CourseModel.find({ status: "published" })
+    .select(
+      "name description price estimatePrice instructor thumbnail level ratings reviewsCount totalLectures totalHours",
+    )
+    .populate({
+      path: "instructor",
+      select: "name",
+    });
 
   const features = new ApiFeatures(query, queryString)
-    .filter(["price", "estimatePrice", "level", "ratings", "category"])
+    .filter([
+      "price",
+      "estimatePrice",
+      "level",
+      "ratings",
+      "reviewsCount",
+      "totalLectures",
+      "totalHours",
+      "category",
+    ])
     .search(["name", "description", "tags"])
-    .sort(["price", "estimatePrice", "ratings", "purchased", "createdAt"]);
+    .sort([
+      "price",
+      "estimatePrice",
+      "ratings",
+      "purchased",
+      "reviewsCount",
+      "totalLectures",
+      "totalHours",
+      "createdAt",
+    ]);
 
-  // Use a clone for count
+  // Count total matching courses before pagination
   const total = await features.query.clone().countDocuments();
 
-  // Apply pagination to the original query
+  // Apply pagination
   features.paginate();
 
-  // Execute the original query
-  const courses = await features.query;
+  // Get only the courses for the current page
+  const courses = await features.query.lean();
 
   const pagination = features.getPagination(total);
 

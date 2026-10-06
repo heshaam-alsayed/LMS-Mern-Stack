@@ -18,9 +18,9 @@ type Props = {
 const VISIBLE_CATEGORIES = 5;
 const MAX_TITLE_LENGTH = 22;
 
-// category titles are long, so a title longer than 22 characters is cut and an
-// ellipsis is added. the full title stays available on hover through the title
-// attribute of the button.
+// category titles are long so a title longer than 22
+// ellipsis is added the full title stays available on hover
+// attribute of the button
 const shorten = (value: string) =>
   value.length > MAX_TITLE_LENGTH
     ? `${value.slice(0, MAX_TITLE_LENGTH).trimEnd()}...`
@@ -40,7 +40,7 @@ export default function CoursesCategories({
   const lastStartIndex = Math.max(0, categories.length - VISIBLE_CATEGORIES);
   const safeStartIndex = Math.min(startIndex, lastStartIndex);
 
-  // the row moves as one piece, so the chips slide instead of jumping
+  // the row moves as one piece so the chips slide
   useEffect(() => {
     const track = trackRef.current;
 
@@ -103,7 +103,6 @@ export default function CoursesCategories({
 
   return (
     <div className="flex min-w-0 items-center gap-2">
-      {/* Previous */}
       <button
         type="button"
         onClick={handlePrevious}
@@ -137,7 +136,6 @@ export default function CoursesCategories({
         <ChevronLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
       </button>
 
-      {/* All */}
       <button
         type="button"
         onClick={() => updateQuery("category", "all")}
@@ -167,7 +165,6 @@ export default function CoursesCategories({
         All Courses
       </button>
 
-      {/* Categories, the track slides horizontally to scroll */}
       <div className="min-w-0 flex-1 overflow-hidden">
         <div
           ref={trackRef}
@@ -217,7 +214,6 @@ export default function CoursesCategories({
         </div>
       </div>
 
-      {/* Next */}
       <button
         type="button"
         onClick={handleNext}

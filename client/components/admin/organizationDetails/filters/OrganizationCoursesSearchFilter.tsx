@@ -8,6 +8,7 @@ interface OrganizationCoursesSearchFilterProps {
   search: string;
   setSearch: Dispatch<SetStateAction<string>>;
   debouncedSearch: string;
+  urlSearch: string;
   updateQuery: (key: string, value: string) => void;
 }
 
@@ -15,14 +16,17 @@ export default function OrganizationCoursesSearchFilter({
   search,
   setSearch,
   debouncedSearch,
+  urlSearch,
   updateQuery,
 }: OrganizationCoursesSearchFilterProps) {
   useEffect(() => {
+    if (debouncedSearch === urlSearch) return;
+
     updateQuery("search", debouncedSearch);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, urlSearch]);
 
   return (
-    /* ==================== SEARCH ==================== */
+    // SEARCH
     <div className="flex flex-col gap-1.5">
       <label
         htmlFor="org-courses-search"

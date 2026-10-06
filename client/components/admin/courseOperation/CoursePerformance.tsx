@@ -60,7 +60,6 @@ export default function CoursePerformance({
 
   return (
     <section className="mt-6">
-      {/* ==================== Section Header ==================== */}
       <div className="mb-4">
         <h2 className="text-lg font-semibold tracking-tight text-foreground">
           Course Performance
@@ -71,7 +70,6 @@ export default function CoursePerformance({
         </p>
       </div>
 
-      {/* ==================== Performance Cards ==================== */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -83,7 +81,6 @@ export default function CoursePerformance({
             >
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-4">
-                  {/* Content */}
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-muted-foreground">
                       {stat.title}
@@ -98,7 +95,6 @@ export default function CoursePerformance({
                     </p>
                   </div>
 
-                  {/* Icon */}
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/50">
                     <Icon className="h-4.5 w-4.5 text-muted-foreground" />
                   </div>

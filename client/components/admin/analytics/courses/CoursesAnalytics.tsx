@@ -23,7 +23,6 @@ export default function CoursesAnalytics() {
   if (!statistics || !monthly) {
     return null;
   }
-
   return (
     <div className="space-y-8">
       <AnalyticsHeader

@@ -26,10 +26,8 @@ export default function OrganizationRegistration() {
   return (
     <main className="h-screen overflow-hidden bg-background">
       <div className="grid h-full lg:grid-cols-[420px_minmax(0,1fr)]">
-        {/* Sidebar */}
         <OrganizationRegistrationSidebar />
 
-        {/* Right Content */}
         <div className="h-full overflow-y-auto">
           <OrganizationRegistrationForm
             form={form}

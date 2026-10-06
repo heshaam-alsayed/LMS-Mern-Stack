@@ -62,7 +62,6 @@ export default function MyAccountForm() {
           </div>
         </div>
 
-        {/* Form */}
         <form className="space-y-6">
           <div>
             <label

@@ -13,7 +13,7 @@ import UserModel from "../models/user.model";
 
 import ApiFeatures from "../utils/apiFeatures";
 
-import redis from "../utils/redis";
+import redis, { getCached, setCached, delCached } from "../utils/redis";
 
 import { COURSE_CACHE_TTL, courseCacheKeys } from "../utils/courseCache";
 
@@ -25,11 +25,10 @@ import { slugify } from "../utils/helper";
 
 const VALID_STATUSES = ["active", "suspended"];
 
-// only what the order modal renders
 const USER_ORDER_FIELDS = "name email phone status avatar";
 
 const COURSE_ORDER_FIELDS =
-  "name category status price ratings purchased level thumbnail";
+  "name category status price ratings purchased reviewsCount totalLectures level thumbnail";
 
 const validateId = (id: string) => {
   if (!id) {
@@ -41,9 +40,120 @@ const validateId = (id: string) => {
   }
 };
 
+const ORG_CACHE_TTL = 600;
+const ORG_PERF_CACHE_TTL = 60;
+
+const orgCacheKey = (instructorId: string) =>
+  `org:byInstructor:${instructorId}`;
+
+const orgPerfGenerationKey = (organizationId: string) =>
+  `org:perfGen:${organizationId}`;
+
+/**
+ * a lean document cached as json comes back with a string _id. mongoose casts
+ * a string for find/countDocuments, but an aggregation pipeline is never cast,
+ * so a cached organization silently produced empty $match results. every read
+ * of a cached lean document goes through here instead.
+ */
+const reviveCachedIds = <T extends Record<string, any>>(document: T): T => {
+  if (document?._id && typeof document._id === "string") {
+    return { ...document, _id: new Types.ObjectId(document._id) };
+  }
+
+  return document;
+};
+
+const getOrgPerfGeneration = async (organizationId: string) => {
+  try {
+    const raw = await redis.get(orgPerfGenerationKey(organizationId));
+    const generation = Number(raw);
+
+    return Number.isFinite(generation) && generation > 0 ? generation : 1;
+  } catch {
+    return 1;
+  }
+};
+
+const orgCoursesPerformanceCacheKey = (
+  organizationId: string,
+  page: number,
+  limit: number,
+) => `org:coursesPerformance:${organizationId}:${page}:${limit}`;
+
+export const invalidateOrgCachesByInstructor = async (instructorId: string) => {
+  try {
+    await delCached(orgCacheKey(instructorId));
+  } catch (error) {
+    console.error("organization cache invalidation failed:", error);
+  }
+};
+
+const ORG_DASHBOARD_STATS_TTL = 60;
+const ORG_CERT_STATS_TTL = 60;
+const ORG_ORDERS_SUMMARY_TTL = 60;
+const ORG_ANALYTICS_TTL = 300;
+
+const orgDashboardStatsKey = (organizationId: string) =>
+  `org:dashboardStats:${organizationId}`;
+
+const orgCertStatsKey = (organizationId: string) =>
+  `org:certStats:${organizationId}`;
+
+const orgOrdersSummaryKey = (organizationId: string) =>
+  `org:ordersSummary:${organizationId}`;
+
+const orgCoursesAnalyticsKey = (organizationId: string, year: number) =>
+  `org:coursesAnalytics:${organizationId}:${year}`;
+
+const orgOrdersAnalyticsKey = (organizationId: string, year: number) =>
+  `org:ordersAnalytics:${organizationId}:${year}`;
+
+const orgCourseOrdersKey = (organizationId: string, courseId: string) =>
+  `org:courseOrders12m:${organizationId}:${courseId}`;
+
+export const invalidateOrgDataCaches = async (organizationId: string) => {
+  try {
+    await delCached(
+      orgDashboardStatsKey(organizationId),
+      orgCertStatsKey(organizationId),
+      orgOrdersSummaryKey(organizationId),
+    );
+
+    // the performance pages are paginated, so they are orphaned with a
+    // generation bump instead of a scan over every page key
+    await redis.incr(orgPerfGenerationKey(organizationId));
+    await redis.expire(orgPerfGenerationKey(organizationId), 60 * 60 * 24 * 7);
+  } catch (error) {
+    console.error("organization data cache invalidation failed:", error);
+  }
+};
+
+export const invalidateOrgCourseOrdersCache = async (
+  organizationId: string,
+  courseId: string,
+) => {
+  try {
+    await delCached(orgCourseOrdersKey(organizationId, courseId));
+  } catch (error) {
+    console.error(
+      "organization course orders cache invalidation failed:",
+      error,
+    );
+  }
+};
+
+// get organization for auhtentication instructor
 export const getMyOrganizationService = async (instructorId: string) => {
   if (!instructorId) {
     throw new AppError("Instructor ID is required", 400);
+  }
+
+  const cacheKey = orgCacheKey(instructorId);
+
+  const cachedOrganization = await getCached<any>(cacheKey);
+
+  if (cachedOrganization) {
+    return reviveCachedIds(cachedOrganization);
   }
 
   const organization = await OrganizationModel.findOne({
@@ -58,9 +168,12 @@ export const getMyOrganizationService = async (instructorId: string) => {
     throw new AppError("No organization is linked to this account", 404);
   }
 
+  await setCached(cacheKey, organization, ORG_CACHE_TTL);
+
   return organization;
 };
 
+// get organization statistics for authenticated instructor or for sepecific instructor
 export const getMyOrganizationDashboardStatisticsService = async (
   instructorId: string,
 ) => {
@@ -69,6 +182,14 @@ export const getMyOrganizationDashboardStatisticsService = async (
   }
 
   const organization = await getMyOrganizationService(instructorId);
+
+  const cacheKey = orgDashboardStatsKey(String(organization._id));
+
+  const cachedDashboard = await getCached<any>(cacheKey);
+
+  if (cachedDashboard) {
+    return cachedDashboard;
+  }
 
   const filter = {
     organization: organization._id,
@@ -83,7 +204,7 @@ export const getMyOrganizationDashboardStatisticsService = async (
       OrderModel.distinct("user", filter),
 
       CertificateModel.aggregate([
-        { $match: filter },
+        { $match: { organization: new Types.ObjectId(String(organization._id)) } },
         {
           $group: {
             _id: null,
@@ -96,7 +217,7 @@ export const getMyOrganizationDashboardStatisticsService = async (
 
   const totalLearningHours = certificateStats[0]?.totalLearningHours ?? 0;
 
-  return {
+  const dashboard = {
     organization,
 
     statistics: {
@@ -107,8 +228,13 @@ export const getMyOrganizationDashboardStatisticsService = async (
       totalLearningHours: Number(totalLearningHours.toFixed(1)),
     },
   };
+
+  await setCached(cacheKey, dashboard, ORG_DASHBOARD_STATS_TTL);
+
+  return dashboard;
 };
 
+// get courses performance for specific instructor
 export const getMyOrganizationCoursesPerformanceService = async (
   instructorId: string,
   page = 1,
@@ -123,86 +249,99 @@ export const getMyOrganizationCoursesPerformanceService = async (
   const currentPage = Math.max(Number(page) || 1, 1);
   const currentLimit = Math.min(Math.max(Number(limit) || 10, 1), 100);
 
+  const performanceGeneration = await getOrgPerfGeneration(
+    String(organization._id),
+  );
+
+  const cacheKey = `${orgCoursesPerformanceCacheKey(
+    String(organization._id),
+    currentPage,
+    currentLimit,
+  )}:${performanceGeneration}`;
+
+  const cachedStatistics = await getCached<any>(cacheKey);
+
+  if (cachedStatistics) {
+    return cachedStatistics;
+  }
+
   const skip = (currentPage - 1) * currentLimit;
 
-  const filter = { organization: organization._id };
+  const filter = {
+    organization: organization._id,
+  };
 
-  const [courses, totalCourses, orderStats, progressStats] = await Promise.all([
+  const [courses, totalCourses] = await Promise.all([
     CourseModel.find(filter)
-      .select("_id name ratings courseData")
+      .select("_id name ratings")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(currentLimit)
       .lean(),
 
     CourseModel.countDocuments(filter),
-
-    // grouped per course
-    OrderModel.aggregate([
-      { $match: filter },
-      {
-        $group: {
-          _id: "$course",
-        
-          students: { $addToSet: "$user" },
-          revenue: { $sum: "$price" },
-        },
-      },
-    ]),
-
-        CourseProgressModel.aggregate([
-      {
-        $lookup: {
-          from: "courses",
-          localField: "course",
-          foreignField: "_id",
-          as: "course",
-        },
-      },
-      { $unwind: "$course" },
-      { $match: { "course.organization": organization._id } },
-      {
-        $project: {
-          course: "$course._id",
-          completedLectures: {
-            $size: { $ifNull: ["$completedLectures", []] },
-          },
-          totalLectures: { $size: { $ifNull: ["$course.courseData", []] } },
-        },
-      },
-      // a course without lectures can never be completed, so it is skipped
-      { $match: { $expr: { $gt: ["$totalLectures", 0] } } },
-      {
-        $group: {
-          _id: "$course",
-          completedStudents: {
-            $sum: {
-              $cond: [
-                { $gte: ["$completedLectures", "$totalLectures"] },
-                1,
-                0,
-              ],
-            },
-          },
-        },
-      },
-    ]),
   ]);
 
-  const ordersByCourse = new Map(
-    orderStats.map((row) => [String(row._id), row]),
-  );
+  const courseIds = courses.map((course) => course._id);
 
-  const completedByCourse = new Map(
-    progressStats.map((row) => [String(row._id), row.completedStudents]),
-  );
+  // an aggregation pipeline is never cast by mongoose, so the ids are turned
+  // into real ObjectIds here instead of trusting whatever the caller passed
+  const organizationObjectId = new Types.ObjectId(String(organization._id));
+
+  // Get orders statistics for these courses
+  const orderStats = await OrderModel.aggregate([
+    {
+      $match: {
+        organization: organizationObjectId,
+        course: { $in: courseIds },
+      },
+    },
+    {
+      $group: {
+        _id: "$course",
+        students: {
+          $addToSet: "$user",
+        },
+        revenue: {
+          $sum: "$price",
+        },
+      },
+    },
+  ]);
+
+  // Get progress for these courses
+  const progressStats = await CourseProgressModel.find({
+    organization: organization._id,
+    course: { $in: courseIds },
+  })
+    .select("course totalLectures completedLectures")
+    .lean();
 
   const statistics = courses.map((course) => {
-    const orders = ordersByCourse.get(String(course._id));
+    // Find orders for this course
+    const orders = orderStats.find(
+      (order) => String(order._id) === String(course._id),
+    );
 
     const totalStudents = orders?.students?.length ?? 0;
 
-    const completedStudents = completedByCourse.get(String(course._id)) ?? 0;
+    // Find progress for this course
+    const courseProgress = progressStats.filter(
+      (progress) => String(progress.course) === String(course._id),
+    );
+
+    // Count students who completed all lectures
+    const completedStudents = courseProgress.filter(
+      (progress) =>
+        progress.totalLectures > 0 &&
+        progress.completedLectures.length >= progress.totalLectures,
+    ).length;
+
+    // Calculate completion percentage
+    const completion =
+      totalStudents > 0
+        ? Math.round((completedStudents / totalStudents) * 100)
+        : 0;
 
     return {
       _id: course._id,
@@ -210,16 +349,13 @@ export const getMyOrganizationCoursesPerformanceService = async (
       students: totalStudents,
       revenue: orders?.revenue ?? 0,
       rating: course.ratings ?? 0,
-      completion:
-        totalStudents > 0
-          ? Math.round((completedStudents / totalStudents) * 100)
-          : 0,
+      completion,
     };
   });
 
   const totalPages = Math.ceil(totalCourses / currentLimit);
 
-  return {
+  const result = {
     organization,
     result: statistics.length,
     statistics,
@@ -232,8 +368,13 @@ export const getMyOrganizationCoursesPerformanceService = async (
       hasPreviousPage: currentPage > 1,
     },
   };
+
+  await setCached(cacheKey, result, ORG_PERF_CACHE_TTL);
+
+  return result;
 };
 
+// get analytics order for specific course last 12 month
 export const getCourseOrdersLast12MonthsService = async (
   courseId: string,
   organizationId: string,
@@ -250,8 +391,6 @@ export const getCourseOrdersLast12MonthsService = async (
     throw new AppError("Invalid organization ID", 400);
   }
 
-  // scoped to the organization, so a course id from another instructor returns
-  // 404 instead of a chart full of zeros
   const course = await CourseModel.findOne({
     _id: courseId,
     organization: organizationId,
@@ -263,10 +402,16 @@ export const getCourseOrdersLast12MonthsService = async (
     throw new AppError("Course not found in your organization", 404);
   }
 
+  const cacheKey = orgCourseOrdersKey(organizationId, courseId);
+
+  const cachedOrders = await getCached<any>(cacheKey);
+
+  if (cachedOrders) {
+    return cachedOrders;
+  }
+
   const endDate = new Date();
 
-  // first day of the month 11 months back, so the window covers 12 whole
-  // calendar months
   const startDate = new Date();
   startDate.setMonth(startDate.getMonth() - 11);
   startDate.setDate(1);
@@ -317,9 +462,6 @@ export const getCourseOrdersLast12MonthsService = async (
   for (let i = 11; i >= 0; i--) {
     const date = new Date();
 
-    // the day is pinned to 1 before moving the month. setMonth keeps the
-    // day of month, so on the 29th it would roll "Feb 29" over to "Mar 1" in a
-    // non leap year, which dropped February from the window entirely
     date.setDate(1);
 
     date.setMonth(date.getMonth() - i);
@@ -342,7 +484,7 @@ export const getCourseOrdersLast12MonthsService = async (
     });
   }
 
-  return {
+  const ordersResult = {
     course: {
       _id: course._id,
       name: course.name,
@@ -351,8 +493,13 @@ export const getCourseOrdersLast12MonthsService = async (
     totalRevenue: result.reduce((total, item) => total + item.revenue, 0),
     monthly: result,
   };
+
+  await setCached(cacheKey, ordersResult, ORG_ORDERS_SUMMARY_TTL);
+
+  return ordersResult;
 };
 
+// get all courses for specific instrutor
 export const getOrganizationCoursesForInstructorService = async (
   id: string,
 
@@ -384,17 +531,34 @@ export const getOrganizationCoursesForInstructorService = async (
 
   const features = new ApiFeatures(
     CourseModel.find({ organization: id }).select(
-      "name description price estimatePrice thumbnail level status ratings purchased createdAt updatedAt",
+      "name description price estimatePrice thumbnail level status ratings purchased reviewsCount totalLectures createdAt updatedAt",
     ),
 
     queryString,
   )
 
-    .filter(["price", "estimatePrice", "level", "status", "ratings", "purchased"])
+    .filter([
+      "price",
+      "estimatePrice",
+      "level",
+      "status",
+      "ratings",
+      "purchased",
+      "reviewsCount",
+      "totalLectures",
+    ])
 
     .search(["name", "description"])
 
-    .sort(["price", "estimatePrice", "ratings", "purchased", "createdAt"]);
+    .sort([
+      "price",
+      "estimatePrice",
+      "ratings",
+      "purchased",
+      "reviewsCount",
+      "totalLectures",
+      "createdAt",
+    ]);
 
   features.query = features.query.merge({
     organization: new Types.ObjectId(id),
@@ -444,111 +608,147 @@ const STUDENT_SORT_FIELDS: Record<string, SortDirection> = {
   "-createdAt": -1,
 };
 
+// get all orders about courses for specific instructor
 export const getOrganizationOrdersForInstructorService = async (
   instructorId: string,
-
   queryString: Record<string, any>,
 ) => {
   if (!instructorId) {
     throw new AppError("Instructor ID is required", 400);
   }
 
-  // the organization comes from the session, not the request
-
   const organization = await getMyOrganizationService(instructorId);
 
   const search =
     typeof queryString.search === "string" ? queryString.search.trim() : "";
 
-  const baseQuery = OrderModel.find()
+  const page = Number(queryString.page) || 1;
+  const limit = Number(queryString.limit) || 10;
 
+  const skip = (page - 1) * limit;
+
+  let userIds: Types.ObjectId[] = [];
+  let courseIds: Types.ObjectId[] = [];
+
+  // Search users and courses
+  if (search) {
+    const users = await UserModel.find({
+      name: {
+        $regex: search,
+        $options: "i",
+      },
+    }).select("_id");
+
+    const courses = await CourseModel.find({
+      name: {
+        $regex: search,
+        $options: "i",
+      },
+    }).select("_id");
+
+    userIds = users.map((user) => user._id);
+    courseIds = courses.map((course) => course._id);
+  }
+
+  const query: Record<string, any> = {
+    organization: organization._id,
+  };
+
+  // Apply search only to displayed orders
+  if (search) {
+    query.$or = [
+      {
+        user: {
+          $in: userIds,
+        },
+      },
+      {
+        course: {
+          $in: courseIds,
+        },
+      },
+    ];
+  }
+
+  // Total orders + revenue are org-wide and repeated on every page/search
+  const ordersSummaryKey = orgOrdersSummaryKey(String(organization._id));
+
+  const cachedSummary = await getCached<any>(ordersSummaryKey);
+
+  let summary: { totalOrders: number; totalRevenue: number };
+
+  if (cachedSummary) {
+    summary = cachedSummary;
+  } else {
+    const totalOrders = await OrderModel.countDocuments({
+      organization: organization._id,
+    });
+
+    // Total revenue
+    const revenue = await OrderModel.aggregate([
+      {
+        $match: {
+          organization: organization._id,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: {
+            $sum: "$price",
+          },
+        },
+      },
+    ]);
+
+    summary = {
+      totalOrders,
+      totalRevenue: revenue[0]?.totalRevenue ?? 0,
+    };
+
+    await setCached(ordersSummaryKey, summary, ORG_ORDERS_SUMMARY_TTL);
+  }
+
+  // Orders for current page
+  const orders = await OrderModel.find(query)
     .populate("user", USER_ORDER_FIELDS)
-
     .populate({
       path: "course",
-
       select: COURSE_ORDER_FIELDS,
-
       populate: {
         path: "category",
         select: "title slug",
       },
-    });
+    })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
 
-  const features = new ApiFeatures(baseQuery, queryString)
-
-    .filter(["price"])
-
-    .sort(["price", "createdAt"]);
-
-  const scope: Record<string, any> = {
-    organization: organization._id,
-  };
-
-  if (search) {
-    const pattern = escapeRegex(search);
-
-    const [users, courses] = await Promise.all([
-      UserModel.find({ name: { $regex: pattern, $options: "i" } }).select(
-        "_id",
-      ),
-
-      CourseModel.find({ name: { $regex: pattern, $options: "i" } }).select(
-        "_id",
-      ),
-    ]);
-
-    const userIds = users.map((user) => user._id);
-
-    const courseIds = courses.map((course) => course._id);
-
-    if (!userIds.length && !courseIds.length) {
-      scope._id = { $in: [] };
-    } else {
-      scope.$or = [
-        ...(userIds.length ? [{ user: { $in: userIds } }] : []),
-
-        ...(courseIds.length ? [{ course: { $in: courseIds } }] : []),
-      ];
-    }
-  }
-
-  features.query = features.query.merge(scope);
-
-  const [summary] = await OrderModel.aggregate([
-    { $match: features.query.clone().getFilter() },
-
-    { $group: { _id: null, totalRevenue: { $sum: "$price" } } },
-  ]);
-
-  const total = await features.query.clone().countDocuments();
-
-  features.paginate();
-
-  const orders = await features.query;
-
-  const pagination = features.getPagination(total);
+  const totalPages = Math.ceil(summary.totalOrders / limit);
 
   return {
     organization,
 
     result: orders.length,
 
-    summary: {
-      totalOrders: total,
+    summary,
 
-      totalRevenue: summary?.totalRevenue ?? 0,
+    pagination: {
+      currentPage: page,
+      limit,
+      total: summary.totalOrders,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
     },
-
-    pagination,
 
     orders,
   };
 };
 
+// get students that pusrhsed courses with specific organization
 export const getOrganizationStudentsForInstructorService = async (
   instructorId: string,
-
   queryString: Record<string, any>,
 ) => {
   if (!instructorId) {
@@ -558,122 +758,63 @@ export const getOrganizationStudentsForInstructorService = async (
   const organization = await getMyOrganizationService(instructorId);
 
   const page = Math.max(Number(queryString.page) || 1, 1);
-
   const limit = Math.min(Math.max(Number(queryString.limit) || 10, 1), 100);
-
   const skip = (page - 1) * limit;
 
   const search =
     typeof queryString.search === "string" ? queryString.search.trim() : "";
 
-  const requestedSort = String(queryString.sort || "");
-
-  const sortKey = STUDENT_SORT_FIELDS[requestedSort]
-    ? requestedSort
-    : "-purchasedCount";
-
-  const isDescending = sortKey.startsWith("-");
-
-  const sortField = isDescending ? sortKey.slice(1) : sortKey;
-
-  const sortDirection: SortDirection = isDescending ? -1 : 1;
-
-  const sortStage: Record<string, SortDirection> =
-    sortField === "name"
-      ? { name: sortDirection }
-      : {
-          [sortField]: sortDirection,
-
-          name: 1,
-        };
-
-  const result = await OrderModel.aggregate([
+  // Get students who purchased from this organization
+  const orders = await OrderModel.aggregate([
     {
       $match: {
         organization: organization._id,
       },
     },
-
     {
       $group: {
         _id: "$user",
-
         purchasedCount: {
           $sum: 1,
         },
       },
     },
-
-    {
-      $lookup: {
-        from: "users",
-
-        localField: "_id",
-
-        foreignField: "_id",
-
-        as: "user",
-      },
-    },
-
-    {
-      $unwind: "$user",
-    },
-
-    {
-      $match: {
-        "user.isDeleted": false,
-      },
-    },
-
-    ...(search
-      ? [
-          {
-            $match: {
-              "user.name": {
-                $regex: escapeRegex(search),
-
-                $options: "i",
-              },
-            },
-          },
-        ]
-      : []),
-
-    {
-      $project: {
-        _id: "$user._id",
-
-        name: "$user.name",
-
-        email: "$user.email",
-
-        avatar: "$user.avatar",
-
-        status: "$user.status",
-
-        purchasedCount: 1,
-      },
-    },
-
-    {
-      $sort: sortStage,
-    },
-
-    {
-      $facet: {
-        students: [{ $skip: skip }, { $limit: limit }],
-
-        total: [{ $count: "count" }],
-      },
-    },
   ]);
 
-  const data = result[0];
+  const userIds = orders.map((order) => order._id);
 
-  const students = data?.students ?? [];
+  // Search users
+  const userQuery: Record<string, any> = {
+    _id: { $in: userIds },
+    isDeleted: false,
+  };
 
-  const total = data?.total?.[0]?.count ?? 0;
+  if (search) {
+    userQuery.name = {
+      $regex: escapeRegex(search),
+      $options: "i",
+    };
+  }
+
+  const total = await UserModel.countDocuments(userQuery);
+
+  const users = await UserModel.find(userQuery)
+    .select("name email avatar status")
+    .sort({ name: 1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const students = users.map((user) => {
+    const order = orders.find(
+      (order) => String(order._id) === String(user._id),
+    );
+
+    return {
+      ...user,
+      purchasedCount: order?.purchasedCount ?? 0,
+    };
+  });
 
   const totalPages = Math.ceil(total / limit);
 
@@ -690,20 +831,16 @@ export const getOrganizationStudentsForInstructorService = async (
 
     pagination: {
       currentPage: page,
-
       limit,
-
       total,
-
       totalPages,
-
       hasNextPage: page < totalPages,
-
       hasPreviousPage: page > 1,
     },
   };
 };
 
+// get courses progress for student in specific organization
 export const getOrganizationStudentProgressService = async (
   instructorId: string,
   studentId: string,
@@ -720,7 +857,6 @@ export const getOrganizationStudentProgressService = async (
 
   const studentObjectId = new Types.ObjectId(studentId);
 
-  // a student is someone who bought from this organization
   const purchases = await OrderModel.find({
     organization: organization._id,
     user: studentObjectId,
@@ -752,7 +888,6 @@ export const getOrganizationStudentProgressService = async (
 
     CourseProgressModel.find({
       user: studentObjectId,
-      organization: organization._id,
       course: { $in: courseIds },
     })
       .select("course currentLecture completedLectures lastAccessedAt")
@@ -865,10 +1000,7 @@ export const getOrganizationStudentProgressService = async (
   };
 };
 
-/**
- * Full course workspace for the instructor: course info plus every question
- * and review raised on it. Scoped to the instructor's own organization.
- */
+// get courseDetails to view questions , reviews for instructor
 export const getOrganizationCourseDetailService = async (
   instructorId: string,
   courseId: string,
@@ -888,7 +1020,7 @@ export const getOrganizationCourseDetailService = async (
     organization: organization._id,
   })
     .select(
-      "name description status price level ratings purchased thumbnail category tags createdAt updatedAt courseData reviews",
+      "name description status price level ratings purchased reviewsCount totalLectures thumbnail category tags createdAt updatedAt courseData reviews",
     )
     .populate("category", "title slug")
     .populate("thumbnail", "url")
@@ -981,6 +1113,7 @@ export const getOrganizationCourseDetailService = async (
       level: course.level,
       ratings: course.ratings ?? 0,
       purchased: course.purchased ?? 0,
+      reviewsCount: course.reviewsCount ?? 0,
       tags: course.tags ?? "",
       thumbnail: course.thumbnail?.url ?? null,
       category: course.category
@@ -993,7 +1126,7 @@ export const getOrganizationCourseDetailService = async (
       createdAt: (course as any).createdAt ?? null,
       updatedAt: (course as any).updatedAt ?? null,
 
-      totalLectures: (course.courseData ?? []).length,
+      totalLectures: course.totalLectures ?? (course.courseData ?? []).length,
 
       lectures: (course.courseData ?? []).map((lecture) => ({
         _id: String(lecture._id),
@@ -1021,6 +1154,7 @@ export const getOrganizationCourseDetailService = async (
   };
 };
 
+// get courses analytics monthly , statistics  for specific organization
 export const getMyOrganizationCoursesAnalyticsService = async (
   instructorId: string,
   year?: number,
@@ -1029,9 +1163,6 @@ export const getMyOrganizationCoursesAnalyticsService = async (
     throw new AppError("Instructor ID is required", 400);
   }
 
-  // The organization is resolved from the logged in instructor instead of the
-  // request, so an instructor can never read another organization's analytics.
-  // The same aggregation used by the admin endpoint then runs on that id.
   const organization = await getMyOrganizationService(instructorId);
 
   return getOrganizationCoursesAnalyticsService(
@@ -1040,6 +1171,7 @@ export const getMyOrganizationCoursesAnalyticsService = async (
   );
 };
 
+// get orders analytics monthly , statistics  for specific organization
 export const getMyOrganizationOrdersAnalyticsService = async (
   instructorId: string,
   year?: number,
@@ -1056,9 +1188,9 @@ export const getMyOrganizationOrdersAnalyticsService = async (
   );
 };
 
+// get organization details with pagination courses for admin
 export const getOrganizationDetailsService = async (
   id: string,
-
   queryString: Record<string, any>,
 ) => {
   validateId(id);
@@ -1075,17 +1207,34 @@ export const getOrganizationDetailsService = async (
 
   const features = new ApiFeatures(
     CourseModel.find({ organization: id }).select(
-      "name description price estimatePrice thumbnail level status ratings purchased createdAt updatedAt",
+      "name description price estimatePrice thumbnail level status ratings purchased reviewsCount totalLectures createdAt updatedAt",
     ),
 
     queryString,
   )
 
-    .filter(["price", "estimatePrice", "level", "status", "ratings", "purchased"])
+    .filter([
+      "price",
+      "estimatePrice",
+      "level",
+      "status",
+      "ratings",
+      "purchased",
+      "reviewsCount",
+      "totalLectures",
+    ])
 
     .search(["name", "description"])
 
-    .sort(["price", "estimatePrice", "ratings", "purchased", "createdAt"]);
+    .sort([
+      "price",
+      "estimatePrice",
+      "ratings",
+      "purchased",
+      "reviewsCount",
+      "totalLectures",
+      "createdAt",
+    ]);
 
   const total = await features.query.clone().countDocuments();
 
@@ -1112,7 +1261,7 @@ const CERTIFICATE_SORT_FIELDS = [
   "studentName",
   "courseTitle",
 ];
-
+// get certificates for specific organization for instructor with pagaintion
 export const getOrganizationCertificatesForInstructorService = async (
   instructorId: string,
   queryString: Record<string, any>,
@@ -1121,18 +1270,14 @@ export const getOrganizationCertificatesForInstructorService = async (
     throw new AppError("Instructor ID is required", 400);
   }
 
-  // the organization is resolved from the logged in instructor, never from
-  // the request, so a user can never read another organization's certificates
   const organization = await getMyOrganizationService(instructorId);
 
-  // ApiFeatures passes the search value straight to $regex, so escape it here
-  // to keep the search a literal match instead of a user supplied pattern
   const search =
     typeof queryString.search === "string" ? queryString.search.trim() : "";
 
   const query = {
     ...queryString,
-    search: search ? escapeRegex(search) : "",
+    search,
   };
 
   const certificatesQuery = CertificateModel.find({
@@ -1148,8 +1293,82 @@ export const getOrganizationCertificatesForInstructorService = async (
 
   const total = await features.query.clone().countDocuments();
 
+  // org-wide certificate counters repeat on every page/search
+  const certStatsKey = orgCertStatsKey(String(organization._id));
+
+  const cachedCertStats = await getCached<any>(certStatsKey);
+
+  let stats: {
+    totalCertificates: number;
+    totalStudents: number;
+    totalCourses: number;
+    totalLearningHours: number;
+  };
+
+  if (cachedCertStats) {
+    stats = cachedCertStats;
+  } else {
+    const [statsRow] = await CertificateModel.aggregate([
+      { $match: { organization: organization._id } },
+      {
+        $group: {
+          _id: null,
+          totalCertificates: { $sum: 1 },
+          totalStudents: { $addToSet: "$user" },
+          totalCourses: { $addToSet: "$course" },
+          totalLearningHours: { $sum: "$learningHours" },
+        },
+      },
+    ]);
+
+    stats = {
+      totalCertificates: statsRow?.totalCertificates ?? 0,
+      totalStudents: statsRow?.totalStudents?.length ?? 0,
+      totalCourses: statsRow?.totalCourses?.length ?? 0,
+      totalLearningHours: statsRow?.totalLearningHours ?? 0,
+    };
+
+    await setCached(certStatsKey, stats, ORG_CERT_STATS_TTL);
+  }
+
+  features.paginate();
+
+  const certificates = await features.query;
+
+  return {
+    organization,
+    result: certificates.length,
+    stats,
+    pagination: features.getPagination(total),
+    certificates,
+  };
+};
+
+// get all sertificates for admin with pagination
+export const getAllCertificatesAdminService = async (
+  queryString: Record<string, any>,
+) => {
+  const search =
+    typeof queryString.search === "string" ? queryString.search.trim() : "";
+
+  const query = {
+    ...queryString,
+    search: search ? escapeRegex(search) : "",
+  };
+
+  const certificatesQuery = CertificateModel.find()
+    .populate("user", "name email avatar")
+    .populate("course", "name thumbnail")
+    .populate("organization", "name");
+
+  const features = new ApiFeatures(certificatesQuery, query)
+    .filter(["learningHours"])
+    .search(["studentName", "courseTitle"])
+    .sort(CERTIFICATE_SORT_FIELDS);
+
+  const total = await features.query.clone().countDocuments();
+
   const [stats] = await CertificateModel.aggregate([
-    { $match: { organization: organization._id } },
     {
       $group: {
         _id: null,
@@ -1166,7 +1385,6 @@ export const getOrganizationCertificatesForInstructorService = async (
   const certificates = await features.query;
 
   return {
-    organization,
     result: certificates.length,
     stats: {
       totalCertificates: stats?.totalCertificates ?? 0,
@@ -1179,10 +1397,13 @@ export const getOrganizationCertificatesForInstructorService = async (
   };
 };
 
+// updated organization
 export const updateOrganizationService = async (
   id: string,
-
-  payload: { name?: string; status?: string },
+  payload: {
+    name?: string;
+    status?: "active" | "suspended";
+  },
 ) => {
   validateId(id);
 
@@ -1192,84 +1413,31 @@ export const updateOrganizationService = async (
     throw new AppError("Organization not found", 404);
   }
 
-  const updateData: Record<string, any> = {};
-
-  if (payload?.name !== undefined) {
+  if (payload.name !== undefined) {
     const name = payload.name.trim();
 
     if (!name) {
       throw new AppError("Organization name is required", 400);
     }
 
-    if (name.length < 2 || name.length > 120) {
-      throw new AppError(
-        "Organization name must be between 2 and 120 characters",
-
-        400,
-      );
-    }
-
-    if (name !== organization.name) {
-      const existingName = await OrganizationModel.findOne({
-        name,
-
-        _id: { $ne: id },
-      });
-
-      if (existingName) {
-        throw new AppError("Organization name already exists", 409);
-      }
-
-      const slug = slugify(name);
-
-      const existingSlug = await OrganizationModel.findOne({
-        slug,
-
-        _id: { $ne: id },
-      });
-
-      if (existingSlug) {
-        throw new AppError("Organization slug already exists", 409);
-      }
-
-      updateData.name = name;
-
-      updateData.slug = slug;
-    }
+    organization.name = name;
+    organization.slug = slugify(name);
   }
 
-  if (payload?.status !== undefined) {
-    const status = payload.status.trim().toLowerCase();
-
-    if (!VALID_STATUSES.includes(status)) {
-      throw new AppError("Invalid organization status", 400);
-    }
-
-    updateData.status = status;
+  if (payload.status !== undefined) {
+    organization.status = payload.status;
   }
 
-  if (!Object.keys(updateData).length) {
-    throw new AppError("No valid fields to update", 400);
-  }
+  await organization.save();
 
-  const updatedOrganization = await OrganizationModel.findByIdAndUpdate(
-    id,
+  await invalidateOrgCachesByInstructor(String(organization.instructor));
 
-    updateData,
-
-    { new: true, runValidators: true },
-  ).populate("instructor", "name email avatar role status createdAt");
-
-  if (!updatedOrganization) {
-    throw new AppError("Organization not found", 404);
-  }
-
-  return updatedOrganization;
+  return organization;
 };
 
+// get  courses analytics chart monthly and staistisc for specific organization fro admin
 export const getOrganizationCoursesAnalyticsService = async (
   id: string,
-
   year?: number,
 ) => {
   validateId(id);
@@ -1282,6 +1450,16 @@ export const getOrganizationCoursesAnalyticsService = async (
 
   if (!year || !Number.isInteger(year)) {
     throw new AppError("A valid year is required", 400);
+  }
+
+  // yearly analytics are bounded by the calendar, so the org/year keyspace is
+  // finite; a 5m ttl keeps the admin charts snappy without intensive rewrites
+  const cacheKey = orgCoursesAnalyticsKey(id, year);
+
+  const cachedAnalytics = await getCached<any>(cacheKey);
+
+  if (cachedAnalytics) {
+    return cachedAnalytics;
   }
 
   const startOfYear = new Date(Date.UTC(year, 0, 1));
@@ -1328,7 +1506,7 @@ export const getOrganizationCoursesAnalyticsService = async (
     ? Number(statistics[0].averageRating.toFixed(1))
     : 0;
 
-  return {
+  const coursesAnalytics = {
     statistics: {
       totalCourses,
 
@@ -1341,8 +1519,13 @@ export const getOrganizationCoursesAnalyticsService = async (
 
     monthly,
   };
+
+  await setCached(cacheKey, coursesAnalytics, ORG_ANALYTICS_TTL);
+
+  return coursesAnalytics;
 };
 
+// get  orders analytics chart monthly and staistisc for specific organization fro admin
 export const getOrganizationOrdersAnalyticsService = async (
   id: string,
 
@@ -1358,6 +1541,14 @@ export const getOrganizationOrdersAnalyticsService = async (
 
   if (!year || !Number.isInteger(year)) {
     throw new AppError("A valid year is required", 400);
+  }
+
+   const cacheKey = orgOrdersAnalyticsKey(id, year);
+
+  const cachedAnalytics = await getCached<any>(cacheKey);
+
+  if (cachedAnalytics) {
+    return cachedAnalytics;
   }
 
   const startOfYear = new Date(Date.UTC(year, 0, 1));
@@ -1430,7 +1621,7 @@ export const getOrganizationOrdersAnalyticsService = async (
 
   const yearlyRevenue = yearlyRevenueResult[0]?.yearlyRevenue ?? 0;
 
-  return {
+  const ordersAnalytics = {
     statistics: {
       totalOrders,
 
@@ -1443,8 +1634,13 @@ export const getOrganizationOrdersAnalyticsService = async (
 
     monthly,
   };
+
+  await setCached(cacheKey, ordersAnalytics, ORG_ANALYTICS_TTL);
+
+  return ordersAnalytics;
 };
 
+// get instructor for admin
 export const getOrganizationInstructorService = async (id: string) => {
   validateId(id);
 
@@ -1475,6 +1671,7 @@ export const getOrganizationInstructorService = async (id: string) => {
   };
 };
 
+// delete organization for admin
 export const deleteOrganizationService = async (id: string) => {
   validateId(id);
 
@@ -1488,15 +1685,14 @@ export const deleteOrganizationService = async (id: string) => {
 
   await OrganizationModel.findByIdAndDelete(id);
 
+  await invalidateOrgCachesByInstructor(String(organization.instructor));
+
   return {
     id,
-
     name: organization.name,
-
     deletedCourses: deletedCourses.deletedCount ?? 0,
   };
 };
-
 
 export const getMyOrganizationCourseService = async (
   instructorId: string,
@@ -1516,7 +1712,7 @@ export const getMyOrganizationCourseService = async (
 
   const organization = await getMyOrganizationService(instructorId);
 
-   const cacheKey = courseCacheKeys.organization(
+  const cacheKey = courseCacheKeys.organization(
     String(organization._id),
     courseId,
   );
@@ -1527,19 +1723,19 @@ export const getMyOrganizationCourseService = async (
     slug: organization.slug,
   };
 
-  const cached = await redis.get(cacheKey);
+  const cached = await getCached<{ course: unknown; category: unknown }>(
+    cacheKey,
+  );
 
   if (cached) {
-    const parsed = JSON.parse(cached);
-
     return {
       organization: organizationSummary,
-      course: parsed.course,
-      category: parsed.category,
+      course: cached.course,
+      category: cached.category,
     };
   }
 
-    const course = await CourseModel.findOne({
+  const course = await CourseModel.findOne({
     _id: new Types.ObjectId(courseId),
     organization: organization._id,
   }).lean();
@@ -1549,17 +1745,10 @@ export const getMyOrganizationCourseService = async (
   }
 
   const category = course.category
-    ? await CategoryModel.findById(course.category)
-        .select("title slug")
-        .lean()
+    ? await CategoryModel.findById(course.category).select("title slug").lean()
     : null;
 
-  await redis.set(
-    cacheKey,
-    JSON.stringify({ course, category }),
-    "EX",
-    COURSE_CACHE_TTL,
-  );
+  await setCached(cacheKey, { course, category }, COURSE_CACHE_TTL);
 
   return {
     organization: organizationSummary,

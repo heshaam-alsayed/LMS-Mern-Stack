@@ -67,9 +67,11 @@ export interface ICourse extends Document {
   courseData: ICourseData[];
   ratings?: number;
   purchased?: number;
+  reviewsCount?: number;
+  totalLectures?: number;
+  totalHours?: number;
 }
 
-//  ...........................................
 
 export interface IAddQuestionData {
   question: string;

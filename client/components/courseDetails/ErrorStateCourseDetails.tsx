@@ -11,12 +11,10 @@ export default function ErrorStateCourseDetails({ refetch, error }: Props) {
     <main className=" bg-background text-foreground">
       <div className="mx-auto flex py-12  w-full max-w-[1230px] items-center justify-center px-4  sm:px-6 lg:px-8">
         <div className="w-full max-w-[600px] text-center">
-          {/* Icon */}
           <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border bg-muted/50 shadow-sm">
             <AlertTriangle className="size-7 text-muted-foreground" />
           </div>
 
-          {/* Content */}
           <div className="mt-6">
             <p className="text-sm font-semibold text-primary">
               Course unavailable
@@ -33,7 +31,6 @@ export default function ErrorStateCourseDetails({ refetch, error }: Props) {
             </p>
           </div>
 
-          {/* Actions */}
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
             <button
               type="button"
@@ -84,7 +81,6 @@ export default function ErrorStateCourseDetails({ refetch, error }: Props) {
             </button>
           </div>
 
-          {/* Status */}
           <div className="mt-8 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <span className="size-1.5 rounded-full bg-destructive/70" />
             <span>Unable to retrieve course information</span>

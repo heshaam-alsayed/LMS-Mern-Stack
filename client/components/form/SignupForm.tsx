@@ -34,13 +34,10 @@ export default function SignupForm({ toggleMode }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Name Field */}
       <NameField register={register} error={errors.name?.message} />
 
-      {/* Email Field */}
       <EmailField register={register} error={errors.email?.message} />
 
-      {/* Password Field */}
       <PasswordField
         register={register}
         showPassword={showPassword}
@@ -48,18 +45,14 @@ export default function SignupForm({ toggleMode }: Props) {
         error={errors.password?.message}
       />
 
-      {/* Submit */}
       <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Loading..." : "Create account"}
       </Button>
 
-      {/* Divider */}
       <AuthDivider />
 
-      {/* Social Login */}
       <SocialAuthButtons />
 
-      {/* Switch Mode */}
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <button

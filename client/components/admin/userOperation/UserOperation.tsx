@@ -15,8 +15,9 @@ export default function UserOperation({ userId }: Props) {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["get-operation-user", userId],
     queryFn: () => getOperationUser(userId),
+    staleTime: 60 * 1000,
   });
-  console.log(data);
+
   if (isLoading) {
     return <UserOperationSkeleton />;
   }

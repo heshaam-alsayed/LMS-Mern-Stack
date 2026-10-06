@@ -14,6 +14,7 @@ import {
   getCoursePurchases,
   getCourses,
   getCoursesStatistics,
+  getLatestReviews,
   getMonthlyCoursesAnalytics,
   getOperationCourse,
   getPublicCourse,
@@ -31,12 +32,15 @@ import {
 
 const router = express.Router();
 
-// Get all courses - Admin
+// Get all courses Admin
 router.get("/", isAuthenticated, authorizeRoles("admin"), getCourses);
 
 // Get all public courses
 router.get("/public-courses", getAllCourses);
-// Create course - Admin
+
+// Get latest public reviews
+router.get("/latest-reviews", getLatestReviews);
+// Create course Admin
 router.post(
   "/create-course",
   isAuthenticated,
@@ -44,7 +48,7 @@ router.post(
   createCourse,
 );
 
-// Monthly courses analytics - Admin
+// Monthly courses analytics for Admin
 router.get(
   "/monthly-analytics",
   isAuthenticated,
@@ -59,7 +63,7 @@ router.get(
   getCoursesStatistics,
 );
 
-// Top selling courses - Admin
+// Top selling courses for Admin
 router.get(
   "/top-selling",
   isAuthenticated,
@@ -67,7 +71,7 @@ router.get(
   getTopSellingCourses,
 );
 
-// Get all course purchases - Admin
+// Get all course purchases for Admin
 router.get(
   "/purchases",
   isAuthenticated,
@@ -97,7 +101,7 @@ router.patch(
 );
 
 router.patch("/:courseId/progress/complete", isAuthenticated, completeLecture);
-// Get purchases for a specific course - Admin
+// Get purchases for a specific course for Admin
 router.get(
   "/:id/purchases",
   isAuthenticated,
@@ -113,7 +117,7 @@ router.get("/content-course/:id", isAuthenticated, getContentCourseByUser);
 // Add question
 router.put("/add-question", isAuthenticated, addQuestion);
 
-// Add answer - course owner (instructor) or admin
+// Add answer course owner (instructor) or admin
 router.put(
   "/add-answer",
   isAuthenticated,
@@ -124,7 +128,7 @@ router.put(
 // Add course review
 router.put("/add-review/:id", isAuthenticated, addReviewCourse);
 
-// Add reply to review - course owner (instructor) or admin
+// Add reply to review course owner (instructor) or admin
 router.post(
   "/add-reply-review",
   isAuthenticated,
@@ -132,8 +136,7 @@ router.post(
   addReplyReview,
 );
 
-// Update course - admin can edit any course, instructor only their own
-// organization's courses (enforced in courseService.updateCourse)
+// update instrucor course own it and admin update any course
 router.patch(
   "/edit-course/:id",
   isAuthenticated,
@@ -144,7 +147,7 @@ router.patch(
 // Generate VdoCipher OTP
 router.post("/getVdoCipherOTP", generateVideoUrl);
 
-// Get course by ID - Admin
+// Get course by ID for Admin
 router.get("/:id", isAuthenticated, authorizeRoles("admin"), getAdminCourse);
 
 export default router;

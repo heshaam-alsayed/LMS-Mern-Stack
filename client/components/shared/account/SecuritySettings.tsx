@@ -39,7 +39,7 @@ const RULES = [
 ] as const;
 
 type Props = {
-  // shared by every role, so the wording follows whoever is signed in
+  // shared by every role so the wording follows whoever is
   roleLabel?: string;
 };
 

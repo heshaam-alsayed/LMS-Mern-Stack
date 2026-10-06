@@ -123,7 +123,7 @@ export function useVerification(length = 6) {
     try {
       setIsResending(true);
 
-      // await resendCode()
+      // await resendCode
 
       setCountdown(60);
     } finally {

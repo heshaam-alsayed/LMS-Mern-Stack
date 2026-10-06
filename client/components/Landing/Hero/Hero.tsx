@@ -43,7 +43,6 @@ export default function Hero() {
     <section className="relative overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-          {/* LEFT */}
           <div className="text-center lg:pt-8 lg:text-left">
             <HeroBadge />
 
@@ -79,7 +78,6 @@ export default function Hero() {
             <HeroSearch />
           </div>
 
-          {/* RIGHT */}
           <HeroImage
             lightBanner={banner.lightBanner?.url}
             darkBanner={banner.darkBanner?.url}

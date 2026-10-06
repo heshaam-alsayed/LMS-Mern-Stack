@@ -8,6 +8,7 @@ import {
 } from "../interfaces/userInterface";
 import authRepository from "../repositories/auth.repository";
 import AppError from "../utils/AppError";
+import redis, { sessionKey } from "../utils/redis";
 import {
   createActivationToken,
   createResetPasswordToken,
@@ -16,13 +17,11 @@ import {
   verifyResetPasswordToken,
 } from "../utils/jwt";
 import sendEmail from "../utils/SendEmail";
-import { Response } from "express";
-import jwt from "jsonwebtoken";
+
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const SOCIAL_PROVIDERS = ["google", "github"] as const;
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
 export const register = async (body: IRegistrationBody) => {
   const { name, email, password } = body;
@@ -64,13 +63,13 @@ export const activateUser = async (body: IActivationRequest) => {
   // 1 verify token + code
   const userData = verifyActivationToken(activation_token, activation_code);
 
-  // 2. check if user already exists
+  // 2 check if user already exists
   const isExistingUser = await authRepository.getUserByEmail(userData.email);
 
   if (isExistingUser) {
     throw new AppError("Email already exists", 400);
   }
-  // 3. create user
+  // 3 create user
   const user = await authRepository.createUser(userData);
   return user;
 };
@@ -201,6 +200,9 @@ export const resetPassword = async (
   user.password = password;
 
   await user.save();
+
+  // the old session (with the previous password and role) must die on reset
+  await redis.del(sessionKey(decoded.id));
 };
 
 export default {

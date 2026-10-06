@@ -43,7 +43,7 @@ export default function Invoices() {
       params.set(key, value);
     }
 
-    // Reset page when changing search, sort, or limit
+    // Reset page when changing search sort or limit
     if (key !== "page") {
       params.delete("page");
     }
@@ -64,17 +64,17 @@ export default function Invoices() {
   };
 
   return (
-    <div className="w-full">
-      {/* Filters */}
-      <InvoicesFilters
-        updateQuery={updateQuery}
-        paginationLimit={pagination?.limit ?? 0}
-      />
+    <div className="w-full space-y-4">
+      {(pagination?.total ?? 0) > 0 ? (
+        <InvoicesFilters
+          updateQuery={updateQuery}
+          paginationLimit={pagination?.limit ?? 0}
+          total={pagination?.total ?? 0}
+        />
+      ) : null}
 
-      {/* Initial Loading */}
       {isLoading && <InvoicesSkeleton />}
 
-      {/* Error */}
       {!isLoading && isError && (
         <InvoicesError
           message={
@@ -86,12 +86,10 @@ export default function Invoices() {
         />
       )}
 
-      {/* Table */}
       {!isLoading && !isError && data && (
         <InvoicesTable orders={data.orders || []} onView={handleOnView} />
       )}
 
-      {/* Pagination */}
       {(pagination?.totalPages ?? 0) > 1 && (
         <div className="flex w-full items-center justify-center border-t border-border pt-4">
           <Pagination

@@ -206,7 +206,6 @@ export default function CourseContent({
             <div
               key={index}
               className={` bg-muted/80 ${showSectionInput ? "mt-10" : "mt-0"}`}>
-              {/* Section */}
               {showSectionInput && (
                 <CourseSection
                   index={index}
@@ -217,7 +216,6 @@ export default function CourseContent({
                 />
               )}
 
-              {/* Content Header */}
               <ContentHeader
                 index={index}
                 item={item}
@@ -226,7 +224,6 @@ export default function CourseContent({
                 handleDeleteContent={handleDeleteContent}
               />
 
-              {/* Content Form */}
               {isCollapsed[index] && (
                 <ContentForm
                   index={index}
@@ -242,7 +239,6 @@ export default function CourseContent({
           );
         })}
 
-        {/* Add New Section */}
         <button
           type="button"
           onClick={handleAddSection}
@@ -252,7 +248,6 @@ export default function CourseContent({
         </button>
       </form>
 
-      {/* Navigation */}
       <CourseNavigation
         active={active}
         onPrevious={() => setActive(active - 1)}

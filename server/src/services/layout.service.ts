@@ -8,6 +8,39 @@ import {
 
 import layoutRepository from "../repositories/layout.repository";
 import AppError from "../utils/AppError";
+import { delCached, getCached, setCached } from "../utils/redis";
+
+/** the only layout types the api accepts; protects the cache key from a
+ * caller-supplied type (unbounded keyspace if not whitelisted) */
+const VALID_LAYOUT_TYPES = ["banner", "faq", "categories"] as const;
+
+const LAYOUT_CACHE_TTL = 600;
+
+const layoutCacheKey = (type: string) => `layout:${type}`;
+
+const getLayoutByType = async (type: LayoutType) => {
+  if (!VALID_LAYOUT_TYPES.includes(type as (typeof VALID_LAYOUT_TYPES)[number])) {
+    throw new AppError(`Invalid layout type ${type}`, 400);
+  }
+
+  const cacheKey = layoutCacheKey(type);
+
+  const cached = await getCached<any>(cacheKey);
+
+  if (cached) {
+    return cached;
+  }
+
+  const layout = await layoutRepository.getLayoutByType(type);
+
+  if (!layout) {
+    throw new AppError(`Layout with type ${type} not found`, 404);
+  }
+
+  await setCached(cacheKey, layout, LAYOUT_CACHE_TTL);
+
+  return layout;
+};
 
 const getAllLayouts = async () => {
   return await layoutRepository.getAllLayouts();
@@ -24,9 +57,15 @@ const createLayout = async (layoutData: ICreateLayoutData) => {
   }
 
   // Create only with type
-  return await layoutRepository.createLayout({
+  const createdLayout = await layoutRepository.createLayout({
     type,
   });
+
+  // the new doc is what a read would return, prime the cache so the public
+  // endpoints never see a 404 during the ttl
+  await delCached(layoutCacheKey(type));
+
+  return createdLayout;
 };
 
 const handleUpdateBannerLayout = async (layoutData: IUpdateLayoutData) => {
@@ -54,10 +93,7 @@ const handleUpdateBannerLayout = async (layoutData: IUpdateLayoutData) => {
       },
     );
 
-    console.log("✅ Light banner uploaded:", {
-      public_id: uploadedLight.public_id,
-      secure_url: uploadedLight.secure_url,
-    });
+
 
     lightBanner = {
       public_Id: uploadedLight.public_id,
@@ -71,7 +107,6 @@ const handleUpdateBannerLayout = async (layoutData: IUpdateLayoutData) => {
   if (layoutData.darkBanner) {
     oldDarkPublicId = darkBanner?.public_Id;
 
-    console.log("⬆️ Uploading new dark banner...");
 
     const uploadedDark = await cloudinary.v2.uploader.upload(
       layoutData.darkBanner,
@@ -100,24 +135,17 @@ const handleUpdateBannerLayout = async (layoutData: IUpdateLayoutData) => {
     },
   });
 
-  // ============================================
-  // DELETE OLD IMAGES
-  // ============================================
 
   if (oldLightPublicId) {
-    console.log("🗑️ Deleting old light banner:", oldLightPublicId);
-
     const result = await cloudinary.v2.uploader.destroy(oldLightPublicId, {
       resource_type: "image",
       type: "upload",
       invalidate: true,
     });
 
-    console.log("🗑️ Old light banner delete result:", result);
   }
 
   if (oldDarkPublicId) {
-    console.log("🗑️ Deleting old dark banner:", oldDarkPublicId);
 
     const result = await cloudinary.v2.uploader.destroy(oldDarkPublicId, {
       resource_type: "image",
@@ -125,8 +153,9 @@ const handleUpdateBannerLayout = async (layoutData: IUpdateLayoutData) => {
       invalidate: true,
     });
 
-    console.log("🗑️ Old dark banner delete result:", result);
   }
+
+  await setCached(layoutCacheKey("banner"), updatedLayout, LAYOUT_CACHE_TTL);
 
   return updatedLayout;
 };
@@ -142,9 +171,13 @@ const handleUpdateFaqLayout = async (layoutData: IUpdateLayoutData) => {
     throw new AppError("FAQ items are required", 400);
   }
 
-  return await layoutRepository.updateLayout("faq", {
+  const updatedLayout = await layoutRepository.updateLayout("faq", {
     faq: layoutData.faq,
   });
+
+  await setCached(layoutCacheKey("faq"), updatedLayout, LAYOUT_CACHE_TTL);
+
+  return updatedLayout;
 };
 
 const updateLayout = async (layoutData: IUpdateLayoutData) => {
@@ -158,16 +191,6 @@ const updateLayout = async (layoutData: IUpdateLayoutData) => {
     default:
       throw new AppError(`Invalid layout type ${layoutData.type}`, 400);
   }
-};
-
-const getLayoutByType = async (type: LayoutType) => {
-  const layout = await layoutRepository.getLayoutByType(type);
-
-  if (!layout) {
-    throw new AppError(`Layout with type ${type} not found`, 404);
-  }
-
-  return layout;
 };
 
 const layoutService = {

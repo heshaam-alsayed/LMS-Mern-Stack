@@ -59,6 +59,8 @@ export default function OrganizationCoursesFilter() {
   };
 
   useEffect(() => {
+    if (debouncedSearch === (searchParams.get("search") || "")) return;
+
     const params = new URLSearchParams(searchParams.toString());
 
     if (debouncedSearch) {
@@ -70,7 +72,7 @@ export default function OrganizationCoursesFilter() {
     params.delete("page");
 
     push(params);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, searchParams]);
 
 
   const updatePriceRange = (min: number, max: number) => {

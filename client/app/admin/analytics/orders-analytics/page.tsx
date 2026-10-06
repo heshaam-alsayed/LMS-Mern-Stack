@@ -1,10 +1,13 @@
-"use client";
+import { Suspense } from "react";
 
 import OrdersAnalytics from "@/components/admin/analytics/orders/OrdersAnalytics";
+import OrdersAnalyticsSkeleton from "@/components/skeleton/OrdersAnalyticsSkeleton";
+
 export default function page() {
+  // OrdersAnalytics reads the year query param through useStatisticsYear
   return (
-    <div>
+    <Suspense fallback={<OrdersAnalyticsSkeleton />}>
       <OrdersAnalytics />
-    </div>
+    </Suspense>
   );
 }

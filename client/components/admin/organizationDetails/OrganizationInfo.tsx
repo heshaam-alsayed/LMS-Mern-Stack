@@ -52,7 +52,6 @@ export default function OrganizationInfo({
 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
-      {/* ==================== ORGANIZATION CARD ==================== */}
       <Card className="lg:col-span-2">
         <CardHeader className="flex flex-row items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -75,7 +74,6 @@ export default function OrganizationInfo({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {/* Description */}
           <div>
             <p className="mb-1.5 text-sm font-medium text-foreground">
               Description
@@ -88,7 +86,6 @@ export default function OrganizationInfo({
             </p>
           </div>
 
-          {/* Meta */}
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-lg border bg-muted/40 p-3">
               <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -124,7 +121,6 @@ export default function OrganizationInfo({
         </CardContent>
       </Card>
 
-      {/* ==================== INSTRUCTOR CARD ==================== */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">

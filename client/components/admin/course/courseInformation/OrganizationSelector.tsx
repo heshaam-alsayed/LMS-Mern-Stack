@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Building2, Check, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -62,15 +62,17 @@ export default function OrganizationSelector({ value, onChange }: Props) {
         )}
       </div>
 
-      <OrganizationSelectionModal
-        open={open}
-        onClose={() => setOpen(false)}
-        selectedOrganizationId={value?._id ?? null}
-        onSelect={(organization) => { 
-          if(!onChange) return
-          onChange(organization);
-        }}
-      />
+      <Suspense fallback={null}>
+        <OrganizationSelectionModal
+          open={open}
+          onClose={() => setOpen(false)}
+          selectedOrganizationId={value?._id ?? null}
+          onSelect={(organization) => { 
+            if(!onChange) return
+            onChange(organization);
+          }}
+        />
+      </Suspense>
     </>
   );
 }

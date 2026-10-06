@@ -1,8 +1,14 @@
+import { Ref } from "react";
+
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function InstructorCoursePerformanceSkeleton() {
+type Props = {
+  ref: Ref<HTMLDivElement> ;
+};
+
+export default function InstructorCoursePerformanceSkeleton({ ref }: Props) {
   return (
-    <div className="space-y-4">
+    <div ref={ref} className="space-y-4">
       <div className="flex items-center gap-4">
         <Skeleton className="h-11 w-11 rounded-xl" />
 

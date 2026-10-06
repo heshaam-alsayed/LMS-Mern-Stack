@@ -25,7 +25,6 @@ export default function AnalyticsHeader({
 }: Props) {
   return (
     <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-      {/* Content */}
       <div className="max-w-2xl">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
           {header}
@@ -36,7 +35,6 @@ export default function AnalyticsHeader({
         </p>
       </div>
 
-      {/* Year Filter */}
       <div className="w-full sm:w-[140px]">
         <label
           htmlFor="analytics-year"

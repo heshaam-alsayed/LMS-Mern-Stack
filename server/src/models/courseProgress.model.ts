@@ -6,6 +6,7 @@ export interface ICourseProgress {
   organization: Types.ObjectId;
   currentLecture?: Types.ObjectId | null;
   completedLectures: Types.ObjectId[];
+  totalLectures: number;
   lastAccessedAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
@@ -41,6 +42,14 @@ const courseProgressSchema = new Schema<ICourseProgress>(
         type: Schema.Types.ObjectId,
       },
     ],
+
+    // snapshot of the course lecture count, so completion can be computed
+    // without joining the course document (kept in sync on course edits)
+    totalLectures: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
 
     lastAccessedAt: {
       type: Date,

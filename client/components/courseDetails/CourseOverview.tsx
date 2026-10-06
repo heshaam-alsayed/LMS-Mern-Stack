@@ -12,15 +12,6 @@ export default function CourseOverview({ contentList = [] }: Props) {
       <div className="mt-5">
         {contentList.length > 0 ? (
           <div>
-            {/* 
-              Course content will be rendered here.
-
-              Example:
-              Section
-                Lesson
-                Lesson
-                Lesson
-            */}
           </div>
         ) : (
           <div className="py-2">

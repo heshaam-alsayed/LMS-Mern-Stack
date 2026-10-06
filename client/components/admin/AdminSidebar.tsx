@@ -29,6 +29,9 @@ import {
   Building2,
   CircleUser,
   ShieldCheck,
+  Award,
+  LifeBuoy,
+  Headset,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -76,6 +79,11 @@ export default function AdminSidebar({
       href: "/admin/courses",
       icon: Radio,
     },
+    {
+      title: "Certifications",
+      href: "/admin/certifications",
+      icon: Award,
+    },
   ];
 
   if (isEditCourse) {
@@ -104,6 +112,11 @@ export default function AdminSidebar({
           title: "Notifications",
           href: "/admin/notifications",
           icon: Bell,
+        },
+        {
+          title: "Support Tickets",
+          href: "/admin/support/tickets",
+          icon: LifeBuoy,
         },
         {
           title: "Organizations",
@@ -172,6 +185,11 @@ export default function AdminSidebar({
           href: "/admin/account/security",
           icon: ShieldCheck,
         },
+        {
+          title: "Tickets",
+          href: "/admin/account/tickets",
+          icon: Headset,
+        },
       ],
     },
 
@@ -208,7 +226,6 @@ export default function AdminSidebar({
 
   useEffect(() => {
     onMobileOpenChange(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const isActive = (href: string) => {
@@ -223,7 +240,6 @@ export default function AdminSidebar({
 
   return (
     <>
-      {/* Mobile backdrop */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
@@ -246,7 +262,6 @@ export default function AdminSidebar({
             "flex h-16 shrink-0 items-center border-b border-border",
             isCollapsedView ? "justify-center px-2" : "justify-between px-4",
           )}>
-          {/* Logo */}
           <Link
             href="/admin"
             title={isCollapsedView ? "Admin Dashboard" : undefined}
@@ -290,7 +305,6 @@ export default function AdminSidebar({
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          {/* Dashboard */}
           <Link
             href="/admin"
             title={isCollapsedView ? "Dashboard" : undefined}
@@ -307,16 +321,12 @@ export default function AdminSidebar({
             {!isCollapsedView && <span>Dashboard</span>}
           </Link>
 
-          {/* Divider */}
           {!isCollapsedView && (
             <p className="mb-2 mt-5 px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
               Management
             </p>
           )}
 
-          {/* ================================= */}
-          {/* SECTIONS */}
-          {/* ================================= */}
 
           <div className="space-y-1">
             {menuSections.map((section) => {
@@ -330,7 +340,6 @@ export default function AdminSidebar({
 
               return (
                 <div key={section.title}>
-                  {/* Section */}
                   <button
                     type="button"
                     onClick={() => toggleSection(section.title)}
@@ -367,9 +376,6 @@ export default function AdminSidebar({
                     )}
                   </button>
 
-                  {/* ================================= */}
-                  {/* DROPDOWN */}
-                  {/* ================================= */}
 
                   <AnimatePresence initial={false}>
                     {!isCollapsedView && isOpen && (
@@ -412,7 +418,6 @@ export default function AdminSidebar({
 
                                 <span>{item.title}</span>
 
-                                {/* Active indicator */}
                                 {active && (
                                   <motion.span
                                     layoutId="admin-active"
@@ -432,9 +437,6 @@ export default function AdminSidebar({
           </div>
         </nav>
 
-        {/* ================================= */}
-        {/* EXPAND BUTTON */}
-        {/* ================================= */}
 
         {isCollapsedView && (
           <div className="hidden border-t border-border p-3 lg:block">

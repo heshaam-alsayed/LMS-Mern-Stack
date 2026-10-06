@@ -25,6 +25,7 @@ import {
 import Pagination, { PaginationData } from "@/components/shared/Pagination";
 
 import useMyOrganizationCoursesPerformance from "@/customHooks/useMyOrganizationCoursesPerformance";
+import { useSectionInView } from "@/hooks/useSectionInView";
 
 import { OrganizationCoursePerformance } from "@/types/organization.type";
 
@@ -54,7 +55,6 @@ function CoursePerformanceRow({
 }) {
   return (
     <TableRow className="border-border/60 transition-colors hover:bg-muted/40">
-      {/* Course */}
       <TableCell className="py-5 pl-6">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
@@ -73,7 +73,6 @@ function CoursePerformanceRow({
         </div>
       </TableCell>
 
-      {/* Students */}
       <TableCell className="py-5">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
@@ -90,7 +89,6 @@ function CoursePerformanceRow({
         </div>
       </TableCell>
 
-      {/* Revenue */}
       <TableCell className="py-5">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
@@ -107,7 +105,6 @@ function CoursePerformanceRow({
         </div>
       </TableCell>
 
-      {/* Rating */}
       <TableCell className="py-5">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
@@ -124,7 +121,6 @@ function CoursePerformanceRow({
         </div>
       </TableCell>
 
-      {/* Completion */}
       <TableCell className="py-5">
         <div className="min-w-[180px]">
           <div className="mb-2 flex items-center justify-between gap-3">
@@ -154,7 +150,6 @@ function CoursePerformanceRow({
         </div>
       </TableCell>
 
-      {/* Action */}
       <TableCell className="py-5 pr-6 text-right">
         <Button
           variant="outline"
@@ -175,14 +170,19 @@ export default function InstructorCoursePerformance() {
   const [selectedCourse, setSelectedCourse] =
     useState<OrganizationCoursePerformance | null>(null);
 
-  const { statistics, pagination, isLoading, isError, error, refetch } =
-    useMyOrganizationCoursesPerformance({
-      page,
-      limit: COURSE_PER_PAGE,
-    });
+  const { ref, hasEnteredView } = useSectionInView<HTMLDivElement>("50px 0px");
 
-  if (isLoading) {
-    return <InstructorCoursePerformanceSkeleton />;
+  const { statistics, pagination, isLoading, isError, error, refetch } =
+    useMyOrganizationCoursesPerformance(
+      {
+        page,
+        limit: COURSE_PER_PAGE,
+      },
+      hasEnteredView,
+    );
+
+  if (!hasEnteredView || isLoading) {
+    return <InstructorCoursePerformanceSkeleton ref={ref} />;
   }
 
   if (isError) {
@@ -215,8 +215,7 @@ export default function InstructorCoursePerformance() {
   const hasCourses = statistics.length > 0;
 
   return (
-    <section className="space-y-5">
-      {/* Section Header */}
+    <section ref={ref} className="space-y-5">
       <div className="flex items-start gap-3">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
           <BarChart3 className="h-5 w-5 text-primary" />
@@ -235,7 +234,6 @@ export default function InstructorCoursePerformance() {
 
       {hasCourses ? (
         <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
-          {/* Table Summary */}
           <div className="flex items-center justify-between gap-4 border-b border-border bg-muted/20 px-6 py-4">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">

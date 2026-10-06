@@ -9,9 +9,8 @@ export const globalErrorHandler = (
 ) => {
   let error = err;
 
-  // =========================
-  // MONGODB / MONGOOSE ERRORS
-  // =========================
+
+  // mongoDB Errors 
 
   // CastError (invalid ObjectId)
   if (error?.name === "CastError") {
@@ -36,9 +35,9 @@ export const globalErrorHandler = (
     error = new AppError(message, 400);
   }
 
-  // =========================
-  // JWT ERRORS
-  // =========================
+
+  // JWT errors
+
 
   if (error?.name === "JsonWebTokenError") {
     error = new AppError("Invalid token. Please login again", 401);
@@ -48,9 +47,6 @@ export const globalErrorHandler = (
     error = new AppError("Token expired. Please login again", 401);
   }
 
-  // =========================
-  // DEFAULT SETUP
-  // =========================
 
   const statusCode = error.statusCode || 500;
   const status = error.status || "error";
@@ -61,7 +57,7 @@ export const globalErrorHandler = (
     status,
     message: error.message,
 
-    // 🔥 show stack ONLY in development
+    // show stack in development
     stack: isDev ? error.stack : undefined,
   });
 };

@@ -10,11 +10,15 @@ import RecentEnrollmentRow from "./RecentEnrollmentRow";
 
 const DEFAULT_TOP = "5";
 
-export default function RecentEnrollmentsPanel() {
+type Props = {
+  enabled: boolean;
+};
+
+export default function RecentEnrollmentsPanel({ enabled }: Props) {
   const [top, setTop] = useState(DEFAULT_TOP);
 
   const { enrollments, isLoading, isError, error, refetch } =
-    useMyOrganizationRecentEnrollments(Number(top));
+    useMyOrganizationRecentEnrollments(Number(top), enabled);
 
   return (
     <RecentActivityPanel
@@ -24,7 +28,7 @@ export default function RecentEnrollmentsPanel() {
       count={enrollments.length}
       isEmpty={enrollments.length === 0}
       emptyMessage="Once a student buys one of your courses, they show up here."
-      isLoading={isLoading}
+      isLoading={!enabled || isLoading}
       isError={isError}
       error={error}
       onRetry={() => refetch()}

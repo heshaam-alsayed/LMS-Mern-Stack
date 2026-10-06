@@ -28,6 +28,7 @@ export type Organization = {
   description?: string;
   instructor: OrganizationInstructor;
   status: OrganizationStatus;
+  coursesCount: number;
   createdAt: string;
   updatedAt: string;
 };

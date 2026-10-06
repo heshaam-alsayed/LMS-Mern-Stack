@@ -1,32 +1,31 @@
 "use client";
 import { getContentCourse } from "@/lib/api/getContentCourse";
 import { ApiError } from "@/lib/ApiError";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ContentCourseMedia from "./ContentCourseMedia";
-import CourseContentList from "../courseDetails/CourseContentList";
 import EnrolledContentCourseSkeleton from "../skeleton/EnrolledContentCourseSkeleton";
-import EnrolledCourseProgress from "../enrolledCourses/EnrolledCoursesProgress";
 import { updateCurrentLecture } from "@/lib/api/updateCurrentLecture";
 import CourseCompletionCelebration from "./CourseCompletionCelebration";
 import { generateCertificate } from "@/lib/api/generateCertificate";
-import { Button } from "@/components/ui/button";
-import { Award } from "lucide-react";
 import GenerateCertificateModal from "../GenerateCertificateModal";
 import { toast } from "sonner";
+import CourseContentList from "@/components/courseDetails/CourseContentList";
 
 type Props = {
   id: string;
 };
 export default function EnrolledContentCourse({ id }: Props) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const [showCelebration, setShowCelebration] = useState(false);
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["access-content-course", id],
     queryFn: () => getContentCourse(id),
+    staleTime: 60 * 1000,
   });
   const activeVideoParam = searchParams.get("activeVideo");
   const [activeVideo, setActiveVideo] = useState(
@@ -37,11 +36,8 @@ export default function EnrolledContentCourse({ id }: Props) {
   const courseData = data?.course?.courseData ?? [];
   const progress = data?.progress;
 
-  //  1. activeVideo from URL
-  //  2. currentLecture from progress
-  //  3. first lecture
-
-  // Determine which lecture should be active when the course opens
+ 
+  // which lecture should be active when the course opens
   useEffect(() => {
     if (!data || courseData.length === 0) {
       return;
@@ -63,7 +59,7 @@ export default function EnrolledContentCourse({ id }: Props) {
     if (progress?.currentLecture) {
       const currentLectureIndex = courseData.findIndex(
         (lecture) =>
-          lecture._id.toString() === progress.currentLecture?.toString(),
+          lecture?._id?.toString() === progress.currentLecture?.toString(),
       );
 
       if (currentLectureIndex !== -1) {
@@ -78,6 +74,19 @@ export default function EnrolledContentCourse({ id }: Props) {
 
   const updateCurrentLectureMutation = useMutation({
     mutationFn: (lectureId: string) => updateCurrentLecture(id, lectureId),
+    onSuccess: (_data, lectureId) => {
+      queryClient.setQueryData(["access-content-course", id], (oldData: any) => {
+        if (!oldData?.progress) return oldData;
+
+        return {
+          ...oldData,
+          progress: {
+            ...oldData.progress,
+            currentLecture: lectureId,
+          },
+        };
+      });
+    },
   });
 
   useEffect(() => {
@@ -131,14 +140,12 @@ export default function EnrolledContentCourse({ id }: Props) {
 
   const generateCertificateMutation = useMutation({
     mutationFn: () => generateCertificate(id),
-    onSuccess: (data) => { 
-      console.log(data)
+    onSuccess: (data) => {
       router.push(
-        `/certificate/${data.certificate.course}/${data.certificate.certificateId}`,
+        `/user/certificate/${data.certificate.course}/${data.certificate.certificateId}`,
       );
     },
     onError: (error) => {
-      console.log(error)
       toast.error(error.message);
     },
   });
@@ -159,7 +166,6 @@ export default function EnrolledContentCourse({ id }: Props) {
     );
   }
 
-  console.log(data);
   return (
     <div className="w-full px-2">
       {showCelebration && <CourseCompletionCelebration />}

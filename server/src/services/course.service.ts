@@ -13,7 +13,7 @@ import {
   COURSE_STATUSES,
   CourseStatus,
 } from "../interfaces/courseInterface";
-import { calcAverageReviews, isValidId } from "../utils/helper";
+import { calcAverageReviews, calcCourseTotalHours, isValidId } from "../utils/helper";
 import { IUser } from "../interfaces/userInterface";
 import sendEmail from "../utils/SendEmail";
 import {
@@ -24,13 +24,82 @@ import {
 import { IOrder } from "../interfaces/orderInterface";
 import notificationRepository from "../repositories/notification.repository";
 import CourseModel from "../models/course.model";
+import CourseProgressModel from "../models/courseProgress.model";
 import userRepository from "../repositories/user.repository";
 import UserModel from "../models/user.model";
 import { getIO } from "../socketServer";
 import { notifyCourseInstructor } from "./notification.service";
 import OrderModel from "../models/order.model";
 import OrganizationModel from "../models/organization.model";
+const getValidCourseStatus = (
+  value: unknown,
+  fallback: CourseStatus,
+): CourseStatus => {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
 
+  if (!COURSE_STATUSES.includes(value as CourseStatus)) {
+    throw new AppError(
+      `Invalid course status. Allowed values: ${COURSE_STATUSES.join(", ")}`,
+      400,
+    );
+  }
+
+  return value as CourseStatus;
+};
+
+const getAuthorizedOrganizationId = async (
+  actor: CourseUpdateActor,
+  course: { organization?: unknown },
+) => {
+  if (actor.role === "admin") {
+    return null;
+  }
+
+  if (actor.role !== "instructor") {
+    throw new AppError("You are not allowed to edit courses", 403);
+  }
+
+  const organization = await OrganizationModel.findOne({
+    instructor: actor.id,
+  })
+    .select("_id")
+    .lean();
+
+  if (!organization) {
+    throw new AppError("No organization is linked to this account", 404);
+  }
+
+  const organizationId = String(organization._id);
+
+  if (String(course.organization) !== organizationId) {
+    throw new AppError("Course not found in your organization", 404);
+  }
+
+  return organizationId;
+};
+
+const updateCourseProgressLectureCount = async (
+  courseId: string,
+  lectures: any,
+) => {
+  if (!Array.isArray(lectures)) {
+    return;
+  }
+
+  await CourseProgressModel.updateMany(
+    {
+      course: courseId,
+      totalLectures: { $ne: lectures.length },
+    },
+    {
+      $set: {
+        totalLectures: lectures.length,
+      },
+    },
+  );
+};
 export const createCourse = async (
   data: any,
   userId: string,
@@ -121,10 +190,19 @@ export const createCourse = async (
   }
 
   // new courses start as draft
-  const status = assertCourseStatus(data.status, "draft");
+  const status = getValidCourseStatus(data.status, "draft");
+
+  // derived data, the body is never allowed to set it
+  delete data.reviewsCount;
+  delete data.ratings;
+  delete data.purchased;
+  delete data.totalLectures;
+  delete data.totalHours;
 
   const newCourseData = {
     ...data,
+    totalLectures: Array.isArray(data.courseData) ? data.courseData.length : 0,
+    totalHours: calcCourseTotalHours(data.courseData),
     status,
     instructor: instructorId,
     organization: organizationId,
@@ -136,58 +214,6 @@ export const createCourse = async (
 type CourseUpdateActor = {
   id: string;
   role: string;
-};
-
-const assertCourseStatus = (value: unknown, fallback: CourseStatus): CourseStatus => {
-  if (value === undefined || value === null || value === "") {
-    return fallback;
-  }
-
-  if (!COURSE_STATUSES.includes(value as CourseStatus)) {
-    throw new AppError(
-      `Invalid course status. Allowed values: ${COURSE_STATUSES.join(", ")}`,
-      400,
-    );
-  }
-
-  return value as CourseStatus;
-};
-
-/**
- * Resolves the organization the actor is allowed to write into, or null when
- * the actor is an admin and may edit any course. Throws when the actor is not
- * allowed to touch the given course.
- */
-const resolveWritableOrganizationId = async (
-  actor: CourseUpdateActor,
-  course: { organization?: unknown },
-) => {
-  if (actor.role === "admin") {
-    return null;
-  }
-
-  if (actor.role !== "instructor") {
-    throw new AppError("You are not allowed to edit courses", 403);
-  }
-
-  const organization = await OrganizationModel.findOne({
-    instructor: actor.id,
-  })
-    .select("_id")
-    .lean();
-
-  if (!organization) {
-    throw new AppError("No organization is linked to this account", 404);
-  }
-
-  const organizationId = String(organization._id);
-
-  if (String(course.organization) !== organizationId) {
-    // 404 hides the other organization's course
-    throw new AppError("Course not found in your organization", 404);
-  }
-
-  return organizationId;
 };
 
 export const updateCourse = async (
@@ -213,20 +239,34 @@ export const updateCourse = async (
     throw new AppError("Course not found", 404);
   }
 
-  const writableOrganizationId = await resolveWritableOrganizationId(
-    actor,
-    course,
-  );
+  const organizationId = await getAuthorizedOrganizationId(
+  actor,
+  course,
+);
 
-  if (writableOrganizationId) {
+  if (organizationId) {
     // organization comes from session, not body
-    courseData.organization = writableOrganizationId;
+    courseData.organization = organizationId;
     delete courseData.instructor;
     delete courseData.createdBy;
   }
 
   if (courseData.status !== undefined) {
-    courseData.status = assertCourseStatus(courseData.status, "draft");
+    courseData.status = getValidCourseStatus(courseData.status, "draft");
+  }
+
+  // derived data, only the review writes, the lecture writes and the backfill
+  // script are allowed to change it
+  delete courseData.reviewsCount;
+  delete courseData.ratings;
+  delete courseData.totalLectures;
+  delete courseData.totalHours;
+
+  // the lecture count and the duration mirror courseData, so they are
+  // recomputed only when the write actually carries a new curriculum
+  if (Array.isArray(courseData.courseData)) {
+    courseData.totalLectures = courseData.courseData.length;
+    courseData.totalHours = calcCourseTotalHours(courseData.courseData);
   }
 
   const thumbnail = courseData.thumbnail;
@@ -257,6 +297,8 @@ export const updateCourse = async (
       courseData,
     );
 
+    await updateCourseProgressLectureCount(courseId, courseData.courseData);
+
     // drop every cached copy of this course
     await invalidateCourseCaches(courseId, String(course.organization));
 
@@ -275,11 +317,13 @@ export const updateCourse = async (
     delete courseData.thumbnail;
   }
 
-  // No new thumbnail -> keep existing thumbnail
+  // No new thumbnail keep existing thumbnail
   const updatedCourse = await courseRepository.updateCourse(
     courseId,
     courseData,
   );
+
+  await updateCourseProgressLectureCount(courseId, courseData.courseData);
 
   await invalidateCourseCaches(courseId, String(course.organization));
 
@@ -302,7 +346,7 @@ export const getPublicCourse = async (courseId: string) => {
 };
 
 // get all courses public not purchased
-// Get all public courses
+
 export const getAllCourses = async (queryString: any) => {
   const { courses, pagination } =
     await courseRepository.getAllCourses(queryString);
@@ -336,8 +380,6 @@ export const getCourseByUser = async (courseId: string, userId: string) => {
 export const getAdminCourse = async (courseId: string) => {
   if (!courseId) throw new AppError("Course id is required", 400);
 
-  // namespaced, see courseCacheKeys. the bare courseId key belongs to
-  // getPublicCourse and holds a redacted copy
   const cacheKey = courseCacheKeys.admin(courseId);
 
   const cachedCourse = await redis.get(cacheKey);
@@ -397,7 +439,7 @@ export const addQuestion = async (data: IAddQuestionData, userId: string) => {
   await course?.save({
     validateBeforeSave: false,
   });
-  await redis.set(courseId, JSON.stringify(course), "EX", "604800");
+  await invalidateCourseCaches(courseId, String(course.organization));
 
   const io = getIO();
   io.to("admins").emit("notification", notification);
@@ -424,8 +466,8 @@ export const addAnswer = async (
     throw new AppError("Course not found", 404);
   }
 
-  // replies belong to the course owner, so a student cannot answer
-  await resolveWritableOrganizationId(actor, course as any);
+  // replies belong to the course owner so a student cannot answer
+  await getAuthorizedOrganizationId(actor, course as any);
 
   const user = await userRepository.getSafeUser(actor.id);
 
@@ -458,7 +500,7 @@ export const addAnswer = async (
   isExistQuestion.questionReplies.push(answerData);
 
   await course.save({ validateBeforeSave: false });
-  await redis.set(courseId, JSON.stringify(course), "EX", "604800");
+  await invalidateCourseCaches(courseId, String(course.organization));
 
   if (user._id.toString() === isExistQuestion.user._id.toString()) {
     // send and create notification
@@ -481,7 +523,7 @@ export const addAnswer = async (
       answer: answer,
     };
 
-    // the answer is already saved, so a mail failure must not fail the request
+    // the answer is already saved so a mail failure must not fail the request
     try {
       await sendEmail({
         email: isExistQuestion.user.email,
@@ -490,7 +532,6 @@ export const addAnswer = async (
         data: emailData,
       });
     } catch {
-      // email is best effort
     }
   }
 
@@ -544,9 +585,10 @@ export const addReviewCourse = async (
 
   const averageRating = calcAverageReviews(course.reviews);
   course.ratings = averageRating;
+  course.reviewsCount = course.reviews.length;
 
   await course.save({ validateBeforeSave: false });
-  await redis.set(courseId, JSON.stringify(course), "EX", "604800");
+  await invalidateCourseCaches(courseId, String(course.organization));
   const notification = await notificationRepository.createNotification({
     user: user._id,
     title: "New Review Recieved",
@@ -580,7 +622,7 @@ export const addReplyReview = async (
   }
 
   // review replies belong to the course owner or an admin
-  await resolveWritableOrganizationId(actor, course as any);
+  await getAuthorizedOrganizationId(actor, course as any);
 
   const user = await userRepository.getSafeUser(actor.id);
 
@@ -607,7 +649,7 @@ export const addReplyReview = async (
   await course.save({
     validateBeforeSave: false,
   });
-  await redis.set(courseId, JSON.stringify(course), "EX", "604800");
+  await invalidateCourseCaches(courseId, String(course.organization));
 
   return course;
 };
@@ -663,7 +705,7 @@ export const getOperationCourse = async (courseId: string) => {
 
   const course = await CourseModel.findById(courseId)
     .select(
-      "name description price category estimatePrice thumbnail level reviews ratings purchased createdAt updatedAt",
+      "name description price category estimatePrice thumbnail level reviews reviewsCount totalLectures ratings purchased createdAt updatedAt",
     )
     .populate("category", "slug title")
     .populate("organization", "name status")

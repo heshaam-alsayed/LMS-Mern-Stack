@@ -5,18 +5,22 @@ import { ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { getPublicCoursesUser } from "@/lib/api/getPublicCoursesUser";
+import { useSectionInView } from "@/hooks/useSectionInView";
 import CourseCard from "./CourseCard";
 import CoursesSectionSkeleton from "../../skeleton/CourseSectionSkeleton";
 
 export default function CoursesSection() {
+  const { ref, hasEnteredView } = useSectionInView<HTMLDivElement>();
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["public-courses-user"],
     queryFn: () => getPublicCoursesUser(),
-    staleTime: 24 * 60 * 60 * 1000,
+    enabled: hasEnteredView,
+    staleTime: 60 * 1000,
   });
 
-  if (isLoading) {
-    return <CoursesSectionSkeleton />;
+  if (!hasEnteredView || isLoading) {
+    return <CoursesSectionSkeleton ref={ref} />;
   }
 
   if (isError || !data?.courses) {
@@ -24,11 +28,10 @@ export default function CoursesSection() {
   }
 
   const courses = data.courses.slice(0, 12);
-  console.log(data)
+
   return (
     <section className="py-16 sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+      <div ref={ref} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-10 max-w-2xl text-center">
           <span className="text-sm font-semibold text-primary">
             Featured Courses
@@ -44,16 +47,11 @@ export default function CoursesSection() {
           </p>
         </div>
 
-        {/* Courses */}
-        <div className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 min-[500px]:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {courses.map((course) => (
-            <Link key={course._id} href={`/course/${course._id}`}>
-              <CourseCard course={course} />
-            </Link>
+            <CourseCard key={course._id} course={course} />
           ))}
         </div>
-
-        {/* View All Courses */}
 
         <div className="mt-10 flex justify-center">
           <Link

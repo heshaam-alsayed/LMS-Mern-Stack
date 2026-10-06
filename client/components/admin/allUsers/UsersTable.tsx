@@ -56,7 +56,6 @@ export default function UsersTable({
     <div className="w-full overflow-hidden rounded-xl border bg-background shadow-sm">
       <div className="w-full overflow-x-auto">
         <Table className="min-w-[900px]">
-          {/* ==================== HEADER ==================== */}
           <TableHeader>
             <TableRow className="border-b bg-muted/30 hover:bg-muted/30">
               <TableHead className="h-12 w-[320px] px-5 font-semibold">
@@ -82,7 +81,6 @@ export default function UsersTable({
           </TableHeader>
 
           <TableBody>
-            {/* ==================== ERROR ==================== */}
             {error ? (
               <TableRow>
                 <TableCell colSpan={columnCount} className="h-64">
@@ -109,10 +107,8 @@ export default function UsersTable({
                 <TableRow
                   key={user._id}
                   className="group border-b last:border-0 hover:bg-muted/30">
-                  {/* ==================== USER ==================== */}
                   <TableCell className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      {/* Avatar */}
                       <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border bg-muted">
                         {user.avatar?.url ? (
                           <Image
@@ -129,7 +125,6 @@ export default function UsersTable({
                         )}
                       </div>
 
-                      {/* Name + Email */}
                       <div className="min-w-0">
                         <p className="max-w-[220px] truncate font-medium text-foreground">
                           {user.name}
@@ -142,7 +137,6 @@ export default function UsersTable({
                     </div>
                   </TableCell>
 
-                  {/* ==================== ROLE ==================== */}
                   <TableCell>
                     <Badge
                       variant="secondary"
@@ -151,7 +145,6 @@ export default function UsersTable({
                     </Badge>
                   </TableCell>
 
-                  {/* ==================== VERIFICATION ==================== */}
                   <TableCell>
                     {user.isVerified ? (
                       <Badge
@@ -168,7 +161,6 @@ export default function UsersTable({
                     )}
                   </TableCell>
 
-                  {/* ==================== COURSES ==================== */}
                   {!isTeam && (
                     <TableCell>
                       {user.role === "user" ? (
@@ -189,14 +181,12 @@ export default function UsersTable({
                     </TableCell>
                   )}
 
-                  {/* ==================== JOINED ==================== */}
                   <TableCell>
                     <span className="whitespace-nowrap text-sm text-muted-foreground">
                       {timeAgo(user.createdAt)}
                     </span>
                   </TableCell>
 
-                  {/* ==================== ACTIONS ==================== */}
                   <TableCell className="text-center">
                     {user.role === "user" ? (
                       <DropdownMenu>
@@ -217,7 +207,6 @@ export default function UsersTable({
                           align="end"
                           sideOffset={6}
                           className="w-44">
-                          {/* View */}
                           <DropdownMenuItem asChild>
                             <Link
                               href={`/admin/users/operation-user/${user._id}`}
@@ -227,7 +216,6 @@ export default function UsersTable({
                             </Link>
                           </DropdownMenuItem>
 
-                          {/* Edit */}
                           <DropdownMenuItem
                             className="cursor-pointer"
                             onClick={() => onClickEdit(user)}>
@@ -237,7 +225,6 @@ export default function UsersTable({
 
                           <DropdownMenuSeparator />
 
-                          {/* Delete */}
                           <DropdownMenuItem
                             variant="destructive"
                             className="cursor-pointer"
@@ -260,7 +247,7 @@ export default function UsersTable({
                 </TableRow>
               ))
             ) : (
-              /* ==================== EMPTY ==================== */
+              // EMPTY
               <TableRow>
                 <TableCell colSpan={columnCount} className="h-48">
                   <div className="flex flex-col items-center justify-center text-center">

@@ -53,7 +53,7 @@ router.get(
 router.get(
   "/course-orders-analytics",
   isAuthenticated,
-  authorizeRoles("instructor"),
+  authorizeRoles("instructor", "admin"),
   getMyOrganizationCourseOrdersAnalytics,
 );
 

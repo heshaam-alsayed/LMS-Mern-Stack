@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
   ArrowLeft,
@@ -333,23 +332,13 @@ export default function StudentProgress({ id }: { id: string }) {
 
   const studentId = id;
 
-  const {
-    mutate: loadProgress,
-
-    isPending,
-
-    data,
-
-    error,
-  } = useMutation({
-    mutationFn: () => getStudentProgress(studentId),
+  const { isLoading, data, error, refetch } = useQuery({
+    queryKey: ["student-progress", studentId],
+    queryFn: () => getStudentProgress(studentId),
+    staleTime: 60 * 1000,
   });
 
-  useEffect(() => {
-    loadProgress();
-  }, [studentId, loadProgress]);
-
-  if (isPending) {
+  if (isLoading) {
     return (
       <div className="space-y-4">
         <div className="h-9 w-52 animate-pulse rounded-lg bg-muted" />
@@ -389,7 +378,9 @@ export default function StudentProgress({ id }: { id: string }) {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              onClick={() => loadProgress()}>
+              onClick={() => {
+                refetch();
+              }}>
               Try again
             </Button>
 

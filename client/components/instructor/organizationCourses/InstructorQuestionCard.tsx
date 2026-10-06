@@ -27,15 +27,16 @@ const timeAgo = (value: string) => {
   return formatDistanceToNow(date, { addSuffix: true });
 };
 
+type Props = {
+  question: OrganizationCourseQuestion;
+  courseId: string | undefined;
+  queryKey: string[];
+}
 export default function InstructorQuestionCard({
   question,
   courseId,
   queryKey,
-}: {
-  question: OrganizationCourseQuestion;
-  courseId: string;
-  queryKey: string[];
-}) {
+}: Props) {
   const queryClient = useQueryClient();
 
   const [isReplying, setIsReplying] = useState(false);
@@ -46,7 +47,7 @@ export default function InstructorQuestionCard({
     mutationKey: ["instructor-reply-question", question._id],
     mutationFn: async () => {
       const trimmed = answer.trim();
-
+      if(!courseId) return
       await addAnswerQuestion({
         answer: trimmed,
         courseId,

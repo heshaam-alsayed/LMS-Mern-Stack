@@ -11,7 +11,7 @@ export default function useCourseOrdersAnalytics(
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["course-orders-analytics", courseId],
     queryFn: () => getCourseOrdersAnalytics(courseId as string),
-    // only fetch once the modal is open and a course is actually selected
+    // only fetch once the modal is open and a course
     enabled: enabled && Boolean(courseId),
     staleTime: 5 * 60 * 1000,
   });

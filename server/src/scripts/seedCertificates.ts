@@ -25,7 +25,7 @@ import OrderModel from "../models/order.model";
 import CourseProgressModel from "../models/courseProgress.model";
 import CertificateModel from "../models/certificate.model";
 import { generateCertificateService } from "../services/certificate.service";
-import redis from "../utils/redis";
+import redis, { sessionKey, userPublicKey } from "../utils/redis";
 
 const CERT_MARKER = "seed:certificates";
 
@@ -144,6 +144,7 @@ const run = async () => {
       .map((course: any) => ({
         _id: course._id,
         name: course.name,
+        organization: course.organization,
         price: course.price || 0,
         lectures: (course.courseData || []).map((lecture: any) => lecture._id),
         buyers: buyersPerCourse.get(String(course._id)) || [],
@@ -226,9 +227,15 @@ const run = async () => {
   );
 
   // any student changed by this script gets its redis cache cleared
-  for (const order of allOrders) cacheKeys.add(String(order.user));
+  for (const order of allOrders) {
+    cacheKeys.add(sessionKey(String(order.user)));
+    cacheKeys.add(userPublicKey(String(order.user)));
+  }
   const certUsers = await CertificateModel.find().select("user").lean();
-  for (const certificate of certUsers) cacheKeys.add(String(certificate.user));
+  for (const certificate of certUsers) {
+    cacheKeys.add(sessionKey(String(certificate.user)));
+    cacheKeys.add(userPublicKey(String(certificate.user)));
+  }
 
   for (let i = 0; i < cacheKeys.size; i += 200) {
     await redis.del(...[...cacheKeys].slice(i, i + 200));
@@ -276,8 +283,10 @@ const markComplete = async (userId: string, course: any) => {
     { user: userId, course: course._id },
     {
       $set: {
+        organization: course.organization,
         currentLecture: course.lectures[course.lectures.length - 1],
         completedLectures: course.lectures,
+        totalLectures: course.lectures.length,
         lastAccessedAt: new Date(),
       },
     },

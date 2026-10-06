@@ -53,6 +53,7 @@ export default function EditCategory() {
   const { data, isError, isLoading, error, refetch } = useQuery({
     queryKey: ["categories"],
     queryFn: () => getAllCategories(),
+    staleTime: 1000 * 60 * 60,
   });
 
   const createCategoryMutation = useMutation({
@@ -121,7 +122,6 @@ export default function EditCategory() {
     createCategoryMutation.isPending || updateCategoryMutation.isPending;
   return (
     <div className="w-full">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
@@ -153,26 +153,23 @@ export default function EditCategory() {
         />
       </div>
 
-      {/* Categories */}
       {categories.length > 0 ? (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((category: ICategory) => (
             <div
               key={category._id}
               className="group rounded-xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-              {/* Top */}
 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <h2 className="truncate font-semibold text-foreground">
+                  <p className="truncate font-semibold text-foreground">
                     {category.title}
-                  </h2>
+                  </p>
 
                   <p className="mt-1 truncate text-sm text-muted-foreground">
                     /{category.slug}
                   </p>
                 </div>
 
-                {/* Actions */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
@@ -203,7 +200,6 @@ export default function EditCategory() {
                 </DropdownMenu>
               </div>
 
-              {/* Course Count */}
               <div className="mt-5 rounded-lg bg-muted/50 px-4 py-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Courses</span>
@@ -214,7 +210,6 @@ export default function EditCategory() {
                 </div>
               </div>
 
-              {/* Dates */}
               <div className="mt-4 space-y-2 border-t border-border pt-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 text-muted-foreground">

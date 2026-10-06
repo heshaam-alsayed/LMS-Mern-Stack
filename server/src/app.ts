@@ -18,6 +18,7 @@ import certificateRouter from "./routes/certificate.route";
 import instructorApplicationRouter from "./routes/instructorApplication.route";
 import organizationRouter from "./routes/organization.route";
 import vdocipherRouter from "./routes/vdocipher.route";
+import ticketRouter from "./routes/ticket.route";
 
 dotenv.config();
 
@@ -76,6 +77,8 @@ app.use("/api/v1/certificates", certificateRouter);
 app.use("/api/v1/instructor-applications", instructorApplicationRouter);
 app.use("/api/v1/organizations", organizationRouter); 
 app.use("/api/v1/vdocipher", vdocipherRouter);
+app.use("/api/v1/tickets", ticketRouter);
+
 // 404 - Route not found
 
 app.all(/.*/, (req: Request, res: Response) => {

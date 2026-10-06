@@ -22,7 +22,6 @@ export default function HeroStatCard({
           sm:flex-row
           sm:justify-between
         ">
-        {/* Content */}
         <div
           className="
             order-2
@@ -39,7 +38,6 @@ export default function HeroStatCard({
           </p>
         </div>
 
-        {/* Icon */}
         <Icon
           className="
             order-1

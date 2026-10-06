@@ -36,7 +36,6 @@ export default function ConfirmCourseModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      {/* Overlay */}
       <div
         className="
           absolute inset-0
@@ -47,7 +46,6 @@ export default function ConfirmCourseModal({
         onClick={!isSubmitting ? onClose : undefined}
       />
 
-      {/* Modal */}
       <div
         className="
           relative z-10
@@ -59,7 +57,6 @@ export default function ConfirmCourseModal({
           shadow-xl
           dark:shadow-black/50
         ">
-        {/* Header */}
         <div className="flex items-start justify-between px-6 pt-6">
           <div className="pr-6">
             <h2 className="text-lg font-semibold tracking-tight text-foreground">
@@ -99,9 +96,7 @@ export default function ConfirmCourseModal({
           </button>
         </div>
 
-        {/* Content */}
         <div className="px-6 py-6">
-          {/* Course */}
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               Course
@@ -112,7 +107,6 @@ export default function ConfirmCourseModal({
             </p>
           </div>
 
-          {/* Level / Price */}
           <div className="mt-5 grid grid-cols-2 gap-8">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -135,7 +129,6 @@ export default function ConfirmCourseModal({
             </div>
           </div>
 
-          {/* Confirmation */}
           <div
             className="
               mt-6
@@ -172,7 +165,6 @@ export default function ConfirmCourseModal({
           </div>
         </div>
 
-        {/* Footer */}
         <div
           className="
             flex items-center justify-between
@@ -180,7 +172,6 @@ export default function ConfirmCourseModal({
             bg-muted/20
             px-6 py-4
           ">
-          {/* Cancel */}
           <button
             type="button"
             onClick={onClose}
@@ -203,7 +194,6 @@ export default function ConfirmCourseModal({
             Cancel
           </button>
 
-          {/* Create / Update */}
           <button
             type="button"
             onClick={onConfirm}

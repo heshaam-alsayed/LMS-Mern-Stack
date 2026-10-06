@@ -10,11 +10,15 @@ import RecentReviewRow from "./RecentReviewRow";
 
 const DEFAULT_TOP = "5";
 
-export default function RecentReviewsPanel() {
+type Props = {
+  enabled: boolean;
+};
+
+export default function RecentReviewsPanel({ enabled }: Props) {
   const [top, setTop] = useState(DEFAULT_TOP);
 
   const { reviews, isLoading, isError, error, refetch } =
-    useMyOrganizationRecentReviews(Number(top));
+    useMyOrganizationRecentReviews(Number(top), enabled);
 
   return (
     <RecentActivityPanel
@@ -24,7 +28,7 @@ export default function RecentReviewsPanel() {
       count={reviews.length}
       isEmpty={reviews.length === 0}
       emptyMessage="Once students review your courses, their feedback shows up here."
-      isLoading={isLoading}
+      isLoading={!enabled || isLoading}
       isError={isError}
       error={error}
       onRetry={() => refetch()}

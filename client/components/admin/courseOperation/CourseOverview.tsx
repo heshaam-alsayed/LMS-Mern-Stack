@@ -56,9 +56,7 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
     <section>
       <Card className="overflow-hidden border-border/60 bg-card shadow-sm">
         <CardContent className="p-0">
-          {/* Main Course Overview */}
           <div className="grid items-stretch md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr]">
-            {/* Thumbnail */}
             <div className="relative min-h-[220px] overflow-hidden bg-muted md:min-h-full">
               <Image
                 src={thumbnail.url}
@@ -86,7 +84,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
               </div>
             </div>
 
-            {/* Course Details */}
             <div className="flex min-w-0 flex-col p-5 sm:p-6">
               <div className="flex flex-col gap-3">
                 <div className="flex flex-wrap items-center gap-2">
@@ -110,9 +107,7 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                 </h2>
               </div>
 
-              {/* Stats */}
               <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3">
-                {/* Category */}
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center gap-2">
                     <Layers3 className="h-3.5 w-3.5 text-muted-foreground" />
@@ -127,7 +122,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                   </p>
                 </div>
 
-                {/* Level */}
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center gap-2">
                     <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
@@ -138,7 +132,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                   <p className="truncate text-sm font-medium">{level}</p>
                 </div>
 
-                {/* Students */}
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center gap-2">
                     <Users className="h-3.5 w-3.5 text-muted-foreground" />
@@ -153,7 +146,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                   </p>
                 </div>
 
-                {/* Rating */}
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center gap-2">
                     <Star className="h-3.5 w-3.5 text-muted-foreground" />
@@ -172,7 +164,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                   </div>
                 </div>
 
-                {/* Price */}
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center gap-2">
                     <CircleDollarSign className="h-3.5 w-3.5 text-muted-foreground" />
@@ -191,7 +182,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                   </div>
                 </div>
 
-                {/* Original Price */}
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center gap-2">
                     <CircleDollarSign className="h-3.5 w-3.5 text-muted-foreground" />
@@ -205,9 +195,7 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                 </div>
               </div>
 
-              {/* Bottom Summary */}
               <div className="mt-6 grid grid-cols-1 gap-3 border-t border-border/60 pt-4 sm:grid-cols-3">
-                {/* Enrollment */}
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted/50">
                     <Users className="h-3.5 w-3.5 text-muted-foreground" />
@@ -222,7 +210,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                   </div>
                 </div>
 
-                {/* Average Rating */}
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted/50">
                     <Star className="h-3.5 w-3.5 text-muted-foreground" />
@@ -239,7 +226,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                   </div>
                 </div>
 
-                {/* Current Price */}
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-muted/50">
                     <CircleDollarSign className="h-3.5 w-3.5 text-muted-foreground" />
@@ -257,7 +243,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
             </div>
           </div>
 
-          {/* Course Information */}
           <div className="border-t border-border/60 p-5 sm:p-6">
             <div className="mb-5">
               <h3 className="text-base font-semibold tracking-tight">
@@ -270,7 +255,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
             </div>
 
             <div className="grid gap-3 lg:grid-cols-2">
-              {/* Organization */}
               <div className="rounded-xl border border-border/60 bg-muted/20 p-4 transition-colors hover:bg-muted/30">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-3">
@@ -299,7 +283,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                 </div>
               </div>
 
-              {/* Instructor */}
               <div className="rounded-xl border border-border/60 bg-muted/20 p-4 transition-colors hover:bg-muted/30">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-3">
@@ -336,7 +319,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                 </div>
               </div>
 
-              {/* Created By */}
               <div className="rounded-xl border border-border/60 bg-muted/20 p-4 transition-colors hover:bg-muted/30">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-3">
@@ -373,9 +355,7 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                 </div>
               </div>
 
-              {/* Dates */}
               <div className="grid grid-cols-2 gap-3">
-                {/* Created At */}
                 <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
                   <div className="flex items-center gap-2.5">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-background">
@@ -394,7 +374,6 @@ export default function CourseOverview({ course }: CourseOverviewProps) {
                   </div>
                 </div>
 
-                {/* Updated At */}
                 <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
                   <div className="flex items-center gap-2.5">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-background">

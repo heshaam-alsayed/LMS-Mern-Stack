@@ -38,7 +38,6 @@ export default function CoursePreview({
   return (
     <div className="mb-6 w-full">
       <div className="relative w-full">
-        {/* Video */}
         <div className="w-full">
           <CoursePlayer
             videoUrl={courseData?.demoUrl}

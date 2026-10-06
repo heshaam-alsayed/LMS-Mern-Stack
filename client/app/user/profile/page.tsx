@@ -58,12 +58,10 @@ export default function ProfilePage() {
     return <ProfilePageSkeleton />;
   }
 
-  console.log(user)
   return (
     <div>
       <Header />
 
-      {/* Mobile sidebar toggle */}
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 pt-4 sm:px-6 lg:hidden">
         <button
           type="button"

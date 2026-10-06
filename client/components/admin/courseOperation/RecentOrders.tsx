@@ -55,7 +55,6 @@ export default function RecentOrders({ orders }: RecentOrdersProps) {
 
   return (
     <section className="mt-6">
-      {/* ==================== Header ==================== */}
       <div className="mb-4">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold tracking-tight text-foreground">
@@ -74,10 +73,8 @@ export default function RecentOrders({ orders }: RecentOrdersProps) {
         </p>
       </div>
 
-      {/* ==================== Orders ==================== */}
       <Card className="overflow-hidden border-border/60 bg-card shadow-sm">
         <CardContent className="p-0">
-          {/* Desktop Header */}
           <div className="hidden grid-cols-[minmax(220px,1.5fr)_minmax(200px,1.3fr)_100px_110px_140px] items-center gap-4 border-b border-border/60 bg-muted/20 px-5 py-3 md:grid">
             <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
               User
@@ -100,7 +97,6 @@ export default function RecentOrders({ orders }: RecentOrdersProps) {
             </span>
           </div>
 
-          {/* Orders */}
           <div className="divide-y divide-border/60">
             {recentOrders.map((order) => {
               const user = order.user;
@@ -128,9 +124,6 @@ export default function RecentOrders({ orders }: RecentOrdersProps) {
   );
 }
 
-/* ============================================================
-   Order Row
-============================================================ */
 
 interface OrderRowProps {
   order: ICourseOrder;
@@ -166,9 +159,7 @@ function OrderRow({ order, userName, userEmail, userImage }: OrderRowProps) {
 
   return (
     <div className="px-5 py-4 transition-colors hover:bg-muted/20">
-      {/* ==================== Desktop ==================== */}
       <div className="hidden grid-cols-[minmax(220px,1.5fr)_minmax(200px,1.3fr)_100px_110px_140px] items-center gap-4 md:grid">
-        {/* User */}
         <div className="flex min-w-0 items-center gap-3">
           <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/60 bg-muted">
             {userImage ? (
@@ -189,7 +180,6 @@ function OrderRow({ order, userName, userEmail, userImage }: OrderRowProps) {
               {userName}
             </p>
 
-            {/* User ID */}
             <div className="mt-0.5 flex items-center gap-1">
               <span className="max-w-[130px] truncate font-mono text-[10px] text-muted-foreground">
                 {order.user?._id}
@@ -211,7 +201,6 @@ function OrderRow({ order, userName, userEmail, userImage }: OrderRowProps) {
           </div>
         </div>
 
-        {/* Email */}
         <div className="flex min-w-0 items-center gap-2">
           <Mail className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
 
@@ -220,12 +209,10 @@ function OrderRow({ order, userName, userEmail, userImage }: OrderRowProps) {
           </span>
         </div>
 
-        {/* Price */}
         <p className="text-sm font-semibold text-foreground">
           ${order.price.toLocaleString()}
         </p>
 
-        {/* Payment */}
         <Badge
           variant="secondary"
           className="w-fit gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
@@ -233,7 +220,6 @@ function OrderRow({ order, userName, userEmail, userImage }: OrderRowProps) {
           Paid
         </Badge>
 
-        {/* Date */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <CalendarDays className="h-3.5 w-3.5 shrink-0" />
 
@@ -241,9 +227,7 @@ function OrderRow({ order, userName, userEmail, userImage }: OrderRowProps) {
         </div>
       </div>
 
-      {/* ==================== Mobile ==================== */}
       <div className="space-y-4 md:hidden">
-        {/* User */}
         <div className="flex items-center gap-3">
           <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/60 bg-muted">
             {userImage ? (
@@ -264,7 +248,6 @@ function OrderRow({ order, userName, userEmail, userImage }: OrderRowProps) {
               {userName}
             </p>
 
-            {/* User ID + Copy */}
             <div className="mt-0.5 flex items-center gap-1">
               <span className="max-w-[160px] truncate font-mono text-[10px] text-muted-foreground">
                 {order.user?._id}
@@ -290,9 +273,7 @@ function OrderRow({ order, userName, userEmail, userImage }: OrderRowProps) {
           </div>
         </div>
 
-        {/* Details */}
         <div className="grid grid-cols-3 gap-3 border-t border-border/60 pt-3">
-          {/* Price */}
           <div>
             <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               Price
@@ -303,7 +284,6 @@ function OrderRow({ order, userName, userEmail, userImage }: OrderRowProps) {
             </p>
           </div>
 
-          {/* Payment */}
           <div>
             <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               Payment
@@ -317,7 +297,6 @@ function OrderRow({ order, userName, userEmail, userImage }: OrderRowProps) {
             </Badge>
           </div>
 
-          {/* Date */}
           <div>
             <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               Date

@@ -28,7 +28,6 @@ export default function CustomModal({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Overlay */}
           <motion.div
             className="absolute inset-0 bg-foreground/10 backdrop-blur-sm"
             onClick={onClose}
@@ -41,7 +40,6 @@ export default function CustomModal({
             }}
           />
 
-          {/* Modal */}
           <motion.div
             className="
               relative

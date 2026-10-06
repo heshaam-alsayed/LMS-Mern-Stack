@@ -1,14 +1,17 @@
 import { Router } from "express";
 
-import { isAuthenticated } from "../middlewares/authMiddleware";
+import { authorizeRoles, isAuthenticated } from "../middlewares/authMiddleware";
 import {
   generateCertificate,
   getCertificate,
+  getAllCertificates,
 } from "../controllers/certificate.controller";
 
 const router = Router();
 
 router.use(isAuthenticated);
+
+router.get("/all", authorizeRoles("admin"), getAllCertificates);
 
 router.post("/generate/:courseId", generateCertificate);
 

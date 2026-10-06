@@ -32,7 +32,6 @@ export default function ResourcesTab({ links }: Props) {
 
   return (
     <div className="py-6">
-      {/* Header */}
       <div className="mb-5">
         <h2 className="text-lg font-semibold tracking-tight text-foreground">
           Lesson Resources
@@ -43,7 +42,6 @@ export default function ResourcesTab({ links }: Props) {
         </p>
       </div>
 
-      {/* Resources */}
       <div className="space-y-3">
         {links.map((resource, index) => (
           <a
@@ -52,12 +50,10 @@ export default function ResourcesTab({ links }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-4 rounded-lg border bg-background p-4 transition-colors hover:bg-muted/50">
-            {/* Icon */}
             <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted">
               <FileText className="size-5 text-primary" />
             </div>
 
-            {/* Content */}
             <div className="min-w-0 flex-1">
               <h3 className="truncate text-sm font-semibold text-foreground">
                 {resource.title}
@@ -68,7 +64,6 @@ export default function ResourcesTab({ links }: Props) {
               </p>
             </div>
 
-            {/* Action */}
             <div className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors group-hover:bg-muted group-hover:text-foreground">
               <ExternalLink className="size-4" />
             </div>

@@ -1,9 +1,12 @@
-"use client";
-
-import React from "react";
+import { Suspense } from "react";
 
 import OrganizationCertificates from "@/components/instructor/organizationCertificates/OrganizationCertificates";
+import OrganizationCertificatesPageSkeleton from "@/components/skeleton/OrganizationCertificatesPageSkeleton";
 
 export default function page() {
-  return <OrganizationCertificates />;
+  return (
+    <Suspense fallback={<OrganizationCertificatesPageSkeleton />}>
+      <OrganizationCertificates />
+    </Suspense>
+  );
 }

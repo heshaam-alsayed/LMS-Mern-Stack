@@ -14,9 +14,9 @@ export default function EnrolledCourses() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["enrolled-courses"],
     queryFn: getEnrolledCourses,
+    staleTime: 60 * 1000,
   });
 
-  console.log(data);
   if (isLoading) {
     return (
       <section className="space-y-6">

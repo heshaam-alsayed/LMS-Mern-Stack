@@ -1,4 +1,7 @@
+import { Suspense } from "react";
+
 import OrganizationOrdersAnalytics from "@/components/admin/organizationDetails/ordersAnalytics/OrganizationOrdersAnalytics";
+import OrdersAnalyticsSkeleton from "@/components/skeleton/OrdersAnalyticsSkeleton";
 
 type Params = {
   id: string;
@@ -7,5 +10,10 @@ type Params = {
 export default async function page({ params }: { params: Promise<Params> }) {
   const { id } = await params;
 
-  return <OrganizationOrdersAnalytics id={id} />;
+  // reads the year query param through useStatisticsYear
+  return (
+    <Suspense fallback={<OrdersAnalyticsSkeleton />}>
+      <OrganizationOrdersAnalytics id={id} />
+    </Suspense>
+  );
 }

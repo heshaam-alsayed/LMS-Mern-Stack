@@ -41,9 +41,9 @@ export default function EditCourse() {
 
   const router = useRouter();
 
-  // the same screen serves two routes:
-  // /admin/edit-course/[id] returns any course,
-  // the instructor route is organization-scoped
+  // the same screen serves two routes
+  // admin edit course id returns any course
+  // the instructor route is organization scoped
   const isAdminRoute = pathname?.startsWith("/admin") ?? false;
 
   const LIST_PATH = isAdminRoute
@@ -184,6 +184,7 @@ export default function EditCourse() {
               course: res.course,
             })),
       enabled: !!courseId,
+      staleTime: 60 * 1000,
     });
 
   // Set initial data
@@ -361,12 +362,10 @@ export default function EditCourse() {
 
   return (
     <div className="relative min-h-screen">
-      {/* Mobile Course Options */}
       <div className="mb-6 rounded-xl border border-border bg-card p-4 lg:hidden">
         <CourseOptions active={active} setActive={setActive} />
       </div>
 
-      {/* Main Content */}
       <main className="w-full lg:pr-72">
         {active === 0 && (
           <CourseInformation
@@ -413,12 +412,10 @@ export default function EditCourse() {
         )}
       </main>
 
-      {/* Fixed Course Options */}
       <aside className="fixed right-0 top-24 z-50 hidden w-64 lg:block">
         <CourseOptions active={active} setActive={setActive} />
       </aside>
 
-      {/* Confirm Modal */}
       <ConfirmCourseModal
         open={isOpen}
         onClose={() => setIsOpen(false)}

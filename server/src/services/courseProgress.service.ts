@@ -16,8 +16,10 @@ import CourseProgressModel from "../models/courseProgress.model";
 export const initializeCourseProgress = async (
   userId: string,
   courseId: string,
+  totalLectures: number,
+  organizationId: string,
 ) => {
-  return createCourseProgress(userId, courseId);
+  return createCourseProgress(userId, courseId, totalLectures, organizationId);
 };
 
 export const getCourseProgressService = async (
@@ -40,17 +42,34 @@ export const getCourseProgressService = async (
 
   let progress = await getCourseProgress(userId, courseId);
 
+  const totalLectures = course.courseData?.length ?? 0;
+
   if (!progress) {
-    progress = await createCourseProgress(userId, courseId);
+    progress = await createCourseProgress(
+      userId,
+      courseId,
+      totalLectures,
+      String(course.organization ?? ""),
+    );
+  } else if (progress.totalLectures !== totalLectures) {
+    // keep the stored snapshot in sync with the current course content
+    await CourseProgressModel.updateOne(
+      { _id: progress._id },
+      { $set: { totalLectures } },
+    );
+
+    progress.totalLectures = totalLectures;
   }
 
-  const totalLectures = course.courseData.length;
   const completedCount = progress.completedLectures.length;
 
   const progressPercentage =
     totalLectures === 0
       ? 0
-      : Math.round((completedCount / totalLectures) * 100);
+      : Math.min(
+          100,
+          Math.round((completedCount / totalLectures) * 100),
+        );
 
   return {
     ...progress.toObject(),
@@ -133,14 +152,14 @@ export const completeLectureService = async (
     throw new AppError("Invalid lecture ID", 400);
   }
 
-  // 4. Check course exists
+  // 4 Check course exists
   const course = await getContentCourse(courseId);
 
   if (!course) {
     throw new AppError("Course not found", 404);
   }
 
-  // 5. Check lecture exists inside this course
+  // 5 Check lecture exists inside this course
   const lectureExists = course.courseData.some(
     (lecture) => lecture._id.toString() === lectureId,
   );
@@ -195,7 +214,7 @@ export const getUserCoursesProgressService = async (userId: string) => {
       const progressPercentage =
         totalLectures === 0
           ? 0
-          : Math.round((completedCount / totalLectures) * 100);
+          : Math.min(100, Math.round((completedCount / totalLectures) * 100));
       const currentLecture =
         course.courseData.find(
           (lecture) =>

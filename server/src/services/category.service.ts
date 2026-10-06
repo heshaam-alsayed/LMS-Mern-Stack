@@ -9,6 +9,11 @@ import {
 } from "../repositories/category.repo";
 import AppError from "../utils/AppError";
 import { slugify } from "../utils/helper";
+import { delCached, getCached, setCached } from "../utils/redis";
+import { bumpCatalogGeneration } from "../utils/courseCache";
+
+const ALL_CATEGORIES_CACHE_KEY = "categories:all";
+const ALL_CATEGORIES_TTL = 300;
 
 export const createCategoryService = async (title: string) => {
   const normalizedTitle = title.trim();
@@ -31,10 +36,14 @@ export const createCategoryService = async (title: string) => {
     throw new AppError("Category slug already exists", 409);
   }
 
-  return await createCategory({
+  const created = await createCategory({
     title: normalizedTitle,
     slug,
   });
+
+  await delCached(ALL_CATEGORIES_CACHE_KEY);
+
+  return created;
 };
 
 export const updateCategoryService = async (
@@ -67,14 +76,31 @@ export const updateCategoryService = async (
     throw new AppError("Category slug already exists", 409);
   }
 
-  return await updateCategory(categoryId, {
+  const updated = await updateCategory(categoryId, {
     title: normalizedTitle,
     slug,
   });
+
+  // filters reference category by slug/name, drop the list so pages pick up
+  // the new title immediately
+  await delCached(ALL_CATEGORIES_CACHE_KEY);
+  await bumpCatalogGeneration();
+
+  return updated;
 };
 
 export const getAllCategoriesService = async () => {
-  return await findAllCategories();
+  const cached = await getCached<any>(ALL_CATEGORIES_CACHE_KEY);
+
+  if (cached) {
+    return cached;
+  }
+
+  const categories = await findAllCategories();
+
+  await setCached(ALL_CATEGORIES_CACHE_KEY, categories, ALL_CATEGORIES_TTL);
+
+  return categories;
 };
 
 export const getCategoryByIdService = async (categoryId: string) => {
@@ -94,5 +120,10 @@ export const deleteCategoryService = async (categoryId: string) => {
     throw new AppError("Category not found", 404);
   }
 
-  return await deleteCategory(categoryId);
+  const deleted = await deleteCategory(categoryId);
+
+  await delCached(ALL_CATEGORIES_CACHE_KEY);
+  await bumpCatalogGeneration();
+
+  return deleted;
 };

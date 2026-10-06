@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { AlertCircle, Building2, ShoppingCart } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { getOrganizationOrders } from "@/lib/api/getOrganizationOrders";
 
-import {
-  GetOrganizationOrdersResponse,
-  OrganizationOrder,
-} from "@/types/organization.type";
+import { OrganizationOrder } from "@/types/organization.type";
 
 import OrganizationOrdersFilter from "./OrganizationOrdersFilter";
 import OrganizationOrdersTable from "./OrganizationOrdersTable";
@@ -38,48 +35,39 @@ export default function OrganizationOrders() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [data, setData] = useState<GetOrganizationOrdersResponse | null>(null);
-  const [hasFetched, setHasFetched] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrganizationOrder | null>(
     null,
   );
 
-  const getOrdersMutation = useMutation({
-    mutationFn: (queryString: string) => getOrganizationOrders(queryString),
+  const queryString = searchParams.toString();
 
-    onSuccess: (response) => {
-      setData(response);
-      setHasFetched(true);
-    },
-
-    onError: () => {
-      setHasFetched(true);
-    },
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["organization-orders", queryString],
+    queryFn: () => getOrganizationOrders(queryString),
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
-  useEffect(() => {
-    getOrdersMutation.mutate(searchParams.toString());
-  }, [searchParams]);
-
-  const refetch = () => {
-    getOrdersMutation.mutate(searchParams.toString());
-  };
-
   const goToPage = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(queryString);
 
     params.set("page", String(page));
 
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const error = getOrdersMutation.error;
-
-  if (!hasFetched) {
+  if (isLoading) {
     return <OrganizationOrdersPageSkeleton />;
   }
 
-  if (error || !data) {
+  if (isError || !data) {
     const isMissing = error?.message === NO_ORGANIZATION_ERROR;
 
     return (
@@ -103,7 +91,12 @@ export default function OrganizationOrders() {
             </p>
           </div>
 
-          <Button variant="outline" onClick={refetch}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              refetch();
+            }}
+          >
             Try again
           </Button>
         </div>
@@ -179,12 +172,12 @@ export default function OrganizationOrders() {
         </div>
       </div>
 
-      <OrganizationOrdersFilter />
+      {pagination.total > 0 ? <OrganizationOrdersFilter /> : null}
 
       <div className="w-full overflow-hidden rounded-xl border bg-background shadow-sm">
         <OrganizationOrdersTable
           orders={orders ?? []}
-          isLoading={getOrdersMutation.isPending}
+          isLoading={isFetching && !orders?.length}
           error={null}
           onViewDetails={setSelectedOrder}
         />

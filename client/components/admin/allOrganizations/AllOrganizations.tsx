@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Building2 } from "lucide-react";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-import { getAllOrganizations } from "@/lib/api/getAllOrganizations";
+import useAdminOrganizations from "@/hooks/admin/useAdminOrganizations";
+
 import { updateOrganization } from "@/lib/api/updateOrganization";
 import { deleteOrganization } from "@/lib/api/deleteOrganization";
 
@@ -16,30 +16,18 @@ import {
   UpdateOrganizationPayload,
 } from "@/types/organization.type";
 
-import { PaginationData } from "@/components/shared/Pagination";
-
-import OrganizationsFilter from "./OrganizationsFilter";
+import OrganizationsHeader from "./OrganizationsHeader";
 import OrganizationsTable from "./OrganizationsTable";
+import OrganizationsToolbar from "./OrganizationsToolbar";
 
 import EditOrganizationModal from "@/components/modal/EditOrganizationModal";
 import DeleteConfirmationModal from "@/components/modal/DeleteConfirmationModal";
 import ViewInstructorModal from "@/components/modal/ViewInstructorModal";
 
-const initialPagination: PaginationData = {
-  currentPage: 1,
-  limit: 10,
-  total: 0,
-  totalPages: 0,
-  hasNextPage: false,
-  hasPreviousPage: false,
-};
-
 export default function AllOrganizations() {
   const searchParams = useSearchParams();
 
   const queryClient = useQueryClient();
-
-  const queryString = searchParams.toString();
 
   const [editingOrganization, setEditingOrganization] =
     useState<Organization | null>(null);
@@ -50,10 +38,18 @@ export default function AllOrganizations() {
   const [instructorOrganization, setInstructorOrganization] =
     useState<Organization | null>(null);
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["admin-organizations", queryString],
-    queryFn: () => getAllOrganizations(queryString),
-  });
+  const {
+    organizations,
+    pagination,
+    isLoading,
+    isError,
+    error,
+    status,
+    limit,
+    updateQuery,
+    handleNext,
+    handlePrevious,
+  } = useAdminOrganizations();
 
   const invalidateOrganizations = () => {
     queryClient.invalidateQueries({ queryKey: ["admin-organizations"] });
@@ -119,32 +115,25 @@ export default function AllOrganizations() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Building2 className="h-5 w-5" />
-          </div>
+      <OrganizationsHeader
+        total={pagination?.total ?? 0}
+        status={status}
+        limit={limit}
+        onChange={updateQuery}
+      />
 
-          <div>
-            <h1 className="text-lg font-semibold text-foreground">
-              Organizations
-            </h1>
-
-            <p className="text-sm text-muted-foreground">
-              Manage all registered organizations on the platform.
-            </p>
-          </div>
-        </div>
-
-        <span className="w-fit rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-          {data?.pagination.total ?? 0} total
-        </span>
-      </div>
-
-      <OrganizationsFilter pagination={data?.pagination ?? initialPagination} />
+      {(pagination?.total ?? 0) > 0 ? (
+        <OrganizationsToolbar
+          pagination={pagination}
+          urlSearch={searchParams.get("search") || ""}
+          updateQuery={updateQuery}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+        />
+      ) : null}
 
       <OrganizationsTable
-        organizations={data?.organizations ?? []}
+        organizations={organizations}
         isLoading={isLoading}
         error={isError ? (error as Error) : null}
         onClickEdit={handleEdit}

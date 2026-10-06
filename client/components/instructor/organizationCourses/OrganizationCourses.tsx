@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Building2, PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,10 +14,7 @@ import { getOrganizationCourses } from "@/lib/api/getOrganizationCourses";
 import { updateCourseStatus } from "@/lib/api/updateCourseStatus";
 
 import { CourseStatusType } from "@/types/course.type";
-import {
-  GetOrganizationCoursesResponse,
-  MyOrganization,
-} from "@/types/organization.type";
+import { GetOrganizationCoursesResponse } from "@/types/organization.type";
 
 import OrganizationCoursesFilter from "./OrganizationCoursesFilter";
 import OrganizationCoursesTable from "./OrganizationCoursesTable";
@@ -40,37 +36,35 @@ export default function OrganizationCourses() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [organization, setOrganization] = useState<MyOrganization | null>(null);
-  const [data, setData] = useState<GetOrganizationCoursesResponse | null>(null);
+  const queryClient = useQueryClient();
 
-  const [hasResolvedOrganization, setHasResolvedOrganization] = useState(false);
-  const [hasFetchedCourses, setHasFetchedCourses] = useState(false);
+  const queryString = searchParams.toString();
 
-  const getMyOrganizationMutation = useMutation({
-    mutationFn: getMyOrganization,
-
-    onSuccess: (response) => {
-      setOrganization(response.organization);
-      setHasResolvedOrganization(true);
-    },
-
-    onError: () => {
-      setHasResolvedOrganization(true);
-    },
+  const {
+    data: organizationResponse,
+    isLoading: isLoadingOrganization,
+    isError: isOrganizationError,
+    error: organizationError,
+    refetch: refetchOrganization,
+  } = useQuery({
+    queryKey: ["my-organization"],
+    queryFn: getMyOrganization,
+    staleTime: 5 * 60 * 1000,
   });
 
-  const getCoursesMutation = useMutation({
-    mutationFn: (queryString: string) =>
-      getOrganizationCourses(organization!._id, queryString),
+  const organization = organizationResponse?.organization ?? null;
 
-    onSuccess: (response) => {
-      setData(response);
-      setHasFetchedCourses(true);
-    },
-
-    onError: () => {
-      setHasFetchedCourses(true);
-    },
+  const {
+    data,
+    isLoading: isLoadingCourses,
+    isFetching: isFetchingCourses,
+    error: coursesError,
+  } = useQuery({
+    queryKey: ["organization-courses", organization?._id, queryString],
+    queryFn: () => getOrganizationCourses(organization!._id, queryString),
+    enabled: Boolean(organization),
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
   });
 
   const changeStatusMutation = useMutation({
@@ -83,17 +77,19 @@ export default function OrganizationCourses() {
     }) => updateCourseStatus(courseId, status),
 
     onSuccess: (response) => {
-      setData((prev) =>
-        prev
-          ? {
-              ...prev,
-              courses: prev.courses.map((course) =>
-                course._id === response.course._id
-                  ? { ...course, status: response.course.status }
-                  : course,
-              ),
-            }
-          : prev,
+      queryClient.setQueriesData<GetOrganizationCoursesResponse>(
+        { queryKey: ["organization-courses", organization?._id] },
+        (prev) =>
+          prev
+            ? {
+                ...prev,
+                courses: prev.courses.map((course) =>
+                  course._id === response.course._id
+                    ? { ...course, status: response.course.status }
+                    : course,
+                ),
+              }
+            : prev,
       );
 
       toast.success("Course status updated");
@@ -104,34 +100,21 @@ export default function OrganizationCourses() {
     },
   });
 
-  useEffect(() => {
-    getMyOrganizationMutation.mutate();
-  }, []);
-
-  useEffect(() => {
-    if (!organization) return;
-
-    getCoursesMutation.mutate(searchParams.toString());
-  }, [searchParams, organization]);
-
   const goToPage = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(queryString);
 
     params.set("page", String(page));
 
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const organizationError = getMyOrganizationMutation.error;
-
-  const isInitialLoading =
-    !hasResolvedOrganization || (!!organization && !hasFetchedCourses);
+  const isInitialLoading = isLoadingOrganization || isLoadingCourses;
 
   if (isInitialLoading) {
     return <OrganizationCoursesPageSkeleton />;
   }
 
-  if (organizationError || !organization) {
+  if (isOrganizationError || !organization) {
     const isMissing =
       organizationError?.message ===
       "No organization is linked to this account";
@@ -160,7 +143,9 @@ export default function OrganizationCourses() {
 
           <Button
             variant="outline"
-            onClick={() => getMyOrganizationMutation.mutate()}>
+            onClick={() => {
+              refetchOrganization();
+            }}>
             Try again
           </Button>
         </div>
@@ -239,13 +224,13 @@ export default function OrganizationCourses() {
         </div>
       </div>
 
-      <OrganizationCoursesFilter />
+      {pagination.total > 0 ? <OrganizationCoursesFilter /> : null}
 
       <div className="w-full overflow-hidden rounded-xl border bg-background shadow-sm">
         <OrganizationCoursesTable
           courses={data?.courses ?? []}
-          isLoading={getCoursesMutation.isPending}
-          error={getCoursesMutation.error}
+          isLoading={isFetchingCourses && !data?.courses?.length}
+          error={coursesError}
           onStatusChange={(courseId, status) =>
             changeStatusMutation.mutate({ courseId, status })
           }

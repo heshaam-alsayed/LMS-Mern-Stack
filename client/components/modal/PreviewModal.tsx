@@ -24,7 +24,6 @@ export default function PreviewModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[calc(100%-2rem)] !max-w-6xl overflow-hidden p-0 sm:w-[50vw]">
-        {/* Header */}
         <DialogHeader className="border-b border-border  px-6 py-5">
           <div className="flex items-start gap-4">
             <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -56,7 +55,6 @@ export default function PreviewModal({
           </div>
         </DialogHeader>
 
-        {/* Video */}
         <div className=" p-4 sm:px-6 sm:py-2">
           <div className="overflow-hidden rounded-xl">
             <CoursePlayer

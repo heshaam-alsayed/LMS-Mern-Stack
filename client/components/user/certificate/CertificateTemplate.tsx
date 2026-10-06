@@ -127,12 +127,9 @@ export function CertificateTemplate({
   return (
     <main className="min-h-screen bg-background px-4 py-6 text-foreground sm:px-6 lg:px-10 lg:py-8">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-7">
-        {/* Header */}
         <header className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
           <div className="p-5 sm:p-6 lg:p-7">
-            {/* Top Header */}
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-              {/* Certificate Info */}
               <div className="flex min-w-0 items-start gap-4">
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary shadow-sm sm:size-14">
                   <Award className="size-6 sm:size-7" />
@@ -163,7 +160,6 @@ export function CertificateTemplate({
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex w-full shrink-0 flex-col gap-2 sm:flex-row lg:w-auto">
                 <div className="flex flex-col gap-2">
                   <Button
@@ -209,7 +205,6 @@ export function CertificateTemplate({
               </div>
             </div>
 
-            {/* Credential Details */}
             <CredentialDetails
               recipientName={recipientName}
               issuedDate={issuedDate}
@@ -219,7 +214,6 @@ export function CertificateTemplate({
           </div>
         </header>
 
-        {/* Full Width Certificate */}
         <section className="min-w-0">
           <div ref={certificateRef}>
             <CertificatePaper

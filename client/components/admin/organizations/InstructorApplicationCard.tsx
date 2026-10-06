@@ -77,7 +77,6 @@ export default function InstructorApplicationCard({ application }: Props) {
   return (
     <Card className="overflow-hidden border-border bg-card">
       <CardContent className="p-0">
-        {/* Header */}
         <div className="border-b border-border px-5 py-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3">
@@ -104,10 +103,8 @@ export default function InstructorApplicationCard({ application }: Props) {
           </div>
         </div>
 
-        {/* Application Details */}
         <div className="px-5 py-5">
           <div className="grid gap-5">
-            {/* Organization */}
             <div>
               <div className="mb-2 flex items-center gap-2">
                 <Building2 className="size-4 text-muted-foreground" />
@@ -122,7 +119,6 @@ export default function InstructorApplicationCard({ application }: Props) {
               </p>
             </div>
 
-            {/* Description */}
             <div>
               <p className="mb-2 text-xs font-medium text-muted-foreground">
                 Organization Description
@@ -141,7 +137,6 @@ export default function InstructorApplicationCard({ application }: Props) {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-between gap-4 border-t border-border bg-muted/20 px-5 py-3.5">
           <div className="flex min-w-0 items-center gap-2">
             <CalendarDays className="size-4 shrink-0 text-muted-foreground" />

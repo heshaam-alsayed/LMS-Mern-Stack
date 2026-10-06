@@ -24,20 +24,19 @@ export default function UserSelectFilters({
   const isTeam = pathName.includes("/team");
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
-      {/* ==================== ROLE ==================== */}
+    <div className="flex w-full flex-col gap-4">
       {!isTeam && (
-        <div className="flex flex-col gap-1.5">
+        <div className="flex w-full flex-col gap-1.5">
           <label className="text-sm font-medium text-foreground">Role</label>
 
           <Select
             value={searchParams.get("role") || "all"}
             onValueChange={(value) => updateQuery("role", value)}>
-            <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectTrigger className="h-10 w-full">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
 
-            <SelectContent>
+            <SelectContent className="w-full">
               <SelectItem value="all">All Roles</SelectItem>
 
               <SelectItem value="user">User</SelectItem>
@@ -50,8 +49,7 @@ export default function UserSelectFilters({
         </div>
       )}
 
-      {/* ==================== VERIFICATION ==================== */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex w-full flex-col gap-1.5">
         <label className="text-sm font-medium text-foreground">
           Verification
         </label>
@@ -59,11 +57,11 @@ export default function UserSelectFilters({
         <Select
           value={searchParams.get("isVerified") || "all"}
           onValueChange={(value) => updateQuery("isVerified", value)}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="h-10 w-full">
             <SelectValue placeholder="Select verification" />
           </SelectTrigger>
 
-          <SelectContent>
+          <SelectContent className="w-full">
             <SelectItem value="all">All</SelectItem>
 
             <SelectItem value="true">Verified</SelectItem>
@@ -73,18 +71,17 @@ export default function UserSelectFilters({
         </Select>
       </div>
 
-      {/* ==================== SORT ==================== */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex w-full flex-col gap-1.5">
         <label className="text-sm font-medium text-foreground">Sort by</label>
 
         <Select
           value={searchParams.get("sort") || "all"}
           onValueChange={(value) => updateQuery("sort", value)}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="h-10 w-full">
             <SelectValue placeholder="Select sorting" />
           </SelectTrigger>
 
-          <SelectContent>
+          <SelectContent className="w-full">
             <SelectItem value="all">Default</SelectItem>
 
             <SelectItem value="-createdAt">Newest</SelectItem>

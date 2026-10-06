@@ -24,7 +24,6 @@ export default function ReviewItem({
 
   return (
     <article className="flex gap-3">
-      {/* Review Avatar */}
       <div className="size-10 shrink-0 overflow-hidden rounded-full ring-1 ring-border">
         <Image
           src={
@@ -38,9 +37,7 @@ export default function ReviewItem({
         />
       </div>
 
-      {/* Review Content */}
       <div className="min-w-0 flex-1">
-        {/* Name + Date */}
         <div className="flex items-center justify-between gap-3">
           <h4 className="text-sm font-semibold capitalize text-foreground">
             {review.user?.name}
@@ -53,19 +50,15 @@ export default function ReviewItem({
           </span>
         </div>
 
-        {/* Rating */}
         <div className="mt-1">
           <Ratings rating={review.rating} />
         </div>
 
-        {/* Comment */}
         <p className="mt-2 text-sm leading-6 text-foreground/80">
           {review.comment}
         </p>
 
-        {/* Actions */}
         <div className="mt-2 flex items-center gap-4">
-          {/* Show Replies - All Users */}
           {hasReplies && (
             <button
               type="button"
@@ -78,12 +71,10 @@ export default function ReviewItem({
           )}
         </div>
 
-        {/* Replies */}
         {hasReplies && isRepliesExpanded && (
           <div className="mt-5 space-y-4 border-l border-border pl-4">
             {[...review.commentReplies].reverse().map((reply) => (
               <div key={reply._id} className="flex gap-3">
-                {/* Reply Avatar */}
                 <div className="size-8 shrink-0 overflow-hidden rounded-full ring-1 ring-border">
                   <Image
                     src={
@@ -97,7 +88,6 @@ export default function ReviewItem({
                   />
                 </div>
 
-                {/* Reply Content */}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex gap-2">

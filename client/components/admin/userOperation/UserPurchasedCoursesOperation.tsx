@@ -40,7 +40,6 @@ export default function UserPurchasedCoursesOperation({
   if (!courses?.length) {
     return (
       <section className="space-y-4">
-        {/* Section Header */}
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/15 bg-primary/10 text-primary">
             <BookOpen className="h-5 w-5" />
@@ -57,7 +56,6 @@ export default function UserPurchasedCoursesOperation({
           </div>
         </div>
 
-        {/* Empty State */}
         <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-card px-6 py-12 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-muted/40 text-muted-foreground">
             <BookOpen className="h-6 w-6" />
@@ -77,7 +75,6 @@ export default function UserPurchasedCoursesOperation({
 
   return (
     <section className="space-y-4">
-      {/* Section Header */}
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/15 bg-primary/10 text-primary">
           <BookOpen className="h-5 w-5" />
@@ -94,7 +91,6 @@ export default function UserPurchasedCoursesOperation({
         </div>
       </div>
 
-      {/* Courses */}
       <div className="space-y-4">
         {courses.map((item) => {
           const { course, purchase, progress } = item;
@@ -114,9 +110,7 @@ export default function UserPurchasedCoursesOperation({
               key={course._id}
               className="group overflow-hidden rounded-2xl border border-border/60 bg-card transition-all duration-200 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
               <div className="p-4 sm:p-5">
-                {/* Course Top */}
                 <div className="flex flex-col gap-5 lg:flex-row">
-                  {/* Thumbnail */}
                   <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl border border-border bg-muted sm:w-64 lg:w-72">
                     {course.thumbnail?.url ? (
                       <Image
@@ -135,7 +129,6 @@ export default function UserPurchasedCoursesOperation({
                     <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
                   </div>
 
-                  {/* Course Information */}
                   <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="inline-flex items-center rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium capitalize text-primary">
@@ -208,7 +201,6 @@ export default function UserPurchasedCoursesOperation({
                   </div>
                 </div>
 
-                {/* Progress Section */}
                 <div className="mt-5 border-t border-border/60 pt-5">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
@@ -243,7 +235,6 @@ export default function UserPurchasedCoursesOperation({
                     </div>
                   </div>
 
-                  {/* Current Lecture + Last Access */}
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
                       <div className="flex items-start gap-3">

@@ -1,6 +1,6 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Socket } from "socket.io";
-import redis from "../utils/redis";
+import redis, { sessionKey } from "../utils/redis";
 
 interface IDecoded extends JwtPayload {
   id: string;
@@ -31,7 +31,7 @@ export const authenticationSocket = async (
     if (!decoded?.id) {
       return next(new Error("Invalid token"));
     }
-    const session = await redis.get(decoded.id);
+    const session = await redis.get(sessionKey(decoded.id));
 
     if (!session) {
       return next(new Error("Session expired"));

@@ -15,7 +15,6 @@ export default function CourseActions({
 }: Props) {
   return (
     <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
-      {/* Previous */}
       <button
         type="button"
         onClick={() => setActive(active - 1)}
@@ -57,7 +56,6 @@ export default function CourseActions({
         <span>Previous</span>
       </button>
 
-      {/* Create Course */}
       <button
         type="button"
         onClick={onOpen}

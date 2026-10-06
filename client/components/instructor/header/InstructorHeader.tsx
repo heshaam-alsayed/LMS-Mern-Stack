@@ -113,7 +113,7 @@ export function InstructorHeader() {
             <InstructorOrdersLink />
 
             <InstructorStudentsLink />
-            <div className="mx-1 hidden h-5 w-px shrink-0 bg-border lg:block" />
+            <div className="mx-2 hidden h-5 w-px shrink-0 bg-border lg:block" />
 
             <InstructorHeaderMenu
               title="Content"

@@ -81,7 +81,6 @@ export function InstructorAccountMenu() {
         align="end"
         sideOffset={6}
         className="w-60 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-background p-1 shadow-lg duration-150 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95">
-        {/* Account Header */}
         <div className="mb-1 rounded-lg bg-muted/40 px-3 py-2.5">
           <div className="flex items-center gap-2.5">
             <Avatar className="size-9 shrink-0 border border-border bg-muted/40">
@@ -119,7 +118,6 @@ export function InstructorAccountMenu() {
           </div>
         </div>
 
-        {/* Account Links */}
         <div className="space-y-0.5">
           {ACCOUNT_ITEMS.map((item) => {
             const isActive = pathname === item.href;
@@ -169,7 +167,6 @@ export function InstructorAccountMenu() {
 
         <DropdownMenuSeparator className="my-1 bg-border/60" />
 
-        {/* Sign Out */}
         <DropdownMenuItem
           className="group cursor-pointer rounded-lg p-0 outline-none focus:bg-transparent"
           onClick={() => void handleInstructorLogout()}>

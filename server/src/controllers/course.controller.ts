@@ -15,6 +15,7 @@ import ApiFeatures from "../utils/apiFeatures";
 import AppError from "../utils/AppError";
 import { getAllCategoriesService } from "../services/category.service";
 import { getCourseProgressService } from "../services/courseProgress.service";
+import { getLatestReviewsService } from "../services/review.service";
 
 export const createCourse = async (
   req: Request,
@@ -50,7 +51,7 @@ export const updateCourse = async (
     const courseId = req.params.id.toString();
     const data = req.body;
 
-    // role and id come from the session, the client cannot influence them
+    // role and id come from the session
     const actor = {
       id: req.user!._id.toString(),
       role: req.user!.role,
@@ -242,18 +243,37 @@ export const getCourses = async (
   next: NextFunction,
 ) => {
   try {
-    console.log(req.query);
+    const MAX_LIMIT = 100;
+    const limit = Math.min(Number(req.query.limit) || 10, MAX_LIMIT);
+
     const features = new ApiFeatures(
       CourseModel.find().select(
-        "name description price estimatePrice thumbnail level ratings purchased status createdAt updatedAt",
+        "name description price estimatePrice thumbnail level ratings purchased reviewsCount totalLectures status createdAt updatedAt",
       ),
-      req.query,
+      { ...req.query, limit },
     )
-      .filter(["price", "estimatePrice", "level", "ratings", "purchased"])
+      .filter([
+        "price",
+        "estimatePrice",
+        "level",
+        "status",
+        "ratings",
+        "purchased",
+        "reviewsCount",
+        "totalLectures",
+      ])
       .search(["name", "description", "tags"])
-      .sort(["price", "estimatePrice", "ratings", "purchased", "createdAt"]);
+      .sort([
+        "price",
+        "estimatePrice",
+        "ratings",
+        "purchased",
+        "reviewsCount",
+        "totalLectures",
+        "createdAt",
+      ]);
 
-    // Get total BEFORE pagination
+    // Get total beofre pagination
     const total = await features.query.clone().countDocuments();
 
     // Apply pagination
@@ -445,6 +465,23 @@ export const getOperationCourse = async (
   try {
     const courseId = req.params.courseId as string;
     const data = await courseService.getOperationCourse(courseId);
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getLatestReviews = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const data = await getLatestReviewsService(req.query.top);
+
     res.status(200).json({
       success: true,
       data,

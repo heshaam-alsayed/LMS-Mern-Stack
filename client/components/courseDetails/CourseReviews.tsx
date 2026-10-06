@@ -36,7 +36,6 @@ export default function CourseReviews({ reviews }: Props) {
 
   return (
     <section className="mt-12">
-      {/* Header */}
       <div>
         <h2 className="text-2xl font-bold tracking-tight text-foreground">
           Student Reviews
@@ -47,10 +46,8 @@ export default function CourseReviews({ reviews }: Props) {
         </p>
       </div>
 
-      {/* Rating Summary */}
       <div className="mt-6 rounded-xl border border-border bg-card p-5 sm:p-6">
         <div className="grid gap-6 md:grid-cols-[180px_1fr]">
-          {/* Average */}
           <div className="flex flex-col items-center justify-center border-b border-border pb-6 md:border-b-0 md:border-r md:pb-0 md:pr-6">
             <span className="text-5xl font-bold tracking-tight text-foreground">
               {averageRating.toFixed(1)}
@@ -65,7 +62,6 @@ export default function CourseReviews({ reviews }: Props) {
             </p>
           </div>
 
-          {/* progress bar */}
           <div className="flex flex-col justify-center gap-3">
             {ratingCounts.map(({ rating, count }) => {
               const percentage =
@@ -98,7 +94,6 @@ export default function CourseReviews({ reviews }: Props) {
         </div>
       </div>
 
-      {/* Reviews */}
       <div className="mt-8">
         {reviewCount === 0 ? (
           <div className="rounded-xl border border-dashed border-border px-6 py-10 text-center">
@@ -118,7 +113,6 @@ export default function CourseReviews({ reviews }: Props) {
               return (
                 <article key={review._id} className="py-6">
                   <div className="flex gap-4">
-                    {/* Avatar */}
                     <div className="size-11 shrink-0 overflow-hidden rounded-full ring-1 ring-border">
                       <Image
                         src={
@@ -132,9 +126,7 @@ export default function CourseReviews({ reviews }: Props) {
                       />
                     </div>
 
-                    {/* Content */}
                     <div className="min-w-0 flex-1">
-                      {/* User Info */}
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
                           <h3 className="text-sm font-semibold capitalize text-foreground">
@@ -151,7 +143,6 @@ export default function CourseReviews({ reviews }: Props) {
                         </span>
                       </div>
 
-                      {/* Review */}
                       <p className=" text-sm  text-foreground/80">
                         {review.comment}
                       </p>
@@ -163,9 +154,7 @@ export default function CourseReviews({ reviews }: Props) {
                         </span>
                       </p>
 
-                      {/* Date */}
 
-                      {/* Show / Hide Replies */}
                       {review.commentReplies?.length > 0 && (
                         <button
                           type="button"
@@ -194,12 +183,10 @@ export default function CourseReviews({ reviews }: Props) {
                         </button>
                       )}
 
-                      {/* Replies */}
                       {isExpanded && review.commentReplies?.length > 0 && (
                         <div className="mt-5 space-y-4 border-l-2 border-border pl-4">
                           {[...review.commentReplies].reverse().map((reply) => (
                             <div key={reply._id} className="flex gap-3">
-                              {/* Reply Avatar */}
                               <div className="size-9 shrink-0 overflow-hidden rounded-full ring-1 ring-border">
                                 <Image
                                   src={
@@ -213,7 +200,6 @@ export default function CourseReviews({ reviews }: Props) {
                                 />
                               </div>
 
-                              {/* Reply Content */}
                               <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-2">
                                   <h4 className="text-sm font-semibold capitalize text-foreground">

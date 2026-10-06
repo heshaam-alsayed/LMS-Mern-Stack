@@ -10,7 +10,19 @@ import UserModel from "../models/user.model";
 import OrderModel from "../models/order.model";
 import CourseModel from "../models/course.model";
 import { stripe } from "../config/stripe";
-import redis from "../utils/redis";
+import redis, {
+  delCached,
+  sanitizeUser,
+  sessionKey,
+  setCached,
+  userPublicKey,
+} from "../utils/redis";
+import { bumpCatalogGeneration } from "../utils/courseCache";
+import {
+  invalidateOrgCachesByInstructor,
+  invalidateOrgCourseOrdersCache,
+  invalidateOrgDataCaches,
+} from "./organization.service";
 import Stripe from "stripe";
 import { initializeCourseProgress } from "./courseProgress.service";
 import { notifyCourseInstructor } from "./notification.service";
@@ -106,7 +118,13 @@ export const createOrder = async (
     throw new AppError("Failed to update user", 500);
   }
 
-  await redis.set(user._id.toString(), JSON.stringify(updatedUser));
+  await redis.set(
+    sessionKey(user._id.toString()),
+    JSON.stringify(sanitizeUser(updatedUser)),
+    "EX",
+    7 * 24 * 60 * 60,
+  );
+  await delCached(userPublicKey(user._id.toString()));
 
   course.purchased = (course.purchased ?? 0) + 1;
 
@@ -114,7 +132,30 @@ export const createOrder = async (
     validateBeforeSave: false,
   });
 
-  await initializeCourseProgress(user._id.toString(), course._id.toString());
+  // purchased counter is shown in public lists (sort=purchased, ratings),
+  // orphan every cached catalog page
+  await bumpCatalogGeneration();
+
+  await invalidateOrgCachesByInstructor(String(course.instructor ?? ""));
+
+  // dashboards/orders-summary/analytics aggregates changed with this order;
+  // the org-level keys are all addressable, so drop them here, plus the
+  // per-course 12-month chart for the exact course that was just sold
+  await invalidateOrgDataCaches(String(course.organization ?? ""));
+
+  await invalidateOrgCourseOrdersCache(
+    String(course.organization ?? ""),
+    String(course._id),
+  );
+
+  const totalLectures = course.courseData?.length ?? 0;
+
+  await initializeCourseProgress(
+    user._id.toString(),
+    course._id.toString(),
+    totalLectures,
+    String(course.organization ?? ""),
+  );
   const notificationData = {
     title: "New Order Received",
     message: `You have a new order from ${user.name}. The user purchased the course "${course.name}"`,

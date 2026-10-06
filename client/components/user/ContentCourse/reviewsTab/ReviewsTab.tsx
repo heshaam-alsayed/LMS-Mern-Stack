@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { IReviewCourse } from "@/types/course.type";
@@ -22,6 +22,7 @@ export default function ReviewsTab({
 }: Props) {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
+  const queryClient = useQueryClient();
 
   // Review currently showing replies
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
@@ -45,6 +46,10 @@ export default function ReviewsTab({
       setReview("");
 
       refetchContent();
+
+      // the stored review count feeds the course details page and every card
+      queryClient.invalidateQueries({ queryKey: ["course-details", courseId] });
+      queryClient.invalidateQueries({ queryKey: ["public-courses-user"] });
     },
 
     onError: (error: Error) => {
@@ -83,7 +88,6 @@ export default function ReviewsTab({
         </p>
       </div>
 
-      {/* Add Review */}
       <ReviewForm
         rating={rating}
         review={review}
@@ -93,7 +97,6 @@ export default function ReviewsTab({
         onSubmit={handleSubmit}
       />
 
-      {/* Reviews */}
       <div className="mt-10 border-t border-border pt-8">
         <div className="mb-5">
           <h3 className="text-base font-semibold text-foreground">

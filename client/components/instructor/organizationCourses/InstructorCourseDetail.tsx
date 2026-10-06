@@ -10,9 +10,11 @@ import {
   ArrowLeft,
   BookOpen,
   HelpCircle,
+  ListVideo,
   MessageSquareText,
   Sparkles,
   Star,
+  Users,
 } from "lucide-react";
 
 import { getOrganizationCourseDetail } from "@/lib/api/getOrganizationCourseDetail";
@@ -53,6 +55,7 @@ export default function InstructorCourseDetail({ id }: { id: string }) {
     queryKey,
     queryFn: () => getOrganizationCourseDetail(id),
     enabled: Boolean(id),
+    staleTime: 60 * 1000,
   });
 
   const course = data?.course;
@@ -96,11 +99,13 @@ export default function InstructorCourseDetail({ id }: { id: string }) {
             </h2>
 
             <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-              {error?.message ?? "This course does not exist in your organization."}
+              {error?.message ??
+                "This course does not exist in your organization."}
             </p>
           </div>
 
-          <Button onClick={() => router.push("/instructor/organization-courses")}>
+          <Button
+            onClick={() => router.push("/instructor/organization-courses")}>
             Back to courses
           </Button>
         </div>
@@ -119,120 +124,146 @@ export default function InstructorCourseDetail({ id }: { id: string }) {
         Back to courses
       </Button>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
-        <div className="relative aspect-video w-full bg-muted">
-          {course.thumbnail ? (
-            <Image
-              src={course.thumbnail}
-              alt={course.name}
-              fill
-              sizes="(max-width: 1024px) 100vw, 90vw"
-              className="object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <BookOpen className="h-10 w-10 text-muted-foreground/50" />
-            </div>
-          )}
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-primary/[0.02] to-transparent" />
 
-          <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-t from-black/70 via-black/40 to-transparent p-4 text-white">
-            <div className="min-w-0">
-              <p className="truncate text-xs uppercase tracking-wide text-white/80">
-                {organization.name}
-              </p>
-              <h1 className="mt-0.5 line-clamp-2 text-lg font-semibold sm:text-xl">
-                {course.name}
+        <div className="relative flex flex-col gap-6 p-5 sm:p-6 lg:flex-row">
+          <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-border bg-muted shadow-sm lg:aspect-[4/3] lg:w-80 lg:shrink-0">
+            {course?.thumbnail ? (
+              <Image
+                src={course.thumbnail}
+                alt={course.name}
+                fill
+                sizes="(max-width: 1024px) 100vw, 320px"
+                className="object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-background">
+                <BookOpen className="h-12 w-12 text-muted-foreground/40" />
+              </div>
+            )}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium uppercase tracking-wide text-primary">
+              {organization?.name}
+            </p>
+
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-2">
+              <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                {course?.name}
               </h1>
+
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-muted/70 px-2.5 py-1 text-xs font-semibold text-foreground">
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                {formatRating(course?.ratings || 0)}
+                <span className="font-normal text-muted-foreground">
+                  ({formatNumber(summary?.totalReviews || 0)})
+                </span>
+              </span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              {course.status ? (
-                <Badge className="bg-white/15 text-white backdrop-blur-sm hover:bg-white/20">
-                  {course.status}
-                </Badge>
+            {course?.status || course?.level ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {course?.status ? (
+                  <Badge className="bg-primary/10 text-primary hover:bg-primary/15">
+                    {course.status}
+                  </Badge>
+                ) : null}
+                {course.level ? (
+                  <Badge variant="secondary">{course.level}</Badge>
+                ) : null}
+              </div>
+            ) : null}
+
+            {course?.description ? (
+              <p className="mt-2.5 line-clamp-3 text-sm leading-6 text-muted-foreground">
+                {course.description}
+              </p>
+            ) : null}
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {course?.category ? (
+                <Badge variant="secondary">{course.category.title}</Badge>
               ) : null}
-              {course.level ? (
-                <Badge className="bg-white/15 text-white backdrop-blur-sm hover:bg-white/20">
-                  {course.level}
-                </Badge>
-              ) : null}
+              {parseTags(course?.tags)
+                .slice(0, 4)
+                .map((tag) => (
+                  <Badge key={tag} variant="outline">
+                    {tag}
+                  </Badge>
+                ))}
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4">
+              <p className="text-xs text-muted-foreground">
+                Created{" "}
+                {course?.createdAt
+                  ? new Date(course?.createdAt).toLocaleDateString()
+                  : DASH}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/course/${course?._id}`}>View public page</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="p-4 sm:p-6">
-          {course.description && (
-            <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">
-              {course.description}
-            </p>
-          )}
+        <div className="relative grid grid-cols-2 gap-px border-t border-border/60 bg-border/50 sm:grid-cols-4">
+          {[
+            {
+              label: "Enrollments",
+              value: formatNumber(course?.purchased || 0),
+              icon: Users,
+            },
+            {
+              label: "Lectures",
+              value: formatNumber(course?.totalLectures || 0),
+              icon: ListVideo,
+            },
+            {
+              label: "Questions",
+              value: formatNumber(summary?.totalQuestions ||0),
+              sub: `${formatNumber(summary?.answeredQuestions || 0)} answered`,
+              icon: HelpCircle,
+            },
+            {
+              label: "Rating",
+              value: formatRating(course?.ratings || 0),
+              sub: `${formatNumber(summary?.totalReviews || 0)} reviews`,
+              icon: Star,
+            },
+          ].map((item) => {
+            const Icon = item.icon;
 
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-xl border border-border bg-muted/30 p-4">
-              <p className="text-xs font-medium text-muted-foreground">
-                Enrollments
-              </p>
-              <p className="mt-1 text-lg font-semibold text-foreground">
-                {formatNumber(course.purchased)}
-              </p>
-            </div>
+            return (
+              <div
+                key={item.label}
+                className="flex items-center gap-3 bg-background px-5 py-4">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted/70 text-primary">
+                  <Icon className="h-4 w-4" />
+                </div>
 
-            <div className="rounded-xl border border-border bg-muted/30 p-4">
-              <p className="text-xs font-medium text-muted-foreground">Rating</p>
-              <p className="mt-1 flex items-baseline gap-1 text-lg font-semibold text-foreground">
-                {formatRating(course.ratings)}
-                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {formatNumber(summary.totalReviews)} reviews
-              </p>
-            </div>
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-medium text-muted-foreground">
+                    {item.label}
+                  </p>
 
-            <div className="rounded-xl border border-border bg-muted/30 p-4">
-              <p className="text-xs font-medium text-muted-foreground">
-                Lectures
-              </p>
-              <p className="mt-1 text-lg font-semibold text-foreground">
-                {course.totalLectures}
-              </p>
-            </div>
+                  <p className="mt-0.5 text-base font-semibold text-foreground">
+                    {item.value}
+                  </p>
 
-            <div className="rounded-xl border border-border bg-muted/30 p-4">
-              <p className="text-xs font-medium text-muted-foreground">
-                Questions
-              </p>
-              <p className="mt-1 text-lg font-semibold text-foreground">
-                {summary.totalQuestions}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {summary.answeredQuestions} answered
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center gap-2">
-            {course.category && (
-              <Badge variant="secondary">{course.category.title}</Badge>
-            )}
-            {parseTags(course.tags)
-              .slice(0, 4)
-              .map((tag) => (
-                <Badge key={tag} variant="outline">
-                  {tag}
-                </Badge>
-              ))}
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4">
-            <p className="text-xs text-muted-foreground">
-              Created {course.createdAt ? new Date(course.createdAt).toLocaleDateString() : DASH}
-            </p>
-            <div className="flex items-center gap-2">
-              <Button asChild variant="outline" size="sm">
-                <Link href={`/course/${course._id}`}>View public page</Link>
-              </Button>
-            </div>
-          </div>
+                  {item.sub ? (
+                    <p className="truncate text-[11px] text-muted-foreground/80">
+                      {item.sub}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -257,7 +288,7 @@ export default function InstructorCourseDetail({ id }: { id: string }) {
                   : "text-muted-foreground hover:text-foreground"
               }`}>
               <HelpCircle className="h-3.5 w-3.5" />
-              Questions ({summary.totalQuestions})
+              Questions ({summary?.totalQuestions})
             </button>
 
             <button
@@ -269,7 +300,7 @@ export default function InstructorCourseDetail({ id }: { id: string }) {
                   : "text-muted-foreground hover:text-foreground"
               }`}>
               <Star className="h-3.5 w-3.5" />
-              Reviews ({summary.totalReviews})
+              Reviews ({summary?.totalReviews})
             </button>
           </div>
         </div>
@@ -283,7 +314,7 @@ export default function InstructorCourseDetail({ id }: { id: string }) {
                 </div>
                 <p className="font-medium text-foreground">No questions yet</p>
                 <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                  Students haven't asked any questions on this course.
+                  Students haven&apos;t asked any questions on this course.
                 </p>
               </div>
             ) : (
@@ -292,7 +323,7 @@ export default function InstructorCourseDetail({ id }: { id: string }) {
                   <InstructorQuestionCard
                     key={question._id}
                     question={question}
-                    courseId={course._id}
+                    courseId={course?._id}
                     queryKey={queryKey}
                   />
                 ))}
@@ -305,7 +336,7 @@ export default function InstructorCourseDetail({ id }: { id: string }) {
               </div>
               <p className="font-medium text-foreground">No reviews yet</p>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                This course hasn't received any reviews.
+                This course hasn&apos;t received any reviews.
               </p>
             </div>
           ) : (
@@ -314,7 +345,7 @@ export default function InstructorCourseDetail({ id }: { id: string }) {
                 <InstructorReviewCard
                   key={review._id}
                   review={review}
-                  courseId={course._id}
+                  courseId={course?._id}
                   queryKey={queryKey}
                 />
               ))}

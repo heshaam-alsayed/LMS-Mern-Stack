@@ -1,10 +1,13 @@
+import { Suspense } from "react";
+
 import Invoices from "@/components/admin/invoices/Invoices";
-import React from "react";
+import InvoicesSkeleton from "@/components/skeleton/InvoicesSkeleton";
 
 export default function page() {
+  // the invoice filters read the query string
   return (
-    <div>
+    <Suspense fallback={<InvoicesSkeleton />}>
       <Invoices />
-    </div>
+    </Suspense>
   );
 }

@@ -13,7 +13,6 @@ type Props = {
 export default function InvoicesTable({ orders = [], onView }: Props) {
   return (
     <div className="w-full overflow-hidden rounded-xl border border-border bg-card">
-      {/* Header */}
       <div className="border-b border-border px-5 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -30,7 +29,6 @@ export default function InvoicesTable({ orders = [], onView }: Props) {
         </div>
       </div>
 
-      {/* Table */}
       {orders.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px]">
@@ -63,7 +61,6 @@ export default function InvoicesTable({ orders = [], onView }: Props) {
                 <tr
                   key={order._id}
                   className="transition-colors hover:bg-muted/20">
-                  {/* User */}
                   <td className="px-5 py-4">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-foreground">
@@ -76,7 +73,6 @@ export default function InvoicesTable({ orders = [], onView }: Props) {
                     </div>
                   </td>
 
-                  {/* Course */}
                   <td className="px-5 py-4">
                     <div className="flex min-w-0 items-center gap-3">
                       <p className="max-w-[280px] truncate text-sm font-medium text-foreground">
@@ -85,7 +81,6 @@ export default function InvoicesTable({ orders = [], onView }: Props) {
                     </div>
                   </td>
 
-                  {/* Amount */}
                   <td className="px-5 py-4">
                     <p className="text-sm font-semibold text-foreground">
                       ${order.price.toLocaleString()}
@@ -96,7 +91,6 @@ export default function InvoicesTable({ orders = [], onView }: Props) {
                     </p>
                   </td>
 
-                  {/* Created */}
                   <td className="px-5 py-4">
                     <p
                       className="text-sm text-muted-foreground"
@@ -107,7 +101,6 @@ export default function InvoicesTable({ orders = [], onView }: Props) {
                     </p>
                   </td>
 
-                  {/* Action */}
                   <td className="px-5 py-4 text-right">
                     <button
                       type="button"
@@ -123,7 +116,7 @@ export default function InvoicesTable({ orders = [], onView }: Props) {
           </table>
         </div>
       ) : (
-        /* Empty State */
+        // Empty State
         <div className="flex min-h-[220px] flex-col items-center justify-center px-5 text-center">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
             <Receipt className="h-5 w-5" />

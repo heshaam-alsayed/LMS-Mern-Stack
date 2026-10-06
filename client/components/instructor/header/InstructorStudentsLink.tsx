@@ -19,7 +19,7 @@ export default function InstructorStudentsLink() {
         rounded-md px-2
         text-xs font-medium
         transition-colors
-        lg:h-9 lg:px-3 lg:text-sm
+        lg:h-9 lg:px-3 lg:text-sm lg:ml-2
         ${
           isActive
             ? "bg-primary/10 text-primary"

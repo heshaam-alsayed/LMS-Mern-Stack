@@ -1,8 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Profile from "@/public/user-profile-icon-flat-style-600nw-2748799073.webp";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +15,7 @@ import {
   LayoutDashboard,
   ChevronRight,
   GraduationCap,
+  LifeBuoy,
 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
@@ -25,6 +23,8 @@ import { signOut, useSession } from "next-auth/react";
 import { toast } from "sonner";
 import Loader from "./Loader";
 import { useAppSelector } from "@/redux/hooks";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { getShortName } from "@/app/utils/helper";
 
 export default function UserMenu() {
   const router = useRouter();
@@ -75,19 +75,25 @@ export default function UserMenu() {
           aria-label="Open user menu"
           className="group relative flex h-10 w-10 items-center justify-center rounded-full outline-none transition-all focus-visible:ring-2 focus-visible:ring-primary/40">
           <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-border bg-muted transition-all group-hover:border-primary/40 group-hover:shadow-md">
-            {isLoading ? (
-              <div className="flex h-full w-full items-center justify-center">
-                <Loader />
-              </div>
-            ) : (
-              <Image
-                src={user?.avatar?.url || Profile}
-                alt="User Avatar"
-                width={40}
-                height={40}
-                className="h-full w-full object-cover"
-              />
-            )}
+            
+              <Avatar className="size-9 border border-border bg-muted/40">
+                {user?.avatar?.url ? (
+                  <AvatarImage
+                    src={user.avatar.url}
+                    alt={user.name}
+                    className="object-contain"
+                  />
+                ) : null}
+
+                <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
+                  {user?.name ? (
+                    getShortName(user.name)
+                  ) : (
+                    <User className="h-4 w-4" />
+                  )}
+                </AvatarFallback>
+              </Avatar>
+           
           </div>
 
           {isAuthenticated && (
@@ -102,19 +108,26 @@ export default function UserMenu() {
         className="w-[290px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-border/60 bg-background/95 p-1.5 shadow-xl backdrop-blur-xl">
         {isAuthenticated ? (
           <>
-            {/* User Header */}
             <div className="rounded-xl bg-muted/50 p-3">
               <div className="flex items-center gap-3">
                 <div className="relative shrink-0">
-                  <div className="h-12 w-12 overflow-hidden rounded-full border border-border bg-background">
-                    <Image
-                      src={user?.avatar?.url || Profile}
-                      alt="User Avatar"
-                      width={48}
-                      height={48}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
+                  <Avatar className="h-14 w-14 rounded-xl border border-border bg-muted/40">
+                    {user?.avatar?.url ? (
+                      <AvatarImage
+                        src={user.avatar.url}
+                        alt={user?.name || "User avatar"}
+                        className="object-contain"
+                      />
+                    ) : null}
+
+                    <AvatarFallback className="rounded-xl bg-primary/10 text-sm font-semibold text-primary">
+                      {user?.name ? (
+                        getShortName(user.name)
+                      ) : (
+                        <User className="h-5 w-5 text-primary" />
+                      )}
+                    </AvatarFallback>
+                  </Avatar>
 
                   <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-emerald-500" />
                 </div>
@@ -146,7 +159,6 @@ export default function UserMenu() {
               </div>
             </div>
 
-            {/* User Profile */}
             {isUser && (
               <DropdownMenuItem
                 className="group cursor-pointer rounded-xl px-3 py-3 outline-none focus:bg-muted"
@@ -160,6 +172,26 @@ export default function UserMenu() {
 
                   <p className="text-[11px] text-muted-foreground">
                     Manage your account
+                  </p>
+                </div>
+
+                <ChevronRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
+              </DropdownMenuItem>
+            )}
+
+            {isUser && (
+              <DropdownMenuItem
+                className="group cursor-pointer rounded-xl px-3 py-3 outline-none focus:bg-muted"
+                onClick={() => router.push("/user/support")}>
+                <div className="mr-3 flex h-9 w-9 items-center justify-center rounded-lg bg-muted transition-colors group-hover:bg-background">
+                  <LifeBuoy className="h-4 w-4 text-muted-foreground" />
+                </div>
+
+                <div className="flex-1">
+                  <p className="text-sm font-medium">My Tickets</p>
+
+                  <p className="text-[11px] text-muted-foreground">
+                    Track and chat with support
                   </p>
                 </div>
 

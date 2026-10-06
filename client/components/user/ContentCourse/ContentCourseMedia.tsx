@@ -64,22 +64,17 @@ export default function ContentCourseMedia({
   const completeLectureMutation = useMutation({
     mutationFn: (lectureId: string) => completeLecture(courseId, lectureId),
     onSuccess: (data) => {
-      console.log(data);
-      queryClient.setQueryData(
-        ["access-content-course", courseId],
-        (oldData: any) => {
-          if (!oldData) return;
+      queryClient.setQueryData(["access-content-course", courseId], (oldData: any) => {
+        if (!oldData) return;
 
-          return {
-            ...oldData,
-            progress: data.progress,
-          };
-        },
-      );
+        return {
+          ...oldData,
+          progress: data.progress,
+        };
+      });
     },
     onError: (error) => {
       toast.error(error.message);
-      console.error("COMPLETE LECTURE ERROR:", error);
     },
   });
   const tabs = ["overview", "resources", "qa", "reviews"];
@@ -128,7 +123,6 @@ export default function ContentCourseMedia({
   return (
     <div className="w-full p-3">
       <div className="w-full rounded-lg">
-        {/* Video */}
         <CoursePlayer
           title={currentLesson?.title}
           videoUrl={currentLesson?.videoUrl}
@@ -136,7 +130,6 @@ export default function ContentCourseMedia({
           key={currentLesson?._id}
         />
 
-        {/* Lesson Navigation */}
         <div className="mt-4 flex items-center justify-between">
           <button
             type="button"
@@ -157,7 +150,6 @@ export default function ContentCourseMedia({
           </button>
         </div>
 
-        {/* Current Lesson */}
         <div className="my-3 px-5 py-4">
           <div className="mb-1 flex items-center gap-2">
             <PlayCircle className="size-4 text-primary" />
@@ -205,7 +197,6 @@ export default function ContentCourseMedia({
             totalLectures={progress.totalLectures}
           />
         )}
-        {/* Tabs */}
         <div className="w-full">
           <div className="flex w-full items-center overflow-x-auto rounded-sm bg-muted">
             {tabs.map((tab) => {

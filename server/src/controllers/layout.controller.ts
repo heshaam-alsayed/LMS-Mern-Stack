@@ -5,6 +5,10 @@ import { LayoutType } from "../interfaces/layoutInterface";
 import UserModel from "../models/user.model";
 import CourseModel from "../models/course.model";
 import CertificateModel from "../models/certificate.model";
+import { getCached, setCached } from "../utils/redis";
+
+const HERO_STATS_CACHE_KEY = "stats:hero";
+const HERO_STATS_TTL = 60;
 
 export const getAllLayouts = async (
   req: Request,
@@ -88,6 +92,24 @@ export const getHeroStats = async (
   next: NextFunction,
 ) => {
   try {
+    // same four integers for every visitor, the counter cache is decorative
+    // (30-60s lag is invisible); a 60s ttl avoids any invalidation surface
+    const cachedStats = await getCached<{
+      totalStudents: number;
+      totalCourses: number;
+      totalCertificates: number;
+      totalEnrollments: number;
+    }>(HERO_STATS_CACHE_KEY);
+
+    if (cachedStats) {
+      res.status(200).json({
+        success: true,
+        stats: cachedStats,
+      });
+
+      return;
+    }
+
     const [totalStudents, totalCourses, totalCertificates, enrollmentResult] =
       await Promise.all([
         UserModel.find({ role: "user" }).countDocuments(),
@@ -108,14 +130,19 @@ export const getHeroStats = async (
         ]),
       ]);
     const totalEnrollments = enrollmentResult[0]?.totalEnrollments ?? 0;
+
+    const stats = {
+      totalStudents,
+      totalCourses,
+      totalCertificates,
+      totalEnrollments,
+    };
+
+    await setCached(HERO_STATS_CACHE_KEY, stats, HERO_STATS_TTL);
+
     res.status(200).json({
       success: true,
-      stats: {
-        totalStudents,
-        totalCourses,
-        totalCertificates,
-        totalEnrollments,
-      },
+      stats,
     });
   } catch (error) {
     next(error);

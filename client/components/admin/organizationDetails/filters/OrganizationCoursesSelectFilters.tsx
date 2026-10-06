@@ -19,7 +19,6 @@ export default function OrganizationCoursesSelectFilters({
 }: OrganizationCoursesSelectFiltersProps) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-      {/* ==================== LEVEL ==================== */}
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="org-courses-level"
@@ -46,7 +45,6 @@ export default function OrganizationCoursesSelectFilters({
         </Select>
       </div>
 
-      {/* ==================== RATING ==================== */}
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="org-courses-rating"
@@ -77,7 +75,6 @@ export default function OrganizationCoursesSelectFilters({
         </Select>
       </div>
 
-      {/* ==================== PURCHASED ==================== */}
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="org-courses-purchased"
@@ -108,7 +105,6 @@ export default function OrganizationCoursesSelectFilters({
         </Select>
       </div>
 
-      {/* ==================== SORT ==================== */}
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="org-courses-sort"

@@ -4,8 +4,7 @@ import {
   NextFunction,
 } from "express";
 import { generateCertificateService, getCertificateService } from "../services/certificate.service";
-
-
+import { getAllCertificatesAdminService } from "../services/organization.service";
 
 export const generateCertificate = async (
   req: Request,
@@ -54,6 +53,27 @@ export const getCertificate = async (
     res.status(200).json({
       success: true,
       certificate,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllCertificates = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { result, stats, pagination, certificates } =
+      await getAllCertificatesAdminService(req.query);
+
+    res.status(200).json({
+      success: true,
+      result,
+      stats,
+      pagination,
+      certificates,
     });
   } catch (error) {
     next(error);

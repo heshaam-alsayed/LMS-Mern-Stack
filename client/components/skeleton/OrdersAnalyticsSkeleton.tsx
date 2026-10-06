@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function OrdersAnalyticsSkeleton() {
   return (
     <div className="space-y-8">
-      {/* Analytics Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
           <Skeleton className="h-7 w-40" />
@@ -17,19 +16,16 @@ export default function OrdersAnalyticsSkeleton() {
         <Skeleton className="h-10 w-[130px]" />
       </div>
 
-      {/* Statistics Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <Card key={index}>
             <CardContent className="p-5">
-              {/* Top Row */}
               <div className="flex items-center justify-between">
                 <Skeleton className="h-10 w-10 rounded-lg" />
 
                 <Skeleton className="h-8 w-20" />
               </div>
 
-              {/* Content */}
               <div className="mt-5 space-y-2">
                 <Skeleton className="h-4 w-24" />
 
@@ -40,7 +36,6 @@ export default function OrdersAnalyticsSkeleton() {
         ))}
       </div>
 
-      {/* Monthly Orders Chart */}
       <Card>
         <CardHeader className="space-y-2">
           <Skeleton className="h-6 w-52" />
@@ -83,7 +78,6 @@ export default function OrdersAnalyticsSkeleton() {
           </div>
         </CardContent>
 
-        {/* Chart Footer */}
         <div className="border-t border-border px-6 py-4">
           <div className="flex items-center gap-3">
             <Skeleton className="h-8 w-8 rounded-lg" />

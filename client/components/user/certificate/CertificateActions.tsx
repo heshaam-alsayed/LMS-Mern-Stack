@@ -19,7 +19,6 @@ export function CertificateActions({
 }: CertificateActionsProps) {
   return (
     <>
-      {/* Share Achievement */}
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="border-b border-border bg-muted/30 p-5">
           <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -49,7 +48,6 @@ export function CertificateActions({
         </div>
       </div>
 
-      {/* Verification */}
       <button
         type="button"
         onClick={onVerify}

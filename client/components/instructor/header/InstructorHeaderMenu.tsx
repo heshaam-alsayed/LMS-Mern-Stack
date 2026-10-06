@@ -52,7 +52,8 @@ export function InstructorHeaderMenu({
             transition-colors
             focus-visible:ring-2
             focus-visible:ring-ring
-            lg:h-9 lg:text-sm
+            lg:h-9 lg:text-sm 
+            mr-1
             ${
               hasActiveItem
                 ? "bg-primary/10 text-primary"

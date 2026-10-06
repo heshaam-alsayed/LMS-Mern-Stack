@@ -37,7 +37,9 @@ export type CertificateUser = {
 export type CertificateCourse = {
   _id: string;
   name: string;
-  thumbnail: string;
+  thumbnail: {
+    url:string
+  };
 };
 
 export type OrganizationCertificate = {
@@ -45,7 +47,7 @@ export type OrganizationCertificate = {
   certificateId: string;
   user: CertificateUser;
   course: CertificateCourse;
-  organization: string;
+  organization: string | { _id: string; name: string };
   studentName: string;
   courseTitle: string;
   learningHours: number;
@@ -64,6 +66,14 @@ export type CertificateStats = {
 export type GetOrganizationCertificatesResponse = {
   success: boolean;
   organization: MyOrganization;
+  result: number;
+  stats: CertificateStats;
+  certificates: OrganizationCertificate[];
+  pagination: OrganizationPagination;
+};
+
+export type GetCertificatesAdminResponse = {
+  success: boolean;
   result: number;
   stats: CertificateStats;
   certificates: OrganizationCertificate[];

@@ -22,11 +22,15 @@ interface OrganizationCoursesPriceFiltersProps {
 
   debouncedEstimatedPrice: PriceState;
 
+  urlPrice: PriceState;
+
+  urlEstimatedPrice: PriceState;
+
   updateRangeQuery: (field: string, min: string, max: string) => void;
 }
 
-// Keeps digits and a single decimal point only, so a negative sign (or any
-// other character) can never be entered. Prices cannot go below 0.
+// Keeps digits and a single decimal point only so a
+// other character can never be entered Prices cannot go below
 const sanitizeNumber = (value: string) => value.replace(/[^0-9.]/g, "");
 
 export default function OrganizationCoursesPriceFilters({
@@ -36,23 +40,42 @@ export default function OrganizationCoursesPriceFilters({
   setEstimatedPrice,
   debouncedPrice,
   debouncedEstimatedPrice,
+  urlPrice,
+  urlEstimatedPrice,
   updateRangeQuery,
 }: OrganizationCoursesPriceFiltersProps) {
   useEffect(() => {
+    if (
+      debouncedPrice.min === urlPrice.min &&
+      debouncedPrice.max === urlPrice.max
+    ) {
+      return;
+    }
+
     updateRangeQuery("price", debouncedPrice.min, debouncedPrice.max);
-  }, [debouncedPrice]);
+  }, [debouncedPrice, urlPrice.min, urlPrice.max]);
 
   useEffect(() => {
+    if (
+      debouncedEstimatedPrice.min === urlEstimatedPrice.min &&
+      debouncedEstimatedPrice.max === urlEstimatedPrice.max
+    ) {
+      return;
+    }
+
     updateRangeQuery(
       "estimatePrice",
       debouncedEstimatedPrice.min,
       debouncedEstimatedPrice.max,
     );
-  }, [debouncedEstimatedPrice]);
+  }, [
+    debouncedEstimatedPrice,
+    urlEstimatedPrice.min,
+    urlEstimatedPrice.max,
+  ]);
 
   return (
     <>
-      {/* ==================== MIN PRICE ==================== */}
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="org-courses-min-price"
@@ -77,7 +100,6 @@ export default function OrganizationCoursesPriceFilters({
         />
       </div>
 
-      {/* ==================== MAX PRICE ==================== */}
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="org-courses-max-price"
@@ -102,7 +124,6 @@ export default function OrganizationCoursesPriceFilters({
         />
       </div>
 
-      {/* ==================== MIN ESTIMATED ==================== */}
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="org-courses-min-estimated"
@@ -127,7 +148,6 @@ export default function OrganizationCoursesPriceFilters({
         />
       </div>
 
-      {/* ==================== MAX ESTIMATED ==================== */}
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="org-courses-max-estimated"

@@ -1,9 +1,8 @@
-import NextAuth, { customFetch } from "next-auth";
+import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
 import { socialAuth } from "@/lib/api/socialAuth";
 import { setAuthCookies } from "@/lib/setAuthCookies";
-import { oauthFetch } from "@/lib/api/oauthFetch";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: true,
@@ -25,7 +24,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   callbacks: {
     async jwt({ token, user, account, trigger }) {
-      // Run only when the user just signed in with a provider
+      // Run only when the user just signed in with a
       if ((trigger === "signIn" || trigger === "signUp") && user?.email) {
         const result = await socialAuth({
           email: user.email,

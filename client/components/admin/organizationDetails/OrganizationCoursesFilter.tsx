@@ -57,7 +57,7 @@ export default function OrganizationCoursesFilter({ pagination }: Props) {
       params.set(key, value);
     }
 
-    // Reset page whenever filter/search/limit changes
+    // Reset page whenever filter search limit changes
     if (key !== "page") {
       params.delete("page");
     }
@@ -115,7 +115,6 @@ export default function OrganizationCoursesFilter({ pagination }: Props) {
           updateQuery={updateQuery}
         />
 
-        {/* ==================== ITEMS PER PAGE ==================== */}
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="org-courses-limit"
@@ -146,6 +145,7 @@ export default function OrganizationCoursesFilter({ pagination }: Props) {
           search={search}
           setSearch={setSearch}
           debouncedSearch={debouncedSearch}
+          urlSearch={searchParams.get("search") || ""}
           updateQuery={updateQuery}
         />
 
@@ -156,6 +156,14 @@ export default function OrganizationCoursesFilter({ pagination }: Props) {
           setEstimatedPrice={setEstimatedPrice}
           debouncedPrice={debouncedPrice}
           debouncedEstimatedPrice={debouncedEstimatedPrice}
+          urlPrice={{
+            min: searchParams.get("price[gte]") || "",
+            max: searchParams.get("price[lte]") || "",
+          }}
+          urlEstimatedPrice={{
+            min: searchParams.get("estimatePrice[gte]") || "",
+            max: searchParams.get("estimatePrice[lte]") || "",
+          }}
           updateRangeQuery={updateRangeQuery}
         />
       </div>
