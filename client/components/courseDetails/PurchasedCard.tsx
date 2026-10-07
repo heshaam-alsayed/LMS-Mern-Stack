@@ -1,12 +1,14 @@
 "use client";
 
 import { Check, Globe2, PlayCircle, Share2 } from "lucide-react";
+import { useState } from "react";
 
 import { ICoursePublicDetails } from "@/types/course.type";
 import CoursePlayer from "../admin/course/coursePlayer/CoursePlayer";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/redux/hooks";
 import { toast } from "sonner";
+import ShareCourseModal from "../modal/ShareCourseModal";
 
 type Props = {
   course: ICoursePublicDetails;
@@ -23,6 +25,7 @@ export default function PurchaseCard({
 }: Props) {
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
+  const [shareOpen, setShareOpen] = useState(false);
   const handlePurchaseClick = () => {
     if (isPurchased) {
       router.push(`/user/access-course/${course._id}`);
@@ -162,6 +165,7 @@ export default function PurchaseCard({
         <div className="mt-2 border-t border-border max-lg:p-4 lg:pt-3">
           <button
             type="button"
+            onClick={() => setShareOpen(true)}
             className="
               flex
               items-center
@@ -180,6 +184,12 @@ export default function PurchaseCard({
         </div>
       </div>
     </div>
+
+    <ShareCourseModal
+      open={shareOpen}
+      onOpenChange={setShareOpen}
+      courseId={course._id}
+    />
   );
 }
 
