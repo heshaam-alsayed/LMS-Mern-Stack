@@ -41,7 +41,7 @@ export default function SocialAuthButtons() {
         }
         type="button"
         variant="outline"
-        className="w-full bg-white text-gray-900 border-gray-300 hover:bg-white hover:text-[#4285F4] dark:border-gray-500 dark:hover:bg-white">
+        className="w-full bg-muted text-gray-900 border-gray-300 hover:bg-muted hover:text-[#4285F4] dark:border-gray-500 dark:hover:bg-muted">
         <GoogleIcon className="mr-2 h-4 w-4" />
         Google
       </Button>
