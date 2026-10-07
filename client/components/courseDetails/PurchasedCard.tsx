@@ -40,7 +40,8 @@ export default function PurchaseCard({
     onBuyNow();
   };
   return (
-    <div
+    <>
+      <div
       className="
         w-full
         overflow-hidden
@@ -185,11 +186,12 @@ export default function PurchaseCard({
       </div>
     </div>
 
-    <ShareCourseModal
-      open={shareOpen}
-      onOpenChange={setShareOpen}
-      courseId={course._id}
-    />
+      <ShareCourseModal
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        courseId={course._id}
+      />
+    </>
   );
 }
 
