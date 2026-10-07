@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import authService from "../services/auth.service";
 import {
   accessCookieOptions,
+  clearCookieOptions,
   handleRefreshAccessToken,
   refreshCookieOptions,
   sendToken,
@@ -54,8 +55,8 @@ export const login = async (
     const { accessToken, refreshToken } = await sendToken(user);
     const { password, ...userWithoutPassword } = user.toObject();
 
-    res.cookie("access_token", accessToken, accessCookieOptions);
-    res.cookie("refresh_token", refreshToken, refreshCookieOptions);
+    res.cookie("access_token", accessToken, accessCookieOptions());
+    res.cookie("refresh_token", refreshToken, refreshCookieOptions());
     res.status(200).json({
       success: true,
       user: userWithoutPassword,
@@ -106,8 +107,8 @@ export const logout = async (
   next: NextFunction,
 ) => {
   try {
-    res.cookie("access_token", "", { maxAge: 1 });
-    res.cookie("refresh_token", "", { maxAge: 1 });
+    res.cookie("access_token", "", clearCookieOptions());
+    res.cookie("refresh_token", "", clearCookieOptions());
     const userId = req.user?._id.toString() || "";
     await redis.del(sessionKey(userId));
     res.status(200).json({
@@ -129,22 +130,9 @@ export const refreshAccessToken = async (
     const { accessToken, newRefreshToken } =
       await handleRefreshAccessToken(oldRefreshToken);
 
-    
-    res.cookie("access_token", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 5 * 60 * 1000,
-      path: "/",
-    });
+    res.cookie("access_token", accessToken, accessCookieOptions());
 
-    res.cookie("refresh_token", newRefreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
-    });
+    res.cookie("refresh_token", newRefreshToken, refreshCookieOptions());
 
     return res.status(200).json({
       success: true,

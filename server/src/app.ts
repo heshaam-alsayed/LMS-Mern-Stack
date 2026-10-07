@@ -33,11 +33,30 @@ app.set("query parser", "extended");
 app.set("trust proxy", 1);
 
 // CORS
-const allowedOrigins = process.env.ORIGIN?.split(",") ?? [];
+const envOrigins = (process.env.ORIGIN || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin?: string) => {
+  if (!origin) return true; // non-browser / same-origin requests
+  if (envOrigins.includes(origin)) return true;
+
+  try {
+    const hostname = new URL(origin).hostname;
+    if (hostname === "localhost" && origin.includes("localhost")) return true;
+    if (hostname.endsWith(".onrender.com")) return true;
+    if (hostname.endsWith(".vercel.app")) return true;
+  } catch {
+    return false;
+  }
+
+  return false;
+};
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => callback(null, isAllowedOrigin(origin)),
     credentials: true,
   }),
 );

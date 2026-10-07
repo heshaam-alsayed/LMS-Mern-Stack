@@ -101,19 +101,31 @@ export const refreshExpireDays = parseInt(
 );
 
 // cookies config
-export const accessCookieOptions: ITokenOptions = {
+const isProduction = process.env.NODE_ENV === "production";
+
+export const accessCookieOptions = (): ITokenOptions => ({
   expires: new Date(Date.now() + accessExpireMin * 60 * 1000),
   maxAge: accessExpireMin * 60 * 1000,
   httpOnly: true,
-  sameSite: "lax",
-};
+  sameSite: isProduction ? "none" : "lax",
+  secure: isProduction,
+});
 
-export const refreshCookieOptions: ITokenOptions = {
+export const refreshCookieOptions = (): ITokenOptions => ({
   expires: new Date(Date.now() + refreshExpireDays * 24 * 60 * 60 * 1000),
   maxAge: refreshExpireDays * 24 * 60 * 60 * 1000,
   httpOnly: true,
-  sameSite: "lax",
-};
+  sameSite: isProduction ? "none" : "lax",
+  secure: isProduction,
+});
+
+export const clearCookieOptions = (): ITokenOptions => ({
+  expires: new Date(Date.now()),
+  maxAge: 1,
+  httpOnly: true,
+  sameSite: isProduction ? "none" : "lax",
+  secure: isProduction,
+});
 
 // SEND TOKENS
 export const sendToken = async (user: IUser) => {
