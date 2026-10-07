@@ -26,7 +26,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                 disableTransitionOnChange>
                 <AuthProvider>{children}</AuthProvider>
                 <Toaster
-                  position="top-right"
+                  position="bottom-right"
                   toastOptions={{
                     duration: 3500,
                   }}
