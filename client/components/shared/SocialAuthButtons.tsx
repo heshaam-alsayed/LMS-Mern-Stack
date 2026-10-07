@@ -41,7 +41,7 @@ export default function SocialAuthButtons() {
         }
         type="button"
         variant="outline"
-        className="w-full bg-white text-gray-900 border-gray-300 hover:bg-gray-50 dark:border-gray-500 dark:hover:bg-gray-100">
+        className="w-full bg-white text-gray-900 border-gray-300 hover:bg-white hover:text-[#4285F4] dark:border-gray-500 dark:hover:bg-white">
         <GoogleIcon className="mr-2 h-4 w-4" />
         Google
       </Button>
@@ -54,7 +54,7 @@ export default function SocialAuthButtons() {
         }
         type="button"
         variant="outline"
-        className="w-full bg-[#1f2328] border-[#3d444d] text-white hover:bg-[#32383f]">
+        className="w-full bg-muted text-gray-900 border-gray-300 hover:bg-muted hover:text-primary dark:border-gray-500">
         <GithubIcon className="mr-2 h-4 w-4" />
         GitHub
       </Button>
