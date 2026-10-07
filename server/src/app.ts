@@ -27,6 +27,11 @@ export const app = express();
 // Query parser
 app.set("query parser", "extended");
 
+// Render (and most hosts) terminate TLS and forward requests through a
+// proxy. Without this every visitor appears as the same IP, so the rate
+// limiter below would exhaust its budget globally and return 429.
+app.set("trust proxy", 1);
+
 // CORS
 const allowedOrigins = process.env.ORIGIN?.split(",") ?? [];
 
@@ -40,7 +45,7 @@ app.use(
 // Rate Limiting
 const limit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 100,
+  limit: 1000,
   standardHeaders: "draft-8",
   legacyHeaders: false,
   ipv6Subnet: 56,

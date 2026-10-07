@@ -4,7 +4,7 @@ import CategoryModal from "@/components/modal/CategoryModal";
 import { getAllCategories } from "@/lib/api/getAllCategories";
 import { ICategory } from "@/types/category.type";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ErrorState from "../layout/ErrorState";
 import EmptyCategories from "./EmptyCategories";
@@ -69,17 +69,20 @@ export default function EditCategory() {
     setOpen(false);
   };
 
-  const setPage = (nextPage: number) => {
-    const params = new URLSearchParams(searchParams.toString());
+  const setPage = useCallback(
+    (nextPage: number) => {
+      const params = new URLSearchParams(searchParams.toString());
 
-    if (nextPage <= 1) {
-      params.delete("page");
-    } else {
-      params.set("page", String(nextPage));
-    }
+      if (nextPage <= 1) {
+        params.delete("page");
+      } else {
+        params.set("page", String(nextPage));
+      }
 
-    router.push(stringifyParams(params, pathname), { scroll: false });
-  };
+      router.push(stringifyParams(params, pathname), { scroll: false });
+    },
+    [searchParams, router, pathname],
+  );
 
   const { data, isError, isPending, error, refetch } = useQuery({
     queryKey: ["categories", "admin", page, LIMIT],
@@ -95,7 +98,7 @@ export default function EditCategory() {
     if (page > data.totalPages) {
       setPage(data.totalPages);
     }
-  }, [isPending, data, page]);
+  }, [isPending, data, page, setPage]);
 
   const createCategoryMutation = useMutation({
     mutationFn: createCategory,

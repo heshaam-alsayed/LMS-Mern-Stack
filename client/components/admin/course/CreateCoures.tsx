@@ -25,14 +25,12 @@ export default function CreateCourse() {
   const [active, setActive] = useState(2);
 
   const [courseInfo, setCourseInfo] = useState<CourseInfo>({
-    name: "Complete MERN Stack Web Development Bootcamp",
-    description:
-      "Master modern full-stack web development by building real-world applications with MongoDB, Express.js, React, and Node.js. This comprehensive course takes you from the fundamentals of JavaScript and React all the way to building production-ready full-stack applications with authentication, authorization, REST APIs, database design, file uploads, payment integration, deployment, and advanced application architecture. Throughout the course, you will work on practical projects that simulate real-world development environments and learn how to structure scalable applications using modern development best practices.",
-    price: "",
+    name: "",
+    description:"",    price: "",
     estimatePrice: "",
-    tags: "MERN, React, Node.js, Express, MongoDB, JavaScript, TypeScript, Full Stack, Web Development",
-    level: "intermediate",
-    status: "draft",
+    tags:"" , 
+    level:"",
+    status:"published",
     demoUrl: "",
     thumbnail: "",
   });
@@ -46,15 +44,14 @@ export default function CreateCourse() {
   const [courseContentData, setCourseContentData] = useState([
     {
       videoUrl: "",
-      title: "Introduction to Full Stack Development",
-      description:
-        "In this lesson, we will introduce the MERN stack and explain how MongoDB, Express.js, React, and Node.js work together to create modern full-stack web applications. You will learn about the responsibilities of the frontend, backend, database, and API layers and understand how data flows between the client and server",
-      videoSection: "Introduction",
+      title: "",
+      description : "",
+      videoSection: "",
       videoLength: "",
       links: [
         {
-          title: "Node.js Official Documentation",
-          url: "https://nodejs.org/docs/latest/api/",
+          title: "",
+          url: "",
         },
       ],
       suggestion: "",
