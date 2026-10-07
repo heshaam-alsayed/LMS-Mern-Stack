@@ -54,12 +54,17 @@ export const getAllCategories = async (
   next: NextFunction,
 ) => {
   try {
-    const categories = await getAllCategoriesService();
+    const page = Number(req.query.page) || undefined;
+    const limit = Number(req.query.limit) || undefined;
+
+    const result = await getAllCategoriesService(
+      page && limit ? { page, limit } : {},
+    );
 
     res.status(200).json({
       success: true,
-      results: categories.length,
-      categories,
+      results: result.categories.length,
+      ...result,
     });
   } catch (error) {
     next(error);

@@ -146,7 +146,7 @@ export default function CreateCourse() {
   useScrollToTop(active);
   const { data } = useQuery({
     queryKey: ["categories"],
-    queryFn: getAllCategories,
+    queryFn: () => getAllCategories(),
     staleTime: 1000 * 60 * 60,
   });
   return (

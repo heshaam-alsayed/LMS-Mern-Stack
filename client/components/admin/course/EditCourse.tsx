@@ -307,7 +307,7 @@ export default function EditCourse() {
 
   const { data: responseData } = useQuery({
     queryKey: ["categories"],
-    queryFn: getAllCategories,
+    queryFn: () => getAllCategories(),
     staleTime: 1000 * 60 * 60,
   });
   if (!courseId) {
@@ -373,7 +373,7 @@ export default function EditCourse() {
             setCourseInfo={setCourseInfo}
             active={active}
             setActive={setActive}
-            categoriesOptions={responseData?.categories}
+            categoriesOptions={responseData?.categories || []}
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
             role={isAdminRoute ? "admin" : "instructor"}

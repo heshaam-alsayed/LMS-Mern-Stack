@@ -77,7 +77,7 @@ export const listTickets = async ({
 
   const skip = (page - 1) * limit;
 
-  const [tickets, total] = await Promise.all([
+  const [tickets, total, allTotal] = await Promise.all([
     TicketModel.find(filter)
       .populate("user", "name email avatar")
       .populate("assignedTo", "name email avatar")
@@ -87,11 +87,15 @@ export const listTickets = async ({
       .lean(),
 
     TicketModel.countDocuments(filter),
+
+    TicketModel.countDocuments(),
   ]);
 
   return {
     tickets,
     total,
+    totalPages: Math.ceil(total / limit),
+    allTotal,
     page,
     limit,
   };
@@ -114,7 +118,7 @@ export const listAssignedTickets = async ({
 
   const skip = (page - 1) * limit;
 
-  const [tickets, total] = await Promise.all([
+  const [tickets, total, allTotal] = await Promise.all([
     TicketModel.find(filter)
       .populate("user", "name email avatar")
       .populate("assignedTo", "name email avatar")
@@ -124,11 +128,15 @@ export const listAssignedTickets = async ({
       .lean(),
 
     TicketModel.countDocuments(filter),
+
+    TicketModel.countDocuments({ assignedTo: adminId }),
   ]);
 
   return {
     tickets,
     total,
+    totalPages: Math.ceil(total / limit),
+    allTotal,
     page,
     limit,
   };
@@ -151,7 +159,7 @@ export const listMyTickets = async ({
 
   const skip = (page - 1) * limit;
 
-  const [tickets, total] = await Promise.all([
+  const [tickets, total, allTotal] = await Promise.all([
     TicketModel.find(filter)
       .populate("user", "name email avatar")
       .populate("assignedTo", "name email avatar")
@@ -161,11 +169,15 @@ export const listMyTickets = async ({
       .lean(),
 
     TicketModel.countDocuments(filter),
+
+    TicketModel.countDocuments({ user: userId }),
   ]);
 
   return {
     tickets,
     total,
+    totalPages: Math.ceil(total / limit),
+    allTotal,
     page,
     limit,
   };

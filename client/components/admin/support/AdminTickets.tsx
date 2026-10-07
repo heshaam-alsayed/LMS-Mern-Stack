@@ -1,20 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { AlertTriangle, LifeBuoy, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminTickets } from "@/hooks/support/useAdminTickets";
+import {
+  useTicketListUrlParams,
+  type TicketStatusFilter,
+} from "@/hooks/support/useTicketListUrlParams";
 import { useAppSelector } from "@/redux/hooks";
 
 import AdminTicketCard, { AdminTicketsEmpty } from "./AdminTicketCard";
 
-import type { TicketStatus } from "@/types/ticket.type";
-
-type StatusFilter = "all" | TicketStatus;
-
-const FILTERS: { value: StatusFilter; label: string }[] = [
+const FILTERS: { value: TicketStatusFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "open", label: "Open" },
   { value: "in_progress", label: "In Progress" },
@@ -26,20 +25,19 @@ const LIMIT = 9;
 export default function AdminTickets() {
   const { user } = useAppSelector((state) => state.auth);
 
-  const [status, setStatus] = useState<StatusFilter>("all");
-  const [page, setPage] = useState(1);
+  const { status, page, setFilter, setPage } = useTicketListUrlParams();
 
-  const { data, isPending, isError, error, refetch } =
-    useAdminTickets({ page, limit: LIMIT, status });
+  const { data, isPending, isError, error, refetch } = useAdminTickets({
+    page,
+    limit: LIMIT,
+    status,
+  });
 
   const tickets = data?.tickets ?? [];
   const totalPages = data?.totalPages ?? 1;
   const total = data?.total ?? 0;
 
-  const handleStatusChange = (value: StatusFilter) => {
-    setStatus(value);
-    setPage(1);
-  };
+  const isEmpty = (data?.allTotal ?? 0) === 0;
 
   if (isPending) {
     return (
@@ -96,60 +94,64 @@ export default function AdminTickets() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1 rounded-xl border bg-card p-1">
-          {FILTERS.map((filter) => (
-            <button
-              key={filter.value}
-              type="button"
-              onClick={() => handleStatusChange(filter.value)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                status === filter.value
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}>
-              {filter.label}
-            </button>
-          ))}
-        </div>
+        {!isEmpty ? (
+          <div className="flex items-center gap-1 rounded-xl border bg-card p-1">
+            {FILTERS.map((filter) => (
+              <button
+                key={filter.value}
+                type="button"
+                onClick={() => setFilter(filter.value)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                  status === filter.value
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                }`}>
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {tickets.length === 0 ? (
         <AdminTicketsEmpty />
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {tickets.map((ticket) => (
-            <AdminTicketCard
-              key={ticket._id}
-              ticket={ticket}
-              currentAdminId={user?._id}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {tickets.map((ticket) => (
+              <AdminTicketCard
+                key={ticket._id}
+                ticket={ticket}
+                currentAdminId={user?._id}
+              />
+            ))}
+          </div>
+
+          {totalPages > 1 ? (
+            <div className="flex items-center justify-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage(Math.max(1, page - 1))}>
+                Previous
+              </Button>
+
+              <span className="text-xs text-muted-foreground">
+                Page {page} of {totalPages}
+              </span>
+
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage(page + 1)}>
+                Next
+              </Button>
+            </div>
+          ) : null}
+        </>
       )}
-
-      {totalPages > 1 ? (
-        <div className="flex items-center justify-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => setPage((current) => Math.max(1, current - 1))}>
-            Previous
-          </Button>
-
-          <span className="text-xs text-muted-foreground">
-            Page {page} of {totalPages}
-          </span>
-
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page >= totalPages}
-            onClick={() => setPage((current) => current + 1)}>
-            Next
-          </Button>
-        </div>
-      ) : null}
     </div>
   );
 }

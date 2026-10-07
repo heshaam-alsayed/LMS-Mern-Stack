@@ -85,9 +85,10 @@ export interface ListTicketsResponse {
   success: boolean;
   tickets: ITicket[];
   total: number;
+  totalPages: number;
+  allTotal: number;
   page: number;
   limit: number;
-  totalPages: number;
 }
 
 export interface AcceptTicketResponse {

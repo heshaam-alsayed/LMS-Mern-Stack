@@ -12,6 +12,5 @@ export const useAssignedTickets = (params: ListTicketsParams = {}) => {
   return useQuery({
     queryKey: ["assigned-tickets", page, limit, status],
     queryFn: () => getAssignedTickets({ page, limit, status }),
-    placeholderData: (previousData) => previousData,
   });
 };

@@ -12,6 +12,5 @@ export const useMyTickets = (params: ListTicketsParams = {}) => {
   return useQuery({
     queryKey: ["my-tickets", page, limit, status],
     queryFn: () => getMyTickets({ page, limit, status }),
-    placeholderData: (previousData) => previousData,
   });
 };

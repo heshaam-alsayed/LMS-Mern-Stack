@@ -12,6 +12,5 @@ export const useAdminTickets = (params: ListTicketsParams = {}) => {
   return useQuery({
     queryKey: ["admin-tickets", page, limit, status],
     queryFn: () => getTickets({ page, limit, status }),
-    placeholderData: (previousData) => previousData,
   });
 };

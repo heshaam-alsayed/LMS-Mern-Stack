@@ -23,7 +23,38 @@ export const findCategoryBySlug = async (slug: string) => {
 };
 
 export const findAllCategories = async () => {
-  return await CategoryModel.find()
+  return await CategoryModel.find().populate("courses", "_id");
+};
+
+type FindCategoriesPaginatedOptions = {
+  page: number;
+  limit: number;
+};
+
+export const findCategoriesPaginated = async ({
+  page,
+  limit,
+}: FindCategoriesPaginatedOptions) => {
+  const skip = (page - 1) * limit;
+
+  const [categories, total] = await Promise.all([
+    CategoryModel.find()
+      .populate("courses", "_id")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+
+    CategoryModel.countDocuments(),
+  ]);
+
+  return {
+    categories,
+    total,
+    totalPages: Math.ceil(total / limit),
+    page,
+    limit,
+  };
 };
 
 export const updateCategory = async (categoryId: string, data: ICategory) => {

@@ -3,7 +3,7 @@ import { Ref } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = {
-  ref: Ref<HTMLDivElement> ;
+  ref?: Ref<HTMLDivElement> ;
 };
 
 export default function InstructorCoursePerformanceSkeleton({ ref }: Props) {

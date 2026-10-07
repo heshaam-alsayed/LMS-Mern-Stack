@@ -2,6 +2,7 @@ import {
   createCategory,
   deleteCategory,
   findAllCategories,
+  findCategoriesPaginated,
   findCategoryById,
   findCategoryBySlug,
   findCategoryByTitle,
@@ -12,7 +13,7 @@ import { slugify } from "../utils/helper";
 import { delCached, getCached, setCached } from "../utils/redis";
 import { bumpCatalogGeneration } from "../utils/courseCache";
 
-const ALL_CATEGORIES_CACHE_KEY = "categories:all";
+const ALL_CATEGORIES_CACHE_KEY = "categories:all:v2";
 const ALL_CATEGORIES_TTL = 300;
 
 export const createCategoryService = async (title: string) => {
@@ -89,18 +90,38 @@ export const updateCategoryService = async (
   return updated;
 };
 
-export const getAllCategoriesService = async () => {
+export const getAllCategoriesService = async (
+  options: { page?: number; limit?: number } = {},
+) => {
+  const { page, limit } = options;
+
+  if (page && limit) {
+    return findCategoriesPaginated({ page, limit });
+  }
+
   const cached = await getCached<any>(ALL_CATEGORIES_CACHE_KEY);
 
   if (cached) {
-    return cached;
+    return {
+      categories: cached,
+      total: cached.length,
+      totalPages: 1,
+      page: 1,
+      limit: cached.length,
+    };
   }
 
   const categories = await findAllCategories();
 
   await setCached(ALL_CATEGORIES_CACHE_KEY, categories, ALL_CATEGORIES_TTL);
 
-  return categories;
+  return {
+    categories,
+    total: categories.length,
+    totalPages: 1,
+    page: 1,
+    limit: categories.length,
+  };
 };
 
 export const getCategoryByIdService = async (categoryId: string) => {

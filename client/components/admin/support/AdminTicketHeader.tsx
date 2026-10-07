@@ -207,7 +207,7 @@ export default function AdminTicketHeader({
       </div>
 
       {/* Attachments */}
-      {ticket?.attachments?.length > 0 && (
+      {(ticket?.attachments?.length || 0) > 0 && (
         <div className="rounded-2xl border bg-card">
           <div className="flex items-center gap-2 border-b px-5 py-4">
             <Paperclip className="size-4 text-muted-foreground" />

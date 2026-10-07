@@ -136,7 +136,7 @@ export default function Footer() {
   // the courses page reads the same key so the request is shared
   const { data: categoryData, isPending: isPendingCategories } = useQuery({
     queryKey: ["all-categories"],
-    queryFn: getAllCategories,
+    queryFn: () => getAllCategories(),
     staleTime: 60 * 60 * 1000,
   });
 
