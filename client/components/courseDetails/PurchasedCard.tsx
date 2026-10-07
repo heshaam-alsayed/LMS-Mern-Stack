@@ -23,7 +23,6 @@ export default function PurchaseCard({
 }: Props) {
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
-  console.log(user);
   const handlePurchaseClick = () => {
     if (isPurchased) {
       router.push(`/user/access-course/${course._id}`);
@@ -114,7 +113,7 @@ export default function PurchaseCard({
             </>
           )}
 
-          {user?.role === "user" && (
+          {(!user || user.role === "user") && (
             <button
               onClick={handlePurchaseClick}
               type="button"
