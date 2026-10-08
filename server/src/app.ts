@@ -3,8 +3,10 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { rateLimit } from "express-rate-limit";
+import swaggerUi from "swagger-ui-express";
 
 import { globalErrorHandler } from "./middlewares/GlobalErrorHandler";
+import { swaggerDocument } from "./docs/swagger";
 
 import authRouter from "./routes/auth.route";
 import userRouter from "./routes/user.route";
@@ -102,6 +104,9 @@ app.use("/api/v1/instructor-applications", instructorApplicationRouter);
 app.use("/api/v1/organizations", organizationRouter); 
 app.use("/api/v1/vdocipher", vdocipherRouter);
 app.use("/api/v1/tickets", ticketRouter);
+
+// API documentation (Swagger UI)
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // 404 - Route not found
 
