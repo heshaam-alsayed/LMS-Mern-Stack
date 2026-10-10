@@ -60,6 +60,8 @@ export const login = async (
     res.status(200).json({
       success: true,
       user: userWithoutPassword,
+      accessToken,
+      refreshToken,
     });
   } catch (err) {
     next(err);

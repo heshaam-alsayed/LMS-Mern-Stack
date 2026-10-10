@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { setUser } from "@/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/redux/hooks";
 import { useRouter, useSearchParams } from "next/navigation";
+import { setClientAuthCookies } from "@/lib/api/setClientAuthCookies";
 
 // 1 define schema with zod
 const loginSchema = z.object({
@@ -36,6 +37,10 @@ export function useLoginForm() {
     mutationFn: login,
     onSuccess: (data) => {
       dispatch(setUser(data.user));
+      setClientAuthCookies({
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+      });
       toast.success("login successfully");
       const callbackUrl = searchParams.get("callbackUrl");
       router.push(callbackUrl || "/");
