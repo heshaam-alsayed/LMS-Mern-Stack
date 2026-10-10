@@ -15,6 +15,7 @@ import EmailField from "../shared/EmailField";
 import PasswordField from "../shared/PasswordField";
 import AuthDivider from "../shared/AuthDivider";
 import SocialAuthButtons from "../shared/SocialAuthButtons";
+import DemoLoginBadges from "../shared/DemoLoginBadges";
 import Loader from "../shared/Loader";
 import CheckOrganizationModal from "../modal/CheckOrganizationModal";
 
@@ -88,6 +89,12 @@ function LoginFormFields({ toggleMode }: Props) {
     setIsStatusDialogOpen(false);
   };
 
+  const handleDemoLogin = (demoEmail: string, demoPassword: string) => {
+    form.setValue("email", demoEmail, { shouldValidate: true });
+    form.setValue("password", demoPassword, { shouldValidate: true });
+    form.handleSubmit(onSubmit)();
+  };
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -99,6 +106,8 @@ function LoginFormFields({ toggleMode }: Props) {
           showPassword={showPassword}
           onToggle={() => setShowPassword((p) => !p)}
         />
+
+        <DemoLoginBadges onSelect={handleDemoLogin} disabled={isPending} />
 
         <div className="flex justify-end">
           <Link
