@@ -15,7 +15,7 @@ export const DEMO_ACCOUNTS = [
   },
   {
     role: "Instructor",
-    email: "omar.mahmoud@lms.test",
+    email: "inst.karim@lms.test",
     password: DEMO_PASSWORD,
     icon: GraduationCap,
     className:
@@ -23,7 +23,7 @@ export const DEMO_ACCOUNTS = [
   },
   {
     role: "Admin",
-    email: "mostafa.ahmed@lms.test",
+    email: "heshamelsauied@gmail.com",
     password: DEMO_PASSWORD,
     icon: ShieldCheck,
     className:

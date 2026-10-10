@@ -3,8 +3,8 @@
 // Upserts the three live-demo accounts used by the client demo badges so that
 // each has the correct role:
 //   youssef.hassan@lms.test -> user
-//   omar.mahmoud@lms.test   -> instructor
-//   mostafa.ahmed@lms.test  -> admin
+//   inst.karim@lms.test     -> instructor
+//   heshamelsauied@gmail.com-> admin
 //
 // Safe to re-run: it upserts by email and always re-applies the target role.
 // The password is hashed up front (findOneAndUpdate never runs pre("save")).
@@ -18,8 +18,8 @@ const DEMO_PASSWORD = process.env.DEMO_SEED_PASSWORD || "Password123";
 
 const DEMO_ACCOUNTS = [
   { email: "youssef.hassan@lms.test", name: "Youssef Hassan", role: "user" },
-  { email: "omar.mahmoud@lms.test", name: "Omar Mahmoud", role: "instructor" },
-  { email: "mostafa.ahmed@lms.test", name: "Mostafa Ahmed", role: "admin" },
+  { email: "inst.karim@lms.test", name: "Karim", role: "instructor" },
+  { email: "heshamelsauied@gmail.com", name: "Hesham", role: "admin" },
 ] as const;
 
 const run = async () => {
