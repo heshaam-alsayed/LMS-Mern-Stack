@@ -101,7 +101,10 @@ export const refreshExpireDays = parseInt(
 );
 
 // cookies config
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction =
+  process.env.NODE_ENV === "production" ||
+  process.env.RENDER === "true" ||
+  process.env.VERCEL === "1";
 
 export const accessCookieOptions = (): ITokenOptions => ({
   expires: new Date(Date.now() + accessExpireMin * 60 * 1000),
