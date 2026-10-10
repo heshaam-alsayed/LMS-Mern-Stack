@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "seed:users": "ts-node --transpile-only src/scripts/seedUsers.ts",
+    "seed:demo": "ts-node --transpile-only src/scripts/seedDemoAccounts.ts",
     "seed:applications": "ts-node --transpile-only src/scripts/seedInstructorApplications.ts",
     "seed:approve": "ts-node --transpile-only src/scripts/approveInstructorApplications.ts",
     "db:clear": "ts-node --transpile-only src/scripts/clearDatabase.ts",
