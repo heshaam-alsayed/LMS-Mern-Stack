@@ -92,7 +92,6 @@ function LoginFormFields({ toggleMode }: Props) {
   const handleDemoLogin = (demoEmail: string, demoPassword: string) => {
     form.setValue("email", demoEmail, { shouldValidate: true });
     form.setValue("password", demoPassword, { shouldValidate: true });
-    form.handleSubmit(onSubmit)();
   };
 
   return (
