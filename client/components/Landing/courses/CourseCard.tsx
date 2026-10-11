@@ -67,8 +67,9 @@ export default function CourseCard({ course }: CourseCardProps) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 sm:gap-4">
-          {badges.length > 0 && (
+        <div>
+          <ul className="flex max-h-[52px] flex-wrap gap-1 overflow-hidden">
+            {badges.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
               {badges.map((badge) => (
                 <span
@@ -80,8 +81,6 @@ export default function CourseCard({ course }: CourseCardProps) {
               ))}
             </div>
           )}
-
-          <ul className="flex max-h-[52px] flex-wrap gap-1 overflow-hidden">
             <li className={tagClasses}>
               {rating.toFixed(1)}
 
