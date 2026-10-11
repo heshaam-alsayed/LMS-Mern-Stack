@@ -1,5 +1,7 @@
+import { Types } from "mongoose";
 import {
   IComment,
+  ICourse,
   ILink,
   IPublicCourseData,
 } from "../interfaces/courseInterface";
@@ -65,11 +67,11 @@ export const getPublicCourse = async (courseId: string) => {
   };
 };
 
-// public courses not purchased
+// Public courses
 export const getAllCourses = async (queryString: any) => {
   const query = CourseModel.find({ status: "published" })
     .select(
-      "name description price estimatePrice instructor thumbnail level ratings reviewsCount totalLectures totalHours",
+      "name description price estimatePrice instructor thumbnail level ratings reviewsCount purchased totalLectures totalHours createdAt",
     )
     .populate({
       path: "instructor",
@@ -99,19 +101,54 @@ export const getAllCourses = async (queryString: any) => {
       "createdAt",
     ]);
 
-  // Count total matching courses before pagination
   const total = await features.query.clone().countDocuments();
 
-  // Apply pagination
   features.paginate();
 
-  // Get only the courses for the current page
-  const courses = await features.query.lean();
+  const courses = (await features.query.lean()) as unknown as (ICourse & {
+    _id: Types.ObjectId;
+  })[];
 
   const pagination = features.getPagination(total);
 
+  const [bestSellerCourses, highestRatedCourses] = await Promise.all([
+    CourseModel.find({ status: "published" })
+      .sort({ purchased: -1 })
+      .limit(10)
+      .select("_id")
+      .lean(),
+
+    CourseModel.find({
+      status: "published",
+      reviewsCount: { $gte: 10 },
+    })
+      .sort({ ratings: -1 })
+      .limit(10)
+      .select("_id")
+      .lean(),
+  ]);
+
+  const bestSellerIds = new Set(
+    bestSellerCourses.map((course) => String(course._id)),
+  );
+
+  const highestRatedIds = new Set(
+    highestRatedCourses.map((course) => String(course._id)),
+  );
+
+  const today = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+
+  const coursesWithBadges = courses.map((course) => ({
+    ...course,
+    isBestseller: bestSellerIds.has(String(course._id)),
+    isHighestRated: highestRatedIds.has(String(course._id)),
+    isNew: course.createdAt >= thirtyDaysAgo,
+  }));
+
   return {
-    courses,
+    courses: coursesWithBadges,
     pagination,
   };
 };

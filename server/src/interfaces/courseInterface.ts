@@ -70,6 +70,8 @@ export interface ICourse extends Document {
   reviewsCount?: number;
   totalLectures?: number;
   totalHours?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 

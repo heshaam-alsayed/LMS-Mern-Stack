@@ -152,6 +152,9 @@ export interface Course {
   }
   reviewsCount?: number;
   totalHours?: number;
+  isBestseller?: boolean;
+  isHighestRated?: boolean;
+  isNew?: boolean;
   updatedAt: string;
 }
 
