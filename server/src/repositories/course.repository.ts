@@ -61,9 +61,41 @@ export const getPublicCourse = async (courseId: string) => {
     return data;
   });
 
+  const [bestSellerCourses, highestRatedCourses] = await Promise.all([
+    CourseModel.find({ status: "published" })
+      .sort({ purchased: -1 })
+      .limit(10)
+      .select("_id")
+      .lean(),
+
+    CourseModel.find({
+      status: "published",
+      reviewsCount: { $gte: 10 },
+    })
+      .sort({ ratings: -1 })
+      .limit(10)
+      .select("_id")
+      .lean(),
+  ]);
+
+  const bestSellerIds = new Set(
+    bestSellerCourses.map((c) => String(c._id)),
+  );
+
+  const highestRatedIds = new Set(
+    highestRatedCourses.map((c) => String(c._id)),
+  );
+
+  const today = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+
   return {
     ...course,
     courseData,
+    isBestseller: bestSellerIds.has(String(course._id)),
+    isHighestRated: highestRatedIds.has(String(course._id)),
+    isNew: course.createdAt >= thirtyDaysAgo,
   };
 };
 

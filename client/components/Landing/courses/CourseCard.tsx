@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, Star } from "lucide-react";
 
+import { getCourseBadges } from "@/lib/courseBadges";
 import { Course } from "@/types/course.type";
 
 type CourseCardProps = {
@@ -25,23 +26,7 @@ export default function CourseCard({ course }: CourseCardProps) {
 
   const lecturesCount = course.totalLectures ?? course.courseData?.length ?? 0;
 
-  const badges = [
-    course.isBestseller && {
-      label: "Bestseller",
-      bg: "#eceb98",
-      color: "#3d3c0a",
-    },
-    course.isHighestRated && {
-      label: "Highest Rated",
-      bg: "#f3eaff",
-      color: "#5624d0",
-    },
-    course.isNew && {
-      label: "New",
-      bg: "#f3ca8c",
-      color: "#3d2305",
-    },
-  ].filter(Boolean) as { label: string; bg: string; color: string }[];
+  const badges = getCourseBadges(course);
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:bg-accent/40">
@@ -57,19 +42,6 @@ export default function CourseCard({ course }: CourseCardProps) {
         ) : (
           <div className="flex size-full items-center justify-center">
             <BookOpen className="size-8 text-muted-foreground/40" />
-          </div>
-        )}
-
-        {badges.length > 0 && (
-          <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col items-start gap-1">
-            {badges.map((badge) => (
-              <span
-                key={badge.label}
-                className="inline-flex items-center rounded px-2 py-1 text-xs font-bold leading-none"
-                style={{ backgroundColor: badge.bg, color: badge.color }}>
-                {badge.label}
-              </span>
-            ))}
           </div>
         )}
       </div>
@@ -137,6 +109,15 @@ export default function CourseCard({ course }: CourseCardProps) {
                 total hours
               </li>
             )}
+
+            {badges.map((badge) => (
+              <li
+                key={badge.label}
+                className="inline-flex items-center whitespace-nowrap rounded px-2 py-1 text-xs font-bold leading-none"
+                style={{ backgroundColor: badge.bg, color: badge.color }}>
+                {badge.label}
+              </li>
+            ))}
 
             {course.level && (
               <li className={`${tagClasses} capitalize`}>{course.level}</li>

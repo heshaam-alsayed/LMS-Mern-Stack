@@ -262,6 +262,9 @@ export interface ICoursePublicDetails {
   reviews: IReviewCourse[];
   courseData: CourseContentData[];
   createdAt?: string;
+  isBestseller?: boolean;
+  isHighestRated?: boolean;
+  isNew?: boolean;
 }
 export interface IPublicCourseDetailsResponse {
   success: boolean;

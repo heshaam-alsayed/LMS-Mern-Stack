@@ -1,7 +1,8 @@
 "use client";
 
-import { CalendarDays, ChevronRight, Globe2, Languages } from "lucide-react";
+import { CalendarDays, Globe2, Languages } from "lucide-react";
 
+import { getCourseBadges } from "@/lib/courseBadges";
 import { ICoursePublicDetails } from "@/types/course.type";
 import CourseStatsBanner from "./CourseStatsBanner";
 import { getShortDescription } from "@/lib/utils";
@@ -21,6 +22,8 @@ export default function CourseHero({
   isPurchased,
   discountPercentage,
 }: Props) {
+  const badges = getCourseBadges(course);
+
   return (
     <section className="relative border-b border-border bg-muted/40">
       <div className="mx-auto w-full max-w-[1230px] px-4 py-6 sm:px-6 sm:py-4">
@@ -71,6 +74,19 @@ export default function CourseHero({
                 ">
                 {getShortDescription(course.description)}
               </p>
+            )}
+
+            {badges.length > 0 && (
+              <div className="mt-5 flex flex-wrap items-center gap-2">
+                {badges.map((badge) => (
+                  <span
+                    key={badge.label}
+                    className="inline-flex items-center rounded px-2 py-1 text-xs font-bold leading-none"
+                    style={{ backgroundColor: badge.bg, color: badge.color }}>
+                    {badge.label}
+                  </span>
+                ))}
+              </div>
             )}
 
             <p className="mt-5 text-sm text-muted-foreground">
