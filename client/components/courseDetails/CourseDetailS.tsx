@@ -1,6 +1,7 @@
 "use client";
 
 import { getCourseDetails } from "@/lib/api/getCourseDetails";
+import { getPublicCoursesUser } from "@/lib/api/getPublicCoursesUser";
 import { useAppSelector } from "@/redux/hooks";
 import { useQuery } from "@tanstack/react-query";
 
@@ -30,7 +31,48 @@ export default function CourseDetailS({ id }: Props) {
     refetch,
   } = useQuery({
     queryKey: ["course-details", id],
-    queryFn: () => getCourseDetails(id),
+    queryFn: async () => {
+      const details = await getCourseDetails(id);
+
+      // the details payload may omit badge flags on older backend
+      // deployments; the catalog list already carries them, so reuse it.
+      const course = details.course;
+      const missingBadges =
+        course &&
+        course.isBestseller === undefined &&
+        course.isHighestRated === undefined &&
+        course.isNew === undefined;
+
+      if (missingBadges) {
+        const findMatch = async (query: string) => {
+          try {
+            const list = await getPublicCoursesUser(query);
+            return list.courses?.find((item) => item._id === course._id);
+          } catch {
+            return undefined;
+          }
+        };
+
+        const match =
+          (await findMatch(
+            `search=${encodeURIComponent(course.name)}&limit=20`,
+          )) ?? (await findMatch("limit=100"));
+
+        if (match) {
+          return {
+            ...details,
+            course: {
+              ...course,
+              isBestseller: match.isBestseller,
+              isHighestRated: match.isHighestRated,
+              isNew: match.isNew,
+            },
+          };
+        }
+      }
+
+      return details;
+    },
     staleTime: 60 * 60 * 1000,
   });
 
