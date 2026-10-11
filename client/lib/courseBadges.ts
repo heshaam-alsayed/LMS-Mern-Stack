@@ -10,9 +10,9 @@ export const COURSE_BADGES: Record<
   "bestseller" | "highestRated" | "new",
   CourseBadge
 > = {
-  bestseller: { label: "Bestseller", bg: "#eceb98", color: "#3d3c0a" },
-  highestRated: { label: "Highest Rated", bg: "#f3eaff", color: "#5624d0" },
-  new: { label: "New", bg: "#f3ca8c", color: "#3d2305" },
+  bestseller: { label: "Bestseller", bg: "#8FAEAC", color: "#172D30" },
+  highestRated: { label: "Highest Rated", bg: "#D6BD95", color: "#563622" },
+  new: { label: "New", bg: "#C7DDAF", color: "#263D20" },
 };
 
 export const getCourseBadges = (
