@@ -333,15 +333,23 @@ export const updateCourse = async (
 // get course public not purchased
 export const getPublicCourse = async (courseId: string) => {
   if (!courseId) throw new AppError("Course id is required", 400);
-  const cachedCourse = await redis.get(courseId);
+
+  const cacheKey = courseCacheKeys.public(courseId);
+  const cachedCourse = await redis.get(cacheKey);
+
   if (cachedCourse) {
-    return JSON.parse(cachedCourse);
+    const parsed = JSON.parse(cachedCourse);
+
+    // cached copies written before the badge fields existed must be refreshed
+    if (parsed && typeof parsed.isNew === "boolean") {
+      return parsed;
+    }
   }
 
   const course = await courseRepository.getPublicCourse(courseId);
   if (!course) throw new AppError("Course not found", 404);
 
-  await redis.set(courseId, JSON.stringify(course), "EX", 900);
+  await redis.set(cacheKey, JSON.stringify(course), "EX", 900);
   return course;
 };
 

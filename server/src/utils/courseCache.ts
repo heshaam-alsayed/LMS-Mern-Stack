@@ -14,8 +14,8 @@ export const COURSE_CACHE_TTL = 300;
  * course to the public route or hand the editor a stripped copy
  */
 export const courseCacheKeys = {
-  /** getPublicCourse, the redacted public copy. predates the namespacing */
-  public: (courseId: string) => courseId,
+  /** getPublicCourse, the redacted public copy (namespaced + versioned) */
+  public: (courseId: string) => `course:public:v2:${courseId}`,
   /** admin edit screen, full document */
   admin: (courseId: string) => `course:admin:${courseId}`,
   /** instructor edit screen, scoped to the owning organization */
