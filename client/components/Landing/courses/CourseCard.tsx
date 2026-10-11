@@ -68,6 +68,19 @@ export default function CourseCard({ course }: CourseCardProps) {
         </div>
 
         <div className="flex flex-col gap-2 sm:gap-4">
+          {badges.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              {badges.map((badge) => (
+                <span
+                  key={badge.label}
+                  className="inline-flex items-center whitespace-nowrap rounded px-2 py-1 text-xs font-bold leading-none"
+                  style={{ backgroundColor: badge.bg, color: badge.color }}>
+                  {badge.label}
+                </span>
+              ))}
+            </div>
+          )}
+
           <ul className="flex max-h-[52px] flex-wrap gap-1 overflow-hidden">
             <li className={tagClasses}>
               {rating.toFixed(1)}
@@ -109,15 +122,6 @@ export default function CourseCard({ course }: CourseCardProps) {
                 total hours
               </li>
             )}
-
-            {badges.map((badge) => (
-              <li
-                key={badge.label}
-                className="inline-flex items-center whitespace-nowrap rounded px-2 py-1 text-xs font-bold leading-none"
-                style={{ backgroundColor: badge.bg, color: badge.color }}>
-                {badge.label}
-              </li>
-            ))}
 
             {course.level && (
               <li className={`${tagClasses} capitalize`}>{course.level}</li>

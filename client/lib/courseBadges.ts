@@ -18,11 +18,13 @@ export const COURSE_BADGES: Record<
 export const getCourseBadges = (
   course: Pick<Course, "isBestseller" | "isHighestRated" | "isNew">,
 ): CourseBadge[] => {
-  const badges: CourseBadge[] = [];
+  const order = [
+    ["bestseller", course.isBestseller],
+    ["highestRated", course.isHighestRated],
+    ["new", course.isNew],
+  ] as const;
 
-  if (course.isBestseller) badges.push(COURSE_BADGES.bestseller);
-  if (course.isHighestRated) badges.push(COURSE_BADGES.highestRated);
-  if (course.isNew) badges.push(COURSE_BADGES.new);
-
-  return badges;
+  return order
+    .filter(([, on]) => on)
+    .map(([key]) => COURSE_BADGES[key]);
 };
