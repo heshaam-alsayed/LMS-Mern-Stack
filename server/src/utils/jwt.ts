@@ -42,32 +42,6 @@ export const createActivationToken = (
   };
 };
 
-export const createResetPasswordToken = (user: IUser): string => {
-  return jwt.sign(
-    { id: user._id.toString() },
-    process.env.JWT_SECRET as string,
-    {
-      expiresIn: (process.env.RESET_TOKEN_EXPIRE as StringValue) || "10m",
-    },
-  );
-};
-
-export const verifyResetPasswordToken = (token: string): { id: string } => {
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
-      id: string;
-    };
-
-    if (!decoded.id) {
-      throw new AppError("Invalid reset token payload", 400);
-    }
-
-    return decoded;
-  } catch {
-    throw new AppError("Reset token is invalid or expired", 400);
-  }
-};
-
 export const verifyActivationToken = (
   token: string,
   code: string,

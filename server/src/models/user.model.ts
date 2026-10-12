@@ -6,7 +6,7 @@ import { StringValue } from "ms";
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+export const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
 const userSchema = new mongoose.Schema<IUser>(
   {
@@ -41,6 +41,18 @@ const userSchema = new mongoose.Schema<IUser>(
         passwordRegex,
         "Password must contain uppercase, lowercase and number",
       ],
+      select: false,
+    },
+    passwordResetToken: {
+      type: String,
+      select: false,
+    },
+    passwordResetExpires: {
+      type: Date,
+      select: false,
+    },
+    passwordResetRequestedAt: {
+      type: Date,
       select: false,
     },
     phone: {

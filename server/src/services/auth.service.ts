@@ -11,12 +11,17 @@ import AppError from "../utils/AppError";
 import redis, { sessionKey } from "../utils/redis";
 import {
   createActivationToken,
-  createResetPasswordToken,
   sendToken,
   verifyActivationToken,
-  verifyResetPasswordToken,
 } from "../utils/jwt";
 import sendEmail from "../utils/SendEmail";
+import { passwordRegex } from "../models/user.model";
+import {
+  generateResetToken,
+  hashResetToken,
+  RESET_COOLDOWN_MS,
+  RESET_TOKEN_TTL_MS,
+} from "../utils/passwordReset";
 
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -155,25 +160,45 @@ export const forgotPassword = async (
     throw new AppError("Please enter a valid email address", 400);
   }
 
-  const user = await authRepository.findUserByEmail(normalizedEmail);
+  const { rawToken, tokenHash } = generateResetToken();
 
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + RESET_TOKEN_TTL_MS);
+  const cooldownCutoff = new Date(now.getTime() - RESET_COOLDOWN_MS);
+
+  // atomic: only updates when the account exists (local provider) and the
+  // cooldown has elapsed, so concurrent requests can never mint more than one
+  const user = await authRepository.setPasswordResetToken(
+    normalizedEmail,
+    tokenHash,
+    expiresAt,
+    now,
+    cooldownCutoff,
+  );
+
+  // unknown email or active cooldown -> stay silent (generic response)
   if (!user) {
     return;
   }
 
-  const resetToken = createResetPasswordToken(user);
+  const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${rawToken}`;
 
-  const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
-
-  await sendEmail({
-    email: user.email,
-    subject: "Reset Your Password",
-    template: "reset-password-mail.ejs",
-    data: {
-      userName: user.name,
-      resetUrl,
-    },
-  });
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Reset Your Password",
+      template: "reset-password-mail.ejs",
+      data: {
+        userName: user.name,
+        resetUrl,
+      },
+    });
+  } catch (error) {
+    // never leak delivery failures or email existence; roll back so the user
+    // can retry instead of being stuck in the cooldown without a link
+    console.error("Failed to send reset password email:", error);
+    await authRepository.clearPasswordResetToken(tokenHash);
+  }
 };
 
 export const resetPassword = async (
@@ -189,9 +214,17 @@ export const resetPassword = async (
     throw new AppError("New password is required", 400);
   }
 
-  const decoded = verifyResetPasswordToken(token);
+  if (!passwordRegex.test(password)) {
+    throw new AppError(
+      "Password must contain an uppercase letter, a lowercase letter and a number",
+      400,
+    );
+  }
 
-  const user = await authRepository.findUserByIdWithPassword(decoded.id);
+  // atomic consume: rejects invalid, expired and already-used tokens
+  const user = await authRepository.consumePasswordResetToken(
+    hashResetToken(token),
+  );
 
   if (!user) {
     throw new AppError("Reset token is invalid or expired", 400);
@@ -199,10 +232,11 @@ export const resetPassword = async (
 
   user.password = password;
 
+  // save() runs the shared validation + hashing hook
   await user.save();
 
   // the old session (with the previous password and role) must die on reset
-  await redis.del(sessionKey(decoded.id));
+  await redis.del(sessionKey(user._id.toString()));
 };
 
 export default {

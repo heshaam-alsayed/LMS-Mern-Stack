@@ -7,6 +7,9 @@ export interface IUser extends Document {
   phone?: string;
   provider: "local" | "google" | "github";
   passwordUpdatedAt?: Date;
+  passwordResetToken?: string;
+  passwordResetExpires?: Date;
+  passwordResetRequestedAt?: Date;
   role: "user" | "instructor" | "admin";
   avatar: {
     public_Id: string;
